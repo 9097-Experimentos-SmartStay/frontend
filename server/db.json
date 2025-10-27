@@ -1,0 +1,59 @@
+{
+  "users": [
+    {
+      "id": "1",
+      "name": "Administrador",
+      "email": "admin@hotel.com",
+      "password": "12345678",
+      "role": "admin"
+    },
+    {
+      "id": "2",
+      "name": "Staff",
+      "email": "staff@mail.com",
+      "password": "12345678",
+      "role": "staff"
+    },
+    {
+      "id": "3",
+      "name": "Guest",
+      "email": "guest@mail.com",
+      "password": "12345678",
+      "role": "guest"
+    }
+  ],
+  "rooms": [
+    {
+      "id": "1",
+      "name": "Suite Deluxe",
+      "description": "Habitacion deluxe con cama de 2 plazas...",
+      "price": 190,
+      "tv": true,
+      "internet": true,
+      "air_conditioning": true,
+      "breakfast_included": true,
+      "available": true,
+      "type": "deluxe"
+    },
+    {
+      "id": "3",
+      "name": "Habitación Simple",
+      "description": "Ideal para viajeros...",
+      "price": 90,
+      "tv": true,
+      "internet": true,
+      "air_conditioning": false,
+      "breakfast_included": false,
+      "available": true,
+      "type": "classic"
+    },
+    {
+      "id": "dd5d",
+      "name": "suite simple",
+      "description": "suite economica",
+      "price": 130,
+      "available": true,
+      "type": "suite"
+    }
+  ]
+}
