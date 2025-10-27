@@ -5,12 +5,10 @@
 </template>
 
 <script setup>
-// No necesitas lógica aquí por ahora.
-// El router se encarga de renderizar las vistas de cada bounded context.
+
 </script>
 
 <style>
-/* Reset y estilos base */
 #app {
   font-family: 'Poppins', sans-serif;
   min-height: 100vh;
@@ -18,7 +16,6 @@
   color: #333;
 }
 
-/* Centramos vistas como login/register */
 .router-view {
   display: flex;
   align-items: center;
