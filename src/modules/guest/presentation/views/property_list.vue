@@ -10,8 +10,8 @@
 </template>
 
 <script setup>
-import { guestService } from "../application/guest_service.js";
-import { bookingInteraction } from "../application/booking_interaction.js";
+import { guestService } from "../../application/guest_service.js";
+import { bookingInteraction } from "../../application/booking_interaction.js";
 
 const properties = guestService.getAvailableProperties();
 
