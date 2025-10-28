@@ -1,5 +1,6 @@
 <template>
-  <div class="p-card p-4 max-w-md mx-auto"> <h2 class="text-center mb-4">{{ isLogin ? 'Sign In' : 'Register' }}</h2>
+  <div class="p-card p-4 max-w-md mx-auto">
+    <h2 class="text-center mb-4">{{ isLogin ? 'Sign In' : 'Register' }}</h2>
 
     <div class="p-fluid">
       <div class="field">
@@ -32,8 +33,10 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, defineProps, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import axios from 'axios'; // Import axios for profile operations
+
 // --- Import Use Cases, Service, Repository ---
 import { LoginUseCase } from '../../application/login_use_case.js';
 import { RegisterUseCase } from '../../application/register_use_case.js';
@@ -46,25 +49,42 @@ const authService = new AuthService(userApiRepository);
 const loginUseCase = new LoginUseCase(authService);
 const registerUseCase = new RegisterUseCase(authService);
 
+// --- Props ---
+const props = defineProps({
+  startInRegisterMode: {
+    type: Boolean,
+    default: false
+  }
+});
+
 // --- Component State ---
 const router = useRouter();
-const isLogin = ref(true);
+const isLogin = ref(true); // Initialize isLogin *once*
 const loading = ref(false);
 const form = ref({ email: '', name: '', password: '', role: '' });
 
-// --- *** CRITICAL: Roles MUST match db.json user.role strings *** ---
+// --- Define Roles ---
+// Based on your domain classes and UML diagrams, including Visitor
 const roles = ref([
-  // Label is for display, value is sent and compared
-  { label: 'Administrator', value: 'Administrador' }, // Value matches db.json
-  { label: 'Caregiver', value: 'Cuidador' },        // Value matches db.json
-  { label: 'Family Member', value: 'Familiar' },      // Value matches db.json
+  { label: 'Administrator', value: 'admin' }, // Corresponds to Host/Admin
+  { label: 'Hotel Staff', value: 'staff' },   // Corresponds to HotelStaff/Staff
+  { label: 'Guest', value: 'guest' },       // Corresponds to Guest
 ]);
-// --- *** END CRITICAL *** ---
+// --- End Roles ---
+
+// --- Lifecycle Hook ---
+onMounted(() => {
+  // Set initial mode based on prop *after* isLogin is defined
+  if (props.startInRegisterMode) {
+    isLogin.value = false;
+  }
+});
+
 
 // --- Methods ---
 function toggleMode() {
   isLogin.value = !isLogin.value;
-  // form.value = { email: '', name: '', password: '', role: '' }; // Optional reset
+  form.value = { email: '', name: '', password: '', role: '' };
 }
 
 async function submitForm() {
@@ -72,35 +92,83 @@ async function submitForm() {
     alert('Please fill in all required fields.');
     return;
   }
+
   loading.value = true;
+
   try {
     if (isLogin.value) {
-      // --- Login Call ---
-      console.log(`Attempting login via Use Case for: ${form.value.email} as ${form.value.role}`); // Role sent is now 'Administrador', etc.
+      // --- Login Logic ---
+      console.log(`Attempting login via Use Case for: ${form.value.email} as ${form.value.role}`);
       const user = await loginUseCase.execute(form.value.email, form.value.password, form.value.role);
       console.log('Login successful (Use Case):', user);
-      // Store auth info
-      localStorage.setItem('user_token', user.id);
-      localStorage.setItem('user_role', user.role); // Store actual role ('Administrador')
-      localStorage.setItem('user', JSON.stringify({ id: user.id, email: user.email, role: user.role, name: user.name }));
-      await router.push({ name: 'dashboard' });
+
+      // Fetch profile data to get the name (json-server needs query param)
+      let userName = user.email; // Default to email
+      try {
+        // Fetch profile by user_id. json-server returns an array for queries.
+        const profileResponse = await axios.get(`${import.meta.env.VITE_SMARTSTAY_API_URL}/profiles`, {
+          params: { user_id: user.id }
+        });
+        if (profileResponse.data && profileResponse.data.length > 0) {
+          userName = profileResponse.data[0].full_name || user.email;
+        }
+      } catch (profileError) {
+        console.warn('Could not fetch profile for user:', user.id, profileError);
+        // Proceed without profile name if fetching fails
+      }
+
+
+      localStorage.setItem('user_token', user.id); // Use ID as placeholder token
+      localStorage.setItem('user_role', user.role);
+      localStorage.setItem('user', JSON.stringify({
+        id: user.id,
+        email: user.email,
+        role: user.role,
+        name: userName // Include name from profile or fallback
+      }));
+
+      console.log(`Redirecting user with role: ${user.role}`);
+      await router.push({ name: 'dashboard' }); // Redirect to a single dashboard route
+
     } else {
-      // --- Register Call ---
+      // --- Register Logic ---
       console.log(`Attempting registration via Use Case for: ${form.value.email}`);
+
+      // Data for the /users endpoint
       const userData = {
         email: form.value.email,
-        name: form.value.name,
-        password: form.value.password, // Pass plain text
-        role: form.value.role, // Pass selected role ('Administrador', etc.)
+        password: form.value.password, // Sending plain text password as in db.json
+        role: form.value.role,
+        // 'name' is NOT part of the users resource based on db.json and API call structure
       };
+
       const newUser = await registerUseCase.execute(userData);
       console.log('Registration successful (Use Case):', newUser);
+
+      // --- Create profile after user creation ---
+      if (newUser && newUser.id && form.value.name) {
+        try {
+          await axios.post(`${import.meta.env.VITE_SMARTSTAY_API_URL}/profiles`, {
+            // id: `p${Date.now()}`, // Optional: json-server auto-generates id if omitted
+            user_id: newUser.id, // Link profile to the newly created user
+            full_name: form.value.name
+            // Add other profile fields if needed
+          });
+          console.log('Profile created for new user:', newUser.id);
+        } catch (profileError) {
+          console.error('Failed to create profile after registration:', profileError);
+          // Consider informing the user or logging this error more formally
+          alert('User registered, but failed to create profile. Please update it later.');
+        }
+      }
+
       alert('User registered successfully. Please sign in.');
-      isLogin.value = true;
+      isLogin.value = true; // Switch back to login view
+      form.value = { email: '', name: '', password: '', role: '' }; // Clear form
     }
   } catch (error) {
-    console.error('Auth Error (Use Case):', error.message);
-    alert(`Authentication failed: ${error.message}`); // Show specific error from AuthService
+    console.error('Auth Error (Use Case/API):', error.message || error);
+    alert(`Authentication failed: ${error.message || 'Please check your details and try again.'}`);
   } finally {
     loading.value = false;
   }
@@ -108,13 +176,12 @@ async function submitForm() {
 </script>
 
 <style scoped>
-/* Scoped styles remain the same */
 .p-card {
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 :deep(.p-inputtext),
 :deep(.p-password),
-:deep(.p-select),
+:deep(.p-select), /* Ensure correct component name */
 :deep(.p-button) {
   width: 100%;
 }
