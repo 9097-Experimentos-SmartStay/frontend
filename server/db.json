@@ -1,86 +1,241 @@
 {
-  "facilities": [
+  "users": [
     {
       "id": 1,
-      "name": "Primera Selección - Arena del Equipo V",
-      "description": "La etapa inicial donde se forjan equipos de delanteros y se desatan las primeras rivalidades intensas.",
-      "location": "Bloque B, Sector 5",
-      "capacity": 55,
-      "commissionedAt": "2024-08-01T10:00:00.000Z"
+      "email": "familiar1@example.com",
+      "password": "password123",
+      "role": "Familiar",
+      "created_at": "2025-10-27T10:00:00Z"
     },
     {
       "id": 2,
-      "name": "Segunda Selección - Campo de '100 Goles'",
-      "description": "Una prueba de habilidad individual pura donde los delanteros deben marcar 100 goles contra un portero holográfico para avanzar.",
-      "location": "Zona de Pruebas Individuales, Sector 2",
-      "capacity": 25,
-      "commissionedAt": "2024-09-15T12:30:00.000Z"
+      "email": "cuidador1@example.com",
+      "password": "password456",
+      "role": "Cuidador",
+      "created_at": "2025-10-27T10:05:00Z"
     },
     {
       "id": 3,
-      "name": "Sala de Monitoreo - 'La Cámara de Ego'",
-      "description": "El centro neurálgico del proyecto. Aquí, Ego Jinpachi analiza cada dato para tomar decisiones cruciales sobre el ranking de los jugadores.",
-      "location": "Torre de Control Central",
-      "capacity": 10,
-      "commissionedAt": "2024-07-20T09:00:00.000Z"
+      "email": "admin1@example.com",
+      "password": "password789",
+      "role": "Administrador",
+      "created_at": "2025-10-27T10:10:00Z"
     }
   ],
-  "player-logs": [
+  "roles": [
     {
-      "id": 101,
-      "firstName": "Yoichi",
-      "lastName": "Isagi",
-      "facilityId": 1,
-      "playerPassId": "BL-299",
-      "checkInAt": "2025-10-14T08:05:15.000Z"
+      "id": 1,
+      "name": "Familiar"
     },
     {
-      "id": 102,
-      "firstName": "Meguru",
-      "lastName": "Bachira",
-      "facilityId": 1,
-      "playerPassId": "BL-290",
-      "checkInAt": "2025-10-14T08:05:25.000Z"
+      "id": 2,
+      "name": "Cuidador"
     },
     {
-      "id": 103,
-      "firstName": "Seishiro",
-      "lastName": "Nagi",
-      "facilityId": 2,
-      "playerPassId": "BL-221",
-      "checkInAt": null
+      "id": 3,
+      "name": "Administrador"
+    }
+  ],
+  "user_roles": [
+    {
+      "user_id": 1,
+      "role_id": 1
     },
     {
-      "id": 104,
-      "firstName": "Rin",
-      "lastName": "Itoshi",
-      "facilityId": 2,
-      "playerPassId": "BL-001",
-      "checkInAt": "2025-10-13T19:30:00.000Z"
+      "user_id": 2,
+      "role_id": 2
     },
     {
-      "id": 105,
-      "firstName": "Hyoma",
-      "lastName": "Chigiri",
-      "facilityId": 1,
-      "playerPassId": "BL-292",
-      "checkInAt": null
+      "user_id": 3,
+      "role_id": 3
+    }
+  ],
+  "profiles": [
+    {
+      "user_id": 1,
+      "full_name": "Juan Pérez",
+      "contact_phone": "555-1111",
+      "address": "Calle Falsa 123"
     },
     {
-      "id": 106,
-      "firstName": "Rensuke",
-      "lastName": "Kunigami",
-      "facilityId": 1,
-      "playerPassId": "BL-291",
-      "checkInAt": "2025-10-14T08:05:18.000Z"
+      "user_id": 2,
+      "full_name": "Ana Gómez",
+      "contact_phone": "555-2222",
+      "address": "Av. Siempre Viva 456"
     },
     {
-      "id": 107,
-      "firstName": "Jingo",
-      "lastName": "Raichi",
-      "facilityId": 1,
-      "playerPassId": "BL-295",
-      "checkInAt": null
+      "user_id": 3,
+      "full_name": "Admin Principal",
+      "contact_phone": "555-3333",
+      "address": "Oficina Central 789"
+    }
+  ],
+  "customers": [
+    {
+      "id": 1,
+      "user_id": 1,
+      "center_id": null,
+      "external_payment_gateway_id": "cus_abc123xyz"
+    },
+    {
+      "id": 2,
+      "user_id": 3,
+      "center_id": 101,
+      "external_payment_gateway_id": "cus_def456uvw"
+    }
+  ],
+  "plans": [
+    {
+      "id": 1,
+      "name": "Plan Básico Familiar",
+      "price": 19.99,
+      "feature_list": "Monitorización diaria, Recordatorios básicos, 1 Residente"
+    },
+    {
+      "id": 2,
+      "name": "Plan Profesional Centro",
+      "price": 99.99,
+      "feature_list": "Todo Básico, Múltiples Cuidadores, Reportes avanzados, Múltiples Residentes"
+    }
+  ],
+  "subscriptions": [
+    {
+      "id": 1,
+      "customer_id": 1,
+      "plan_id": 1,
+      "status": "active",
+      "start_date": "2025-10-01T00:00:00Z",
+      "next_billing_date": "2025-11-01T00:00:00Z"
+    },
+    {
+      "id": 2,
+      "customer_id": 2,
+      "plan_id": 2,
+      "status": "trial",
+      "start_date": "2025-10-20T00:00:00Z",
+      "next_billing_date": "2025-11-20T00:00:00Z"
+    }
+  ],
+  "invoices": [
+    {
+      "id": 1,
+      "subscription_id": 1,
+      "amount": 19.99,
+      "issue_date": "2025-10-01",
+      "due_date": "2025-10-01",
+      "status": "paid"
+    }
+  ],
+  "residents": [
+    {
+      "id": 1,
+      "full_name": "María García (Residente)",
+      "date_of_birth": "1945-05-15",
+      "center_id": 101
+    },
+    {
+      "id": 2,
+      "full_name": "Pedro Rodríguez (Residente)",
+      "date_of_birth": "1950-11-20",
+      "center_id": null
+    }
+  ],
+  "appointments": [
+    {
+      "id": 1,
+      "resident_id": 1,
+      "staff_member_user_id": 2,
+      "specialty": "Cardiología",
+      "appointment_date": "2025-11-10T09:00:00Z",
+      "status": "scheduled"
+    },
+    {
+      "id": 2,
+      "resident_id": 2,
+      "staff_member_user_id": null,
+      "specialty": "Fisioterapia",
+      "appointment_date": "2025-11-12T11:30:00Z",
+      "status": "confirmed"
+    }
+  ],
+  "daily_logs": [
+    {
+      "id": 1,
+      "resident_id": 1,
+      "log_date": "2025-10-26",
+      "mood": "happy",
+      "meals_description": "Desayuno completo, almuerzo ligero.",
+      "activities_summary": "Paseo matutino, lectura por la tarde.",
+      "recorded_by_user_id": 2
+    },
+    {
+      "id": 2,
+      "resident_id": 1,
+      "log_date": "2025-10-27",
+      "mood": "neutral",
+      "meals_description": "Comió bien todas las comidas.",
+      "activities_summary": "Visita familiar, vio televisión.",
+      "recorded_by_user_id": 2
+    }
+  ],
+  "medical_records": [
+    {
+      "id": 1,
+      "resident_id": 1,
+      "record_date": "2025-09-15T14:30:00Z",
+      "description": "Control de presión arterial: 130/80. Sin cambios en medicación.",
+      "recorded_by_user_id": 2
+    }
+  ],
+  "notifications": [
+    {
+      "id": 1,
+      "recipient_id": 1,
+      "content": "Nuevo registro diario para María García disponible.",
+      "type": "daily_update",
+      "is_read": false,
+      "created_at": "2025-10-27T11:00:00Z"
+    },
+    {
+      "id": 2,
+      "recipient_id": 1,
+      "content": "Recordatorio: Cita de Cardiología para María García el 10/11/2025.",
+      "type": "appointment_reminder",
+      "is_read": true,
+      "created_at": "2025-10-26T08:00:00Z"
+    }
+  ],
+  "conversation_threads": [
+    {
+      "id": 1,
+      "subject": "Consulta sobre medicación",
+      "created_at": "2025-10-25T16:00:00Z"
+    }
+  ],
+  "thread_participants": [
+    {
+      "thread_id": 1,
+      "user_id": 1
+    },
+    {
+      "thread_id": 1,
+      "user_id": 2
+    }
+  ],
+  "messages": [
+    {
+      "id": 1,
+      "thread_id": 1,
+      "sender_id": 1,
+      "content": "Hola Ana, ¿podrías revisar si la dosis de la medicina X es correcta para María?",
+      "timestamp": "2025-10-25T16:01:00Z"
+    },
+    {
+      "id": 2,
+      "thread_id": 1,
+      "sender_id": 2,
+      "content": "Hola Juan, sí, lo confirmo. Es la dosis indicada por el médico.",
+      "timestamp": "2025-10-25T16:05:00Z"
     }
   ]
 }

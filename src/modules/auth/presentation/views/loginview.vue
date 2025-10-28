@@ -1,47 +1,161 @@
 <template>
-  <div class="p-4 flex flex-column align-items-center justify-content-center">
-    <h2 class="text-2xl mb-4">Iniciar Sesión</h2>
+  <div class="login-page-container">
+    <div class="top-right-controls">
+      <LanguageSwitcher class="mr-2" />
+      <router-link to="/register">
+        <pv-button label="Register" class="p-button-secondary p-button-outlined" />
+      </router-link>
+    </div>
 
-    <div class="p-fluid">
-      <div class="field">
-        <label for="email">Correo electrónico</label>
-        <input id="email" v-model="email" type="email" class="p-inputtext p-component w-full" />
+    <div class="login-content-wrapper">
+      <div class="form-section">
+        <h1 class="welcome-text">WELCOME, LOGIN AND OPEN OUR APP</h1>
+        <AuthForm />
       </div>
 
-      <div class="field">
-        <label for="password">Contraseña</label>
-        <input id="password" v-model="password" type="password" class="p-inputtext p-component w-full" />
+      <div class="logo-section">
+        <img src="../../../../assets/logo-modo-oscuro.png" alt="Smart Stay Logo" class="logo-image" />
       </div>
-
-      <div class="field">
-        <label for="role">Modo de usuario</label>
-        <select v-model="role" class="p-inputtext p-component w-full">
-          <option value="admin">Administrador</option>
-          <option value="staff">Staff</option>
-          <option value="guest">Huésped</option>
-        </select>
-      </div>
-
-      <button class="p-button p-component w-full mt-3" @click="loginUser">Ingresar</button>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from "vue";
-import { useRouter } from "vue-router";
+// --- Import Shared Components ---
+// Corrected relative path
+import LanguageSwitcher from '../../../../shared/presentation/components/language-switcher.vue';
+// --- Import the actual form component ---
+import AuthForm from '../components/auth-form.vue';
 
-const email = ref("");
-const password = ref("");
-const role = ref("guest");
-const router = useRouter();
-
-const loginUser = () => {
-  // Aquí podrías conectar con tu AuthService o API real
-  console.log(`✅ Login correcto: ${email.value} como ${role.value}`);
-
-  if (role.value === "admin") router.push("/admin");
-  else if (role.value === "staff") router.push("/staff");
-  else router.push("/guest");
-};
+// No login logic needed here anymore, it's inside AuthForm
 </script>
+
+<style scoped>
+/* Styles remain unchanged */
+.login-page-container {
+  min-height: 100vh;
+  width: 100%;
+  background-color: #0d2a4f; /* Dark blue */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.login-page-container::before {
+  content: '';
+  position: absolute;
+  top: -60%;
+  left: -70%;
+  width: 200%;
+  height: 180%;
+  background-color: #f5f0e1; /* Cream */
+  border-radius: 50%;
+  z-index: 1;
+}
+
+.top-right-controls {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+}
+
+.login-content-wrapper {
+  display: flex;
+  width: 100%;
+  max-width: 1200px;
+  z-index: 2;
+  align-items: center;
+  justify-content: space-around;
+  padding: 3rem;
+  box-sizing: border-box;
+}
+
+.form-section {
+  flex: 1;
+  min-width: 300px;
+  max-width: 500px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding-right: 2rem;
+  box-sizing: border-box;
+  position: relative;
+  z-index: 2;
+}
+
+.welcome-text {
+  color: #e67e22; /* Orange */
+  font-size: clamp(1.25rem, 3vw, 1.75rem);
+  font-weight: 600;
+  margin-bottom: 2rem;
+  text-align: left;
+  width: 100%;
+}
+
+/* No .login-form style needed here if AuthForm handles its own card */
+
+.logo-section {
+  flex: 1;
+  min-width: 300px;
+  max-width: 500px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-left: 2rem;
+  box-sizing: border-box;
+  z-index: 2;
+}
+
+.logo-image {
+  max-width: 80%;
+  height: auto;
+}
+
+/* Responsive adjustments remain unchanged */
+@media (max-width: 992px) {
+  .login-content-wrapper {
+    justify-content: center;
+    flex-direction: column;
+    padding: 2rem;
+  }
+  .form-section {
+    padding-right: 0;
+    align-items: center;
+    margin-bottom: 3rem;
+    max-width: 450px;
+    order: 2;
+  }
+  .welcome-text {
+    text-align: center;
+    order: 1;
+  }
+  .logo-section {
+    padding-left: 0;
+    max-width: 300px;
+    order: 3;
+    margin-top: 2rem;
+  }
+  .login-page-container::before {
+    top: -40%;
+    left: -80%;
+    width: 220%;
+    height: 120%;
+  }
+}
+
+@media (max-width: 576px) {
+  .welcome-text {
+    font-size: clamp(1.1rem, 5vw, 1.5rem);
+  }
+  /* Removed .login-form styles */
+  .login-content-wrapper {
+    padding: 1rem;
+  }
+}
+</style>
