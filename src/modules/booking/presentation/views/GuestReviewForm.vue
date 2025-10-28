@@ -8,7 +8,7 @@
 
 <script setup>
 import { ref } from "vue";
-import { bookingInteraction } from "../application/booking_interaction.js";
+import { bookingInteraction } from "../../../guest/application/booking_interaction.js";
 
 const review = ref("");
 

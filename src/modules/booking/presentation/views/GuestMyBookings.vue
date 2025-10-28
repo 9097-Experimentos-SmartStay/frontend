@@ -13,8 +13,8 @@
 </template>
 
 <script setup>
-import { guestService } from "../application/guest_service.js";
-import { bookingInteraction } from "../application/booking_interaction.js";
+import { guestService } from "../../../guest/application/guest_service.js";
+import { bookingInteraction } from "../../../guest/application/booking_interaction.js";
 
 const bookings = guestService.getMyBookings();
 

@@ -10,6 +10,6 @@
 </template>
 
 <script setup>
-import { adminService } from "../application/admin_service.js";
+import { adminService } from "../../../admin/application/admin_service.js";
 const staff = adminService.getStaffList();
 </script>

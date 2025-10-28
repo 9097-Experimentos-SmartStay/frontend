@@ -13,7 +13,7 @@
 </template>
 
 <script setup>
-import { staffService } from "../application/staff_service.js";
+import { staffService } from "../../../staff/application/staff_service.js";
 
 const tasks = staffService.getAllTasks();
 
