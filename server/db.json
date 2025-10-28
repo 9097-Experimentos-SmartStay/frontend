@@ -36,10 +36,151 @@
       "full_name": "Guest Person"
     }
   ],
-  "properties": [],
-  "rooms": [],
-  "bookings": [],
-  "reviews": [],
-  "payments": [],
-  "invoices": []
+  "properties": [
+    {
+      "id": 101,
+      "hostId": 1,
+      "name": "Hotel Paraíso Costero",
+      "location": "Miraflores, Lima",
+      "description": "Moderno hotel frente al mar con todas las comodidades.",
+      "amenities": ["WiFi", "Piscina", "Gimnasio", "Restaurante"]
+    },
+    {
+      "id": 102,
+      "hostId": 1,
+      "name": "Posada Andina Tradicional",
+      "location": "San Blas, Cusco",
+      "description": "Acogedora posada con estilo rústico cerca de la plaza principal.",
+      "amenities": ["WiFi", "Desayuno incluido", "Patio"]
+    }
+  ],
+  "rooms": [
+    {
+      "id": 201,
+      "propertyId": 101,
+      "number": "101",
+      "type": "Doble Vista Mar",
+      "price": 150.00,
+      "status": "Disponible"
+    },
+    {
+      "id": 202,
+      "propertyId": 101,
+      "number": "102",
+      "type": "Simple Interior",
+      "price": 90.00,
+      "status": "Ocupada"
+    },
+    {
+      "id": 203,
+      "propertyId": 101,
+      "number": "201",
+      "type": "Suite Jr",
+      "price": 250.00,
+      "status": "Mantenimiento"
+    },
+    {
+      "id": 301,
+      "propertyId": 102,
+      "number": "A1",
+      "type": "Matrimonial Colonial",
+      "price": 80.00,
+      "status": "Disponible"
+    },
+    {
+      "id": 302,
+      "propertyId": 102,
+      "number": "A2",
+      "type": "Doble Balcón",
+      "price": 100.00,
+      "status": "Por limpiar"
+    }
+  ],
+  "bookings": [
+    {
+      "id": 501,
+      "propertyId": 101,
+      "roomId": 202,
+      "guestId": 3,
+      "checkIn": "2025-11-10T15:00:00Z",
+      "checkOut": "2025-11-15T11:00:00Z",
+      "status": "Confirmada",
+      "totalPrice": 450.00,
+      "createdAt": "2025-10-25T10:00:00Z"
+    },
+    {
+      "id": 502,
+      "propertyId": 102,
+      "roomId": 301,
+      "guestId": 3,
+      "checkIn": "2025-12-20T14:00:00Z",
+      "checkOut": "2025-12-23T10:00:00Z",
+      "status": "Pendiente",
+      "totalPrice": 240.00,
+      "createdAt": "2025-10-28T14:30:00Z"
+    }
+  ],
+  "reviews": [
+    {
+      "id": 601,
+      "bookingId": 501,
+      "guestId": 3,
+      "propertyId": 101,
+      "rating": 4,
+      "comment": "Buena ubicación y personal amable. La habitación era un poco ruidosa.",
+      "createdAt": "2025-11-16T09:00:00Z"
+    }
+  ],
+  "payments": [
+    {
+      "id": "pay_701",
+      "bookingId": 501,
+      "guestId": 3,
+      "amount": 450.00,
+      "method": "Tarjeta de Crédito",
+      "status": "Completado",
+      "createdAt": "2025-10-26T11:00:00Z"
+    },
+    {
+      "id": "pay_702",
+      "bookingId": 502,
+      "guestId": 3,
+      "amount": 50.00,
+      "method": "Yape/Plin",
+      "status": "Pendiente",
+      "createdAt": "2025-10-28T14:35:00Z"
+    }
+  ],
+  "invoices": [
+    {
+      "id": "inv_801",
+      "paymentId": "pay_701",
+      "bookingId": 501,
+      "guestId": 3,
+      "issueDate": "2025-11-15T12:00:00Z",
+      "dueDate": "2025-11-15T12:00:00Z",
+      "totalAmount": 450.00,
+      "status": "Pagada"
+    }
+  ],
+  "tasks": [
+    {
+      "id": 901,
+      "roomId": 302,
+      "propertyId": 102,
+      "description": "Limpieza habitación A2",
+      "status": "Pendiente",
+      "assignedTo": 2,
+      "createdAt": "2025-10-28T16:00:00Z"
+    },
+    {
+      "id": 902,
+      "roomId": 203,
+      "propertyId": 101,
+      "description": "Reparar aire acondicionado Hab 201",
+      "status": "En proceso",
+      "assignedTo": 2,
+      "createdAt": "2025-10-27T08:00:00Z"
+    }
+  ]
 }
