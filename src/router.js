@@ -1,99 +1,91 @@
-// src/shared/infrastructure/router/index.js
+// src/router.js (Asumiendo que este es tu archivo principal de router)
 
 import { createRouter, createWebHistory } from "vue-router";
 
 // --- 1. Import Module Route Definitions ---
-import authRoutes from './modules/auth/presentation/routes.js';
-import dashboardRoutes from './modules/dashboard/presentation/routes.js';
-import propertyRoutes from './modules/property/presentation/routes.js';
-import bookingRoutes from './modules/booking/presentation/routes.js';
+// Ajusta las rutas si son diferentes a tu estructura actual
+import authRoutes from './modules/auth/presentation/routes.js'; // Contiene /login, /register, /admin/auth/users
+import dashboardRoutes from './modules/dashboard/presentation/routes.js'; // Contiene /dashboard (redirector) y /admin/dashboard, etc.
+import propertyRoutes from './modules/property/presentation/routes.js'; // Contiene /admin/property/rooms, /guest/property/list, etc.
+import bookingRoutes from './modules/booking/presentation/routes.js'; // Contiene /guest/booking/my-list, /guest/booking/review
+// import billingRoutes from './modules/billing/router.js'; // Descomenta cuando existan
 
 
-// --- 2. Import Shared Views (Shared Presentation Layer) ---
-// Using dynamic imports for lazy loading and better performance.
+// --- 2. Import Shared Views ---
+// Ajusta la ruta si es necesario
 const PageNotFound = () => import('./shared/presentation/views/page-not-found.vue');
-// Choose your primary authenticated view (e.g., dashboard, home).
-const DashboardView = () => import('./shared/presentation/views/home.vue'); // This dashboard view is shown after login, and it's provisional for now.
+// const HomeView = () => import('./shared/presentation/views/home.vue'); // Ya no necesitamos DashboardView aquí
 
 
 // --- 3. Combine All Route Definitions ---
 const routes = [
     // Spread routes imported from feature modules first.
     ...authRoutes,
-    ...dashboardRoutes,
+    ...dashboardRoutes, // <--- Rutas de dashboard (incluye el redirector /dashboard)
     ...propertyRoutes,
     ...bookingRoutes,
-    // ...propertyRoutes,
     // ...billingRoutes,
-    // ...analyticsRoutes,
-    // ...profileRoutes,
-    // ...notificationsRoutes,
+    // ... otros módulos ...
 
-    // Define shared/core routes, typically protected ones.
-    {
-        path: '/dashboard', // Main route after login.
-        name: 'dashboard', // Used for programmatic navigation and guards.
-        component: DashboardView,
-        meta: { title: 'Dashboard', requiresAuth: true } // Requires user to be logged in.
-    },
+    // --- ELIMINA ESTA DEFINICIÓN REDUNDANTE ---
+    // {
+    //     path: '/dashboard', // Ya está definido en dashboardRoutes
+    //     name: 'dashboard',
+    //     component: DashboardView, // Ya no se usa directamente
+    //     meta: { title: 'Dashboard', requiresAuth: true }
+    // },
+    // --- FIN ELIMINACIÓN ---
 
-    // Define root path redirect and catch-all route last.
+    // Define root path redirect y catch-all route last.
     {
         path: '/',
-        // Default redirect; the navigation guard might override this based on auth status.
-        redirect: { name: 'dashboard' }
+        // Redirige a login o a dashboard según si está autenticado (la guardia global lo maneja)
+        redirect: '/login' // Puede redirigir a login, la guardia se encargará si ya está logueado
     },
     {
-        path: '/:pathMatch(.*)*', // Matches any path not matched above.
-        name: 'NotFound', // Best practice to name the 404 route.
+        path: '/:pathMatch(.*)*', // Catch-all 404
+        name: 'NotFound',
         component: PageNotFound,
-        meta: { title: 'Page Not Found', requiresAuth: false } // Publicly accessible.
+        meta: { title: 'Page Not Found', requiresAuth: false }
     }
 ];
 
 // --- 4. Create Router Instance ---
 const router = createRouter({
-    // Use HTML5 history mode for clean URLs (requires server configuration for deployment).
     history: createWebHistory(import.meta.env.BASE_URL),
-    routes, // Pass the combined routes array.
+    routes,
 });
 
 // --- 5. Global Navigation Guard ---
-// This function runs before each navigation.
+// (Mantenemos la guardia global robusta que incluye chequeo de roles)
 router.beforeEach((to, from, next) => {
-    // a. Set the document title dynamically based on route meta.
-    const baseTitle = 'SmartStay'; // App's base title.
-    document.title = `${to.meta?.title || 'Page'} | ${baseTitle}`;
-
-    // b. Check authentication status.
-    // **IMPROVEMENT NEEDED:** Replace basic localStorage check with a more robust method
-    // using your state management (Pinia/Vuex) store (e.g., check for valid token/user state).
-    const isAuthenticated = !!localStorage.getItem('user_token'); // Basic check: Does a token exist?
-
-    // c. Check if the target route requires authentication.
+    const isAuthenticated = !!localStorage.getItem('user_token');
+    const userRole = localStorage.getItem('user_role');
     const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
-
-    // d. Check if the target route is only accessible to unauthenticated users (e.g., login/register).
+    const requiredRoles = to.meta.roles; // Roles específicos requeridos por la ruta
     const publicOnly = to.matched.some(record => record.meta.publicOnly);
 
-    // --- Debugging Logs (Remove in production) ---
-    console.log(`Navigating to: ${String(to.name)}, Requires Auth: ${requiresAuth}, Authenticated: ${isAuthenticated}, Public Only: ${publicOnly}`);
+    console.log(`[Global Guard] Navigating to: ${String(to.name) || to.path}, Auth: ${isAuthenticated}, Role: ${userRole}, RequiresAuth: ${requiresAuth}, RequiredRoles: ${requiredRoles}, PublicOnly: ${publicOnly}`);
 
-    // --- Access Control Logic ---
     if (requiresAuth && !isAuthenticated) {
-        // User tries to access a protected route but is not logged in.
-        console.warn("GUARD: Access denied (Not Authenticated). Redirecting to Login.");
-        next({ name: 'login' }); // Redirect to the login page.
+        // 1. Necesita login, no está logueado -> va a login
+        console.log('[Global Guard] Auth required, redirecting to login.');
+        next({ name: 'login' });
     } else if (publicOnly && isAuthenticated) {
-        // User is logged in but tries to access a public-only route (login/register).
-        console.info("GUARD: Access denied (Already Authenticated). Redirecting to Dashboard.");
-        next({ name: 'dashboard' }); // Redirect to the main dashboard.
+        // 2. Ruta solo pública (login/reg), pero está logueado -> va a dashboard (que redirige)
+        console.log('[Global Guard] PublicOnly route accessed while logged in, redirecting to dashboard.');
+        next({ name: 'dashboard' });
+    } else if (requiresAuth && requiredRoles && !requiredRoles.includes(userRole)) {
+        // 3. Necesita rol específico, no lo tiene -> va a su propio dashboard (o a 'No Autorizado')
+        console.log(`[Global Guard] Role mismatch. Required: ${requiredRoles}, User has: ${userRole}. Redirecting to dashboard.`);
+        next({ name: 'dashboard' }); // Redirige a su dashboard correcto
     } else {
-        // Allow navigation to proceed.
-        console.log("GUARD: Access granted.");
+        // 4. Permitido (ruta pública, o logueado con rol correcto)
+        console.log('[Global Guard] Allowing navigation.');
         next();
     }
 });
+// --- Fin Guardia Global ---
 
 // --- 6. Export Router Instance ---
 export default router;
