@@ -1,36 +1,42 @@
 <template>
-  <div class="register-page-container"> <div class="top-right-controls">
-    <LanguageSwitcher class="mr-2" />
-    <router-link to="/login">
-    </router-link>
-  </div>
-
-    <div class="register-content-wrapper"> <div class="form-section">
-      <h1 class="welcome-text">CREATE YOUR SMART STAY ACCOUNT</h1> <AuthForm :is-login="false" />
+  <div class="login-page-container">
+    <div class="top-right-controls">
+      <LanguageSwitcher class="mr-2" />
+      <router-link to="/register">
+        <pv-button :label="t('nav.register')" class="p-button-secondary p-button-outlined" />
+      </router-link>
     </div>
 
+    <div class="login-content-wrapper">
+      <div class="form-section">
+        <h1 class="welcome-text">{{ t('login.title') }}</h1>
+        <AuthForm :start-in-login-mode="true" />
+      </div>
+
       <div class="logo-section">
-        <img src="../../../../assets/logo-modo-oscuro.png" alt="Smart Stay Logo" class="logo-image" />
+        <img src="../../../../assets/logo-modo-oscuro.png" :alt="t('login.logoAlt')" class="logo-image" />
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
+import { useI18n } from 'vue-i18n';
+import PvButton from 'primevue/button';
+
 // --- Import Shared Components ---
-// Adjust the path based on your actual shared components directory structure
 import LanguageSwitcher from '../../../../shared/presentation/components/language-switcher.vue';
 // --- Import the actual form component ---
-// Adjust the path based on your actual auth components directory structure
 import AuthForm from '../components/auth-form.vue';
 
-// No registration logic needed here anymore, it's inside AuthForm
+// --- Initialize i18n ---
+const { t } = useI18n();
+
 </script>
 
 <style scoped>
-/* Reuse the styles from loginview.vue for consistency */
-/* Renamed classes to avoid potential global conflicts if not scoped correctly */
-.register-page-container {
+/* Styles remain unchanged */
+.login-page-container {
   min-height: 100vh;
   width: 100%;
   background-color: #0d2a4f; /* Dark blue */
@@ -42,7 +48,7 @@ import AuthForm from '../components/auth-form.vue';
   box-sizing: border-box;
 }
 
-.register-page-container::before {
+.login-page-container::before {
   content: '';
   position: absolute;
   top: -60%;
@@ -63,7 +69,7 @@ import AuthForm from '../components/auth-form.vue';
   align-items: center;
 }
 
-.register-content-wrapper {
+.login-content-wrapper {
   display: flex;
   width: 100%;
   max-width: 1200px;
@@ -80,24 +86,21 @@ import AuthForm from '../components/auth-form.vue';
   max-width: 500px;
   display: flex;
   flex-direction: column;
-  align-items: flex-start; /* Aligns items to the start (left) */
+  align-items: flex-start;
   padding-right: 2rem;
   box-sizing: border-box;
   position: relative;
-  z-index: 2; /* Ensure form is above the pseudo-element */
+  z-index: 2;
 }
-
 
 .welcome-text {
   color: #e67e22; /* Orange */
-  font-size: clamp(1.25rem, 3vw, 1.75rem); /* Responsive font size */
+  font-size: clamp(1.25rem, 3vw, 1.75rem);
   font-weight: 600;
   margin-bottom: 2rem;
-  text-align: left; /* Align text to the left */
-  width: 100%; /* Ensure text takes full width */
+  text-align: left;
+  width: 100%;
 }
-
-/* AuthForm component will likely render its own card/container */
 
 .logo-section {
   flex: 1;
@@ -108,39 +111,38 @@ import AuthForm from '../components/auth-form.vue';
   align-items: center;
   padding-left: 2rem;
   box-sizing: border-box;
-  z-index: 2; /* Ensure logo is above the pseudo-element */
+  z-index: 2;
 }
 
 .logo-image {
-  max-width: 80%; /* Adjust as needed */
+  max-width: 80%;
   height: auto;
 }
 
-/* Responsive adjustments */
 @media (max-width: 992px) {
-  .register-content-wrapper {
+  .login-content-wrapper {
     justify-content: center;
-    flex-direction: column; /* Stack elements vertically */
+    flex-direction: column;
     padding: 2rem;
   }
   .form-section {
     padding-right: 0;
-    align-items: center; /* Center form in the column */
-    margin-bottom: 3rem; /* Space between form and logo */
+    align-items: center;
+    margin-bottom: 3rem;
     max-width: 450px;
-    order: 2; /* Form below title */
+    order: 2;
   }
   .welcome-text {
-    text-align: center; /* Center title on smaller screens */
-    order: 1; /* Title first */
+    text-align: center;
+    order: 1;
   }
   .logo-section {
     padding-left: 0;
     max-width: 300px;
-    order: 3; /* Logo last */
-    margin-top: 2rem; /* Space above logo */
+    order: 3;
+    margin-top: 2rem;
   }
-  .register-page-container::before {
+  .login-page-container::before {
     top: -40%;
     left: -80%;
     width: 220%;
@@ -152,8 +154,7 @@ import AuthForm from '../components/auth-form.vue';
   .welcome-text {
     font-size: clamp(1.1rem, 5vw, 1.5rem);
   }
-  /* AuthForm likely controls its internal padding/margins */
-  .register-content-wrapper {
+  .login-content-wrapper {
     padding: 1rem;
   }
 }
