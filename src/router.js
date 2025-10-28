@@ -3,36 +3,26 @@
 import { createRouter, createWebHistory } from "vue-router";
 
 // --- 1. Import Module Route Definitions ---
-// Make sure the '@' alias points to 'src' in your build config (vite.config.js or jsconfig.json)
 import authRoutes from './modules/auth/presentation/routes.js';
-// Placeholders: Ensure 'routes.js' exists in each module's 'presentation' folder,
-// exporting an array (even empty: export default [];) to prevent import errors.
-// import adminRoutes from '@/modules/admin/presentation/routes.js';
-// import staffRoutes from '@/modules/staff/presentation/routes.js';
-// import guestRoutes from '@/modules/guest/presentation/routes.js';
-// import bookingRoutes from '@/modules/booking/presentation/routes.js';
-// import propertyRoutes from '@/modules/property/presentation/routes.js';
-// import billingRoutes from '@/modules/billing/presentation/routes.js';
-// import analyticsRoutes from '@/modules/analytics/presentation/routes.js';
-// import profileRoutes from '@/modules/profile/presentation/routes.js';
-// import notificationsRoutes from '@/modules/notifications/presentation/routes.js';
+import dashboardRoutes from './modules/dashboard/presentation/routes.js';
+import propertyRoutes from './modules/property/presentation/routes.js';
+import bookingRoutes from './modules/booking/presentation/routes.js';
 
 
 // --- 2. Import Shared Views (Shared Presentation Layer) ---
 // Using dynamic imports for lazy loading and better performance.
 const PageNotFound = () => import('./shared/presentation/views/page-not-found.vue');
 // Choose your primary authenticated view (e.g., dashboard, home).
-const DashboardView = () => import('./shared/presentation/views/home.vue');
+const DashboardView = () => import('./shared/presentation/views/home.vue'); // This dashboard view is shown after login, and it's provisional for now.
 
 
 // --- 3. Combine All Route Definitions ---
 const routes = [
     // Spread routes imported from feature modules first.
     ...authRoutes,
-    // ...adminRoutes, // Uncomment as modules are implemented.
-    // ...staffRoutes,
-    // ...guestRoutes,
-    // ...bookingRoutes,
+    ...dashboardRoutes,
+    ...propertyRoutes,
+    ...bookingRoutes,
     // ...propertyRoutes,
     // ...billingRoutes,
     // ...analyticsRoutes,
