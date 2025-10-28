@@ -2,97 +2,71 @@
   "option": {
     "home": "Inicio",
     "about": "Acerca de",
-    "categories": "Categorías",
-    "tutorials": "Tutoriales",
-    "dashboard": "Dashboard",
-    "playerCheckIn": "Check-in de Jugador"
+    "dashboard": "Panel"
+  },
+  "nav": {
+    "login": "Iniciar Sesión",
+    "register": "Registrarse"
+  },
+  "login": {
+    "title": "BIENVENIDO, INICIA SESIÓN Y ABRE NUESTRA APP",
+    "logoAlt": "Logo de Smart Stay"
+  },
+  "register": {
+    "title": "CREA TU CUENTA DE SMART STAY",
+    "logoAlt": "Logo de Smart Stay"
+  },
+  "auth": {
+    "signInTitle": "Iniciar Sesión",
+    "registerTitle": "Registrarse",
+    "emailLabel": "Correo Electrónico",
+    "emailPlaceholder": "ejemplo@email.com",
+    "nameLabel": "Nombre",
+    "namePlaceholder": "Tu nombre completo",
+    "passwordLabel": "Contraseña",
+    "passwordPlaceholder": "••••••",
+    "roleLabel": "Rol",
+    "rolePlaceholder": "Selecciona un Rol",
+    "roleAdmin": "Administrador",
+    "roleStaff": "Personal del Hotel",
+    "roleGuest": "Huésped",
+    "roleVisitor": "Visitante",
+    "signInButton": "Iniciar Sesión",
+    "registerButton": "Registrarse",
+    "registerLink": "¿No tienes cuenta? Regístrate",
+    "signInLink": "¿Ya tienes cuenta? Inicia Sesión",
+    "validationError": "Por favor, completa todos los campos requeridos.",
+    "registerSuccess": "Usuario registrado con éxito. Por favor, inicia sesión.",
+    "registerProfileError": "Usuario registrado, pero falló la creación del perfil. Por favor, actualízalo más tarde.",
+    "authFailedPrefix": "Fallo de autenticación",
+    "authFailedGeneric": "Por favor, revisa tus datos e inténtalo de nuevo."
   },
   "authoring-phrase": {
     "intro": "Hecho con",
-    "use": "utilizando",
+    "use": "usando",
     "author": "por el Equipo de Desarrollo de {brand}"
   },
   "about": {
     "title": "Acerca de Nosotros",
-    "content": "ACME Learning Center es una Plataforma educativa empresarial, parte de ACME Corporation."
+    "content": "ACME Learning Center es una Plataforma Educativa de Negocios, parte de ACME Corporation."
   },
   "home": {
     "title": "Bienvenido",
-    "content": "Bienvenido a ACME Learning Center, tu puerta de entrada a la educación con calidad."
+    "content": "Bienvenido a ACME Learning Center, tu puerta de entrada a la educación de calidad."
   },
   "dashboard": {
-    "title": "Dashboard Central",
-    "welcomeMessage": "Bienvenido al Blue Lock Data Hub, delantero.",
+    "title": "Panel Central",
+    "welcomeMessage": "Bienvenido al Centro de Datos de Blue Lock, Delantero.",
     "facilitiesTitle": "Instalaciones de Entrenamiento Activas",
     "loading": "Cargando datos de las instalaciones..."
   },
-  "facility": {
-    "location": "Ubicación",
-    "description": "Descripción",
-    "capacity": "Capacidad",
-    "commissionedAt": "Comisionado",
-    "activePlayers": "Jugadores Activos",
-    "usagePercentage": "% de Uso",
-    "playersUnit": "jugadores"
-  },
-  "checkIn": {
-    "title": "Check-in de Entrenamiento de Jugador",
-    "validationSectionTitle": "Validación de Pase",
-    "passIdLabel": "ID de Pase de Jugador",
-    "button": "Hacer Check-in",
-    "passIdHelp": "Ingresa el identificador de pase único del jugador (ej. BL-299).",
-    "resultTitle": "Resultado de la Validación",
-    "successMessage": "¡Check-in Exitoso!",
-    "errorInvalid": "ID de Pase de Jugador Inválido",
-    "errorAlreadyCheckedIn": "El Jugador ya ha hecho Check-in",
-    "details": {
-      "player": "Jugador",
-      "facilityName": "Nombre de la Instalación",
-      "checkInTime": "Hora de Check-in"
-    }
-  },
   "page-not-found": {
     "title": "Página No Encontrada",
-    "content": "La ruta {unavailable-route} que está buscando no existe.",
-    "goHome": "Volver al Dashboard"
+    "content": "La ruta {unavailable-route} que buscas no existe.",
+    "goHome": "Volver al Panel"
   },
   "footer": {
     "authoring": "Forjado con egoísmo por {author} para el Proyecto Blue Lock"
-  },
-  "categories": {
-    "title": "Categorías",
-    "id": "ID",
-    "name": "Nombre",
-    "actions": "Acciones",
-    "new": "Nueva Categoría",
-    "confirm-delete": "¿Estás seguro de que quieres eliminar {name}?",
-    "delete-header": "Confirmar Eliminación"
-  },
-  "category": {
-    "new-title": "Crear Nueva Categoría",
-    "edit-title": "Editar Categoría",
-    "name": "Nombre",
-    "save": "Guardar",
-    "cancel": "Cancelar"
-  },
-  "tutorials": {
-    "title": "Tutoriales",
-    "id": "ID",
-    "summary": "Resumen",
-    "category-id": "ID de Categoría",
-    "actions": "Acciones",
-    "new": "Nuevo Tutorial",
-    "confirm-delete": "¿Estás seguro de que quieres eliminar {title}?",
-    "delete-header": "Confirmar Eliminación"
-  },
-  "tutorial": {
-    "new-title": "Crear Nuevo Tutorial",
-    "edit-title": "Editar Tutorial",
-    "title": "Título",
-    "summary": "Resumen",
-    "category": "Categoría",
-    "save": "Guardar",
-    "cancel": "Cancelar"
   },
   "errors": {
     "occurred": "Ocurrieron errores"

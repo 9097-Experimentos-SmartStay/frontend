@@ -2,10 +2,44 @@
   "option": {
     "home": "Home",
     "about": "About",
-    "categories": "Categories",
-    "tutorials": "Tutorials",
-    "dashboard": "Dashboard",
-    "playerCheckIn": "Player Check-in"
+    "dashboard": "Dashboard"
+  },
+  "nav": {
+    "login": "Login",
+    "register": "Register"
+  },
+  "login": {
+    "title": "WELCOME, LOGIN AND OPEN OUR APP",
+    "logoAlt": "Smart Stay Logo"
+  },
+  "register": {
+    "title": "CREATE YOUR SMART STAY ACCOUNT",
+    "logoAlt": "Smart Stay Logo"
+  },
+  "auth": {
+    "signInTitle": "Sign In",
+    "registerTitle": "Register",
+    "emailLabel": "Email",
+    "emailPlaceholder": "example@email.com",
+    "nameLabel": "Name",
+    "namePlaceholder": "Your full name",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "••••••",
+    "roleLabel": "Role",
+    "rolePlaceholder": "Select Role",
+    "roleAdmin": "Administrator",
+    "roleStaff": "Hotel Staff",
+    "roleGuest": "Guest",
+    "roleVisitor": "Visitor",
+    "signInButton": "Sign In",
+    "registerButton": "Register",
+    "registerLink": "Don't have an account? Register",
+    "signInLink": "Already have an account? Sign In",
+    "validationError": "Please fill in all required fields.",
+    "registerSuccess": "User registered successfully. Please sign in.",
+    "registerProfileError": "User registered, but failed to create profile. Please update it later.",
+    "authFailedPrefix": "Authentication failed",
+    "authFailedGeneric": "Please check your details and try again."
   },
   "authoring-phrase": {
     "intro": "Made with",
@@ -26,31 +60,6 @@
     "facilitiesTitle": "Active Training Facilities",
     "loading": "Loading facility data..."
   },
-  "facility": {
-    "location": "Location",
-    "description": "Description",
-    "capacity": "Capacity",
-    "commissionedAt": "Commissioned",
-    "activePlayers": "Active Players",
-    "usagePercentage": "Usage %",
-    "playersUnit": "players"
-  },
-  "checkIn": {
-    "title": "Player Training Check-in",
-    "validationSectionTitle": "Pass Validation",
-    "passIdLabel": "Player Pass ID",
-    "button": "Check-in",
-    "passIdHelp": "Enter the player's unique pass identifier (e.g., BL-299).",
-    "resultTitle": "Validation Result",
-    "successMessage": "Check-in Successful!",
-    "errorInvalid": "Invalid Player Pass ID",
-    "errorAlreadyCheckedIn": "Player Already Checked-in",
-    "details": {
-      "player": "Player",
-      "facilityName": "Facility Name",
-      "checkInTime": "Check-in Time"
-    }
-  },
   "page-not-found": {
     "title": "Page Not Found",
     "content": "The path {unavailable-route} you are looking for does not exist.",
@@ -58,41 +67,6 @@
   },
   "footer": {
     "authoring": "Forged with egoism by {author} for the Blue Lock Project"
-  },
-  "categories": {
-    "title": "Categories",
-    "id": "ID",
-    "name": "Name",
-    "actions": "Actions",
-    "new": "New Category",
-    "confirm-delete": "Are you sure you want to delete {name}?",
-    "delete-header": "Confirm Deletion"
-  },
-  "category": {
-    "new-title": "Create New Category",
-    "edit-title": "Edit Category",
-    "name": "Name",
-    "save": "Save",
-    "cancel": "Cancel"
-  },
-  "tutorials": {
-    "title": "Tutorials",
-    "id": "ID",
-    "summary": "Summary",
-    "category-id": "Category ID",
-    "actions": "Actions",
-    "new": "New Tutorial",
-    "confirm-delete": "Are you sure you want to delete {title}?",
-    "delete-header": "Confirm Deletion"
-  },
-  "tutorial": {
-    "new-title": "Create New Tutorial",
-    "edit-title": "Edit Tutorial",
-    "title": "Title",
-    "summary": "Summary",
-    "category": "Category",
-    "save": "Save",
-    "cancel": "Cancel"
   },
   "errors": {
     "occurred": "Errors occurred"
