@@ -1,100 +1,47 @@
 {
   "users": [
-    {
-      "id": 1,
-      "email": "admin@smartstay.com",
-      "password": "password123",
-      "role": "admin"
-    },
-    {
-      "id": 2,
-      "email": "staff@smartstay.com",
-      "password": "password123",
-      "role": "staff"
-    },
-    {
-      "id": 3,
-      "email": "guest@smartstay.com",
-      "password": "password123",
-      "role": "guest"
-    }
+    { "id": 1, "email": "admin@smartstay.com", "password": "password123", "role": "admin" },
+    { "id": 2, "email": "staff1@smartstay.com", "password": "password123", "role": "staff" },
+    { "id": 3, "email": "guest@smartstay.com", "password": "password123", "role": "guest" },
+    { "id": 4, "email": "staff2@smartstay.com", "password": "password123", "role": "staff" }
   ],
   "profiles": [
-    {
-      "id": 1,
+    { "id": 1,
       "user_id": 1,
       "full_name": "Admin User"
     },
     {
       "id": 2,
       "user_id": 2,
-      "full_name": "Staff Member"
+      "full_name": "Maria Limpieza",
+      "position": "Housekeeping",
+      "shift_start": "08:00",
+      "shift_end": "16:00",
+      "current_status": "busy"
     },
-    {
-      "id": 3,
+    { "id": 3,
       "user_id": 3,
       "full_name": "Guest Person"
+    },
+    {
+      "id": 4,
+      "user_id": 4,
+      "full_name": "Carlos Recepción",
+      "position": "Reception",
+      "shift_start": "15:00",
+      "shift_end": "23:00",
+      "current_status": "available"
     }
   ],
   "properties": [
-    {
-      "id": 101,
-      "hostId": 1,
-      "name": "Hotel Paraíso Costero",
-      "location": "Miraflores, Lima",
-      "description": "Moderno hotel frente al mar con todas las comodidades.",
-      "amenities": ["WiFi", "Piscina", "Gimnasio", "Restaurante"]
-    },
-    {
-      "id": 102,
-      "hostId": 1,
-      "name": "Posada Andina Tradicional",
-      "location": "San Blas, Cusco",
-      "description": "Acogedora posada con estilo rústico cerca de la plaza principal.",
-      "amenities": ["WiFi", "Desayuno incluido", "Patio"]
-    }
+    { "id": 101, "name": "Hotel Paraíso Costero", "location": "Miraflores, Lima" },
+    { "id": 102, "name": "Posada Andina Tradicional", "location": "San Blas, Cusco" }
   ],
   "rooms": [
-    {
-      "id": 201,
-      "propertyId": 101,
-      "number": "101",
-      "type": "Doble Vista Mar",
-      "price": 150.00,
-      "status": "Disponible"
-    },
-    {
-      "id": 202,
-      "propertyId": 101,
-      "number": "102",
-      "type": "Simple Interior",
-      "price": 90.00,
-      "status": "Ocupada"
-    },
-    {
-      "id": 203,
-      "propertyId": 101,
-      "number": "201",
-      "type": "Suite Jr",
-      "price": 250.00,
-      "status": "Mantenimiento"
-    },
-    {
-      "id": 301,
-      "propertyId": 102,
-      "number": "A1",
-      "type": "Matrimonial Colonial",
-      "price": 80.00,
-      "status": "Disponible"
-    },
-    {
-      "id": 302,
-      "propertyId": 102,
-      "number": "A2",
-      "type": "Doble Balcón",
-      "price": 100.00,
-      "status": "Por limpiar"
-    }
+    { "id": 201, "propertyId": 101, "number": "101", "status": "Limpia" },
+    { "id": 202, "propertyId": 101, "number": "102", "status": "Ocupada" },
+    { "id": 301, "propertyId": 102, "number": "A1", "status": "Limpia" },
+    { "id": 302, "propertyId": 102, "number": "A2", "status": "Por limpiar" }
   ],
   "bookings": [
     {
