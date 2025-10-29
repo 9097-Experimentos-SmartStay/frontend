@@ -4,17 +4,12 @@ import { IPropertyRepository } from "../../domain/repositories/IPropertyReposito
 import { propertyApi } from "../api/PropertyApi.js";
 
 export class PropertyApiRepository extends IPropertyRepository {
-    async getRooms() {
-        // Aquí podrías añadir lógica de mapeo si la API devuelve datos diferentes al dominio
-        return await propertyApi.fetchRooms();
-    }
-    async getProperties() {
-        return await propertyApi.fetchProperties();
-    }
-    async getTasks(assignedTo = null) { // Pasa el filtro a la API
-        return await propertyApi.fetchTasks(assignedTo);
-    }
-    async updateTask(taskId, data) {
-        return await propertyApi.patchTask(taskId, data);
-    }
+    async getRooms() { return await propertyApi.fetchRooms(); }
+    async getRoomById(roomId) { return await propertyApi.fetchRoomById(roomId); } // NUEVO
+    async addRoom(roomData) { return await propertyApi.postRoom(roomData); }       // NUEVO
+    async updateRoom(roomId, roomData) { return await propertyApi.patchRoom(roomId, roomData); } // NUEVO
+    async deleteRoom(roomId) { await propertyApi.removeRoom(roomId); }   // NUEVO
+    async getProperties() { return await propertyApi.fetchProperties(); }
+    async getTasks(assignedTo = null) { return await propertyApi.fetchTasks(assignedTo); }
+    async updateTask(taskId, data) { return await propertyApi.patchTask(taskId, data); }
 }

@@ -11,6 +11,24 @@ export const propertyApi = {
         const res = await axios.get(`${API_BASE_URL}${ROOMS_ENDPOINT}`);
         return res.data;
     },
+    async fetchRoomById(roomId) { // NUEVO
+        const res = await axios.get(`${API_BASE_URL}${ROOMS_ENDPOINT}/${roomId}`);
+        return res.data;
+    },
+    async postRoom(roomData) { // NUEVO
+        console.log("API: Posting new room:", roomData);
+        const res = await axios.post(`${API_BASE_URL}${ROOMS_ENDPOINT}`, roomData);
+        return res.data;
+    },
+    async patchRoom(roomId, roomData) { // NUEVO (usamos PATCH para parcial)
+        console.log(`API: Patching room ${roomId}:`, roomData);
+        const res = await axios.patch(`${API_BASE_URL}${ROOMS_ENDPOINT}/${roomId}`, roomData);
+        return res.data;
+    },
+    async removeRoom(roomId) { // NUEVO
+        console.log(`API: Deleting room ${roomId}`);
+        await axios.delete(`${API_BASE_URL}${ROOMS_ENDPOINT}/${roomId}`);
+    },
     async fetchProperties() {
         const res = await axios.get(`${API_BASE_URL}${PROPERTIES_ENDPOINT}`);
         return res.data;

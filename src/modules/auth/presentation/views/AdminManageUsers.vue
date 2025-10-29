@@ -1,12 +1,40 @@
 <template>
   <div class="p-4">
-    <h2 class="text-2xl font-bold mb-4"> <i class="pi pi-users mr-2"></i> {{ t('dashboard.manageStaffButton') }} </h2>
+    <div class="flex justify-between items-center mb-4">
+      <pv-button
+          icon="pi pi-arrow-left"
+          class="p-button-secondary p-button-outlined"
+          @click="goBackToDashboard"
+          v-tooltip.top="t('common.back')"
+      />
+
+      <h2 class="text-2xl font-bold text-center flex-grow">
+        <i class="pi pi-users mr-2"></i> {{ t('dashboard.manageStaffButton') }}
+      </h2>
+
+      <LanguageSwitcher />
+    </div>
 
     <pv-data-table :value="staffList" :loading="loading" responsiveLayout="scroll" class="p-datatable-sm">
       <template #header>
         <div class="flex justify-between items-center">
           <span>{{ t('adminManageUsers.registeredStaff') }}</span>
-          <pv-button icon="pi pi-refresh" class="p-button-text" @click="loadStaffDetails" :loading="loading" v-tooltip.top="t('adminManageUsers.refreshTooltip')"/>
+          <div>
+            <pv-button
+                icon="pi pi-user-plus"
+                :label="t('common.add')"
+                class="p-button-success mr-2"
+                @click="navigateToAddUser"
+                v-tooltip.top="t('adminManageUsers.addUserTooltip')"
+            />
+            <pv-button
+                icon="pi pi-refresh"
+                class="p-button-text"
+                @click="loadStaffDetails"
+                :loading="loading"
+                v-tooltip.top="t('common.refresh')"
+            />
+          </div>
         </div>
       </template>
 
@@ -31,8 +59,8 @@
       <pv-column field="shift" :header="t('adminManageUsers.headerShift')"></pv-column>
       <pv-column :header="t('adminManageUsers.headerActions')">
         <template #body="slotProps">
-          <pv-button icon="pi pi-pencil" class="p-button-rounded p-button-text p-button-info mr-2" @click="editStaff(slotProps.data.id)" v-tooltip.top="t('adminManageUsers.editTooltip')"/>
-          <pv-button icon="pi pi-trash" class="p-button-rounded p-button-text p-button-danger" @click="confirmDeleteStaff(slotProps.data.id, slotProps.data.name)" v-tooltip.top="t('adminManageUsers.deleteTooltip')"/>
+          <pv-button icon="pi pi-pencil" class="p-button-rounded p-button-text p-button-info mr-2" @click="editStaff(slotProps.data.id)" v-tooltip.top="t('common.edit')"/>
+          <pv-button icon="pi pi-trash" class="p-button-rounded p-button-text p-button-danger" @click="confirmDeleteStaff(slotProps.data.id, slotProps.data.name)" v-tooltip.top="t('common.delete')"/>
         </template>
       </pv-column>
 
@@ -52,35 +80,35 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useRouter } from 'vue-router'; // *** IMPORTADO ***
-import { useConfirm } from "primevue/useconfirm"; // *** IMPORTADO ***
-import { useToast } from "primevue/usetoast"; // *** IMPORTADO ***
+import { useRouter } from 'vue-router'; // Ya estaba importado
+import { useConfirm } from "primevue/useconfirm";
+import { useToast } from "primevue/usetoast";
 
-// --- Importa componentes PrimeVue necesarios en ESTE archivo ---
-// Aunque estén globales, es buena práctica importarlos para claridad
+// --- Importa componentes PrimeVue ---
 import PvDataTable from 'primevue/datatable';
 import PvColumn from 'primevue/column';
 import PvButton from 'primevue/button';
 import PvTag from 'primevue/tag';
 import PvBadge from 'primevue/badge';
-import PvConfirmDialog from 'primevue/confirmdialog'; // *** IMPORTADO ***
-import PvToast from 'primevue/toast';             // *** IMPORTADO ***
-import Tooltip from 'primevue/tooltip'; // Directiva (importación necesaria para v-tooltip)
+import PvConfirmDialog from 'primevue/confirmdialog';
+import PvToast from 'primevue/toast';
+import Tooltip from 'primevue/tooltip';
 
 // --- Importa Servicios y Repositorios ---
 import { UserService } from '../../application/UserService.js';
 import { UserAPIRepository } from '../../infrastructure/repositories/user_api_repository.js';
 import { ProfileApiRepository } from '../../infrastructure/repositories/ProfileApiRepository.js';
 import { PropertyApiRepository } from '../../../property/infrastructure/repositories/PropertyApiRepository.js';
+import LanguageSwitcher from "../../../../shared/presentation/components/language-switcher.vue";
 
 // --- Inicializa hooks ---
 const { t } = useI18n();
-const router = useRouter();
+const router = useRouter(); // Ya estaba inicializado
 const confirm = useConfirm();
 const toast = useToast();
 
 // --- Instancia Servicios ---
-// (Considera Inyección de Dependencias a futuro)
+
 const userRepository = new UserAPIRepository();
 const profileRepository = new ProfileApiRepository();
 const propertyRepository = new PropertyApiRepository();
@@ -167,6 +195,16 @@ async function deleteStaff(staffId) { // Ahora es async
     console.error("Error deleting staff:", error);
     toast.add({ severity: 'error', summary: t('errors.deleteError'), detail: error.message || t('errors.tryAgain'), life: 3000 });
   }
+}
+
+function navigateToAddUser() {
+  console.log('Navigating to Add User page...');
+  router.push({ name: 'admin-add-user' }); // Usa el nombre de la ruta definida
+}
+
+function goBackToDashboard() {
+  console.log('Navigating back to admin dashboard...');
+  router.push({ name: 'admin-dashboard' }); // Usa el nombre de la ruta del dashboard de admin
 }
 
 // Registra la directiva Tooltip (necesaria si no es global)

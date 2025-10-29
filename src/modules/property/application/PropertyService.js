@@ -1,21 +1,26 @@
 ﻿// src/modules/property/application/PropertyService.js
 
 export class PropertyService {
-    constructor(propertyRepository) {
-        this.propertyRepository = propertyRepository;
+    constructor(propertyRepository) { this.propertyRepository = propertyRepository; }
+    async getRoomList() { return await this.propertyRepository.getRooms(); }
+    async getRoomDetails(roomId) { return await this.propertyRepository.getRoomById(roomId); } // NUEVO
+    async createRoom(roomData) { // NUEVO
+        // Aquí iría validación de negocio antes de guardar
+        console.log("Service: Creating room", roomData);
+        return await this.propertyRepository.addRoom(roomData);
     }
-
-    async getRoomList() {
-        return await this.propertyRepository.getRooms();
+    async updateRoomDetails(roomId, roomData) { // NUEVO
+        // Aquí iría validación de negocio
+        console.log(`Service: Updating room ${roomId}`, roomData);
+        return await this.propertyRepository.updateRoom(roomId, roomData);
     }
-
-    async getPropertyList() {
-        return await this.propertyRepository.getProperties();
+    async removeRoom(roomId) { // NUEVO
+        // Lógica de negocio (ej: verificar si hay reservas activas)
+        console.log(`Service: Deleting room ${roomId}`);
+        await this.propertyRepository.deleteRoom(roomId);
     }
-
-    async getTaskList() {
-        return await this.propertyRepository.getTasks();
-    }
+    async getPropertyList() { return await this.propertyRepository.getProperties(); }
+    async getTaskList() { return await this.propertyRepository.getTasks(); }
 
     async markTaskAsCompleted(taskId) {
         try {
