@@ -2,6 +2,7 @@
 import LoginView from "./views/loginview.vue";
 import RegisterView from "./views/registerview.vue";
 import AdminManageUsers from './views/AdminManageUsers.vue';
+import AdminEditUser from './views/AdminEditUser.vue';
 
 export default [
     {
@@ -22,4 +23,11 @@ export default [
         component: AdminManageUsers,
         meta: { requiresAuth: true, roles: ['admin'] }
     },
+    {
+        path: '/admin/auth/users/edit/:userId', // Ruta con parámetro dinámico
+        name: 'admin-edit-user',               // Nombre único para la ruta
+        component: AdminEditUser,
+        props: true, // Opcional: Pasa los params de la ruta como props al componente
+        meta: { requiresAuth: true, roles: ['admin'] } // Protegida para admin
+    }
 ];

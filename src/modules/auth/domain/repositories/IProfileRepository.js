@@ -2,4 +2,5 @@
 export class IProfileRepository {
     getProfileByUserId(userId) { throw new Error("Not implemented"); }
     getAllProfiles() { throw new Error("Not implemented"); }
+    deleteProfileByUserId(userId) { throw new Error("Not implemented: deleteProfileByUserId"); }
 }

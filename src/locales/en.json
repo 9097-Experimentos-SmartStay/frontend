@@ -72,6 +72,26 @@
     "onShift": "On Shift",
     "offShift": "Off Shift"
   },
+  "adminManageUsers": {
+    "registeredStaff": "Registered Staff",
+    "refreshTooltip": "Refresh List",
+    "headerName": "Name",
+    "headerPosition": "Position",
+    "headerShiftStatus": "Shift Status",
+    "headerCurrentStatus": "Current Status",
+    "headerCurrentTask": "Current Task",
+    "headerCleanedToday": "Cleaned Today",
+    "headerShift": "Shift",
+    "headerActions": "Actions",
+    "loadingMessage": "Loading staff data...",
+    "emptyMessage": "No staff found.",
+    "editTooltip": "Edit",
+    "deleteTooltip": "Delete",
+    "confirmDeleteMessage": "Are you sure you want to delete {name}?",
+    "confirmDeleteHeader": "Confirm Deletion",
+    "deleteCancelled": "Deletion cancelled.",
+    "deleteSuccess": "Staff member deleted successfully."
+  },
   "page-not-found": {
     "title": "Page Not Found",
     "content": "The path {unavailable-route} you are looking for does not exist.",
@@ -81,6 +101,19 @@
     "authoring": "Forged with egoism by {author} for the Blue Lock Project"
   },
   "errors": {
-    "occurred": "Errors occurred"
+    "occurred": "Errors occurred",
+    "fetchError": "Fetch Error",
+    "deleteError": "Deletion Error",
+    "saveError": "Save Error",
+    "tryAgain": "Please try again."
+  },
+  "common": {
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "success": "Success",
+    "cancelled": "Cancelled",
+    "edit": "Edit",
+    "refresh": "Refresh",
+    "add": "Add"
   }
 }

@@ -22,6 +22,7 @@ import router from "./router.js";
 import pinia from "./pinia.js";
 import Password from "primevue/password";
 import Pinia from "./pinia.js";
+import PvBadge from "primevue/badge";
 
 
 // noinspection JSCheckFunctionSignatures
@@ -56,6 +57,7 @@ createApp(App)
     .component('pv-toast', Toast)
     .component('pv-avatar', Avatar)
     .component('pv-password',Password)
+    .component('pv-badge',PvBadge)
     .directive('tooltip', Tooltip)
     .use(router)
     .use(pinia)

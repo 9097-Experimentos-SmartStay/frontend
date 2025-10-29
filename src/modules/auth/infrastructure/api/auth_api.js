@@ -16,9 +16,12 @@ export const authApi = {
         });
         return res.data[0];
     },
-
     async fetchAllUsers() {
         const res = await axios.get(FULL_USERS_API_URL);
         return res.data; // Devuelve el array completo de usuarios
+    },
+    async removeUser(userId) { // <-- AÑADIR
+        console.log(`API: Deleting user ID: ${userId}`);
+        await axios.delete(`${FULL_USERS_API_URL}/${userId}`);
     }
 };

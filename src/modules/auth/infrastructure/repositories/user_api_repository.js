@@ -16,4 +16,8 @@ export class UserAPIRepository extends IUserRepository {
         // por ejemplo: return (await authApi.fetchAllUsers()).filter(u => u.role === 'staff');
         return await authApi.fetchAllUsers();
     }
+
+    async deleteUser(userId) {
+        await authApi.removeUser(userId);
+    }
 }

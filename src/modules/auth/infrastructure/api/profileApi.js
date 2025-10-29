@@ -15,6 +15,18 @@ export const profileApi = {
     async fetchAllProfiles() {
         const res = await axios.get(`${API_BASE_URL}${PROFILES_ENDPOINT}`);
         return res.data;
+    },
+    async removeProfileByUserId(userId) { // <-- AÑADIR
+        console.log(`API: Deleting profile for user ID: ${userId}`);
+        // json-server no soporta DELETE con query params directamente.
+        // Opción 1: Obtener perfil y luego borrar por ID (más seguro)
+        const profile = await this.fetchProfileByUserId(userId);
+        if (profile && profile.id) {
+            await axios.delete(`${API_BASE_URL}${PROFILES_ENDPOINT}/${profile.id}`);
+            console.log(`API: Deleted profile ID: ${profile.id}`);
+        } else {
+            console.log(`API: No profile found for user ID ${userId} to delete.`);
+        }
+        // Opción 2 (Si tu backend lo soportara): await axios.delete(`${API_BASE_URL}${PROFILES_ENDPOINT}`, { params: { user_id: userId } });
     }
-    // Puedes añadir aquí updateProfile, etc.
 };

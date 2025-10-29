@@ -78,5 +78,21 @@ export class UserService {
         }
     }
 
+    async deleteUserAndProfile(userId) {
+        if (!userId) throw new Error("User ID is required for deletion.");
+        console.log(`UserService: Deleting user and profile for ID: ${userId}`);
+        try {
+            // Borra primero el perfil (o viceversa, depende de constraints si fuera DB real)
+            await this.profileRepository.deleteProfileByUserId(userId);
+            // Luego borra el usuario
+            await this.userRepository.deleteUser(userId);
+            console.log(`UserService: Successfully deleted user and profile for ID: ${userId}`);
+        } catch (error) {
+            console.error(`UserService: Error deleting user ${userId}:`, error);
+            // Podrías lanzar un error más específico o formateado
+            throw new Error(`Failed to delete user: ${error.message || 'Unknown error'}`);
+        }
+    }
+
     // ... (otros métodos como getUserList, etc.)
 }

@@ -1,25 +1,47 @@
 {
   "users": [
-    { "id": 1, "email": "admin@smartstay.com", "password": "password123", "role": "admin" },
-    { "id": 2, "email": "staff1@smartstay.com", "password": "password123", "role": "staff" },
-    { "id": 3, "email": "guest@smartstay.com", "password": "password123", "role": "guest" },
-    { "id": 4, "email": "staff2@smartstay.com", "password": "password123", "role": "staff" }
+    {
+      "id": 1,
+      "email": "admin@smartstay.com",
+      "password": "password123",
+      "role": "admin"
+    },
+    {
+      "id": 2,
+      "email": "staff1@smartstay.com",
+      "password": "password123",
+      "role": "staff"
+    },
+    {
+      "id": 3,
+      "email": "guest@smartstay.com",
+      "password": "password123",
+      "role": "guest"
+    },
+    {
+      "id": 4,
+      "email": "staff2@smartstay.com",
+      "password": "password123",
+      "role": "staff"
+    }
   ],
   "profiles": [
-    { "id": 1,
+    {
+      "id": 1,
       "user_id": 1,
       "full_name": "Admin User"
     },
     {
       "id": 2,
       "user_id": 2,
-      "full_name": "Maria Limpieza",
+      "full_name": "Maria Limpieza dolores",
       "position": "Housekeeping",
       "shift_start": "08:00",
       "shift_end": "16:00",
       "current_status": "busy"
     },
-    { "id": 3,
+    {
+      "id": 3,
       "user_id": 3,
       "full_name": "Guest Person"
     },
@@ -34,14 +56,42 @@
     }
   ],
   "properties": [
-    { "id": 101, "name": "Hotel Paraíso Costero", "location": "Miraflores, Lima" },
-    { "id": 102, "name": "Posada Andina Tradicional", "location": "San Blas, Cusco" }
+    {
+      "id": 101,
+      "name": "Hotel Paraíso Costero",
+      "location": "Miraflores, Lima"
+    },
+    {
+      "id": 102,
+      "name": "Posada Andina Tradicional",
+      "location": "San Blas, Cusco"
+    }
   ],
   "rooms": [
-    { "id": 201, "propertyId": 101, "number": "101", "status": "Limpia" },
-    { "id": 202, "propertyId": 101, "number": "102", "status": "Ocupada" },
-    { "id": 301, "propertyId": 102, "number": "A1", "status": "Limpia" },
-    { "id": 302, "propertyId": 102, "number": "A2", "status": "Por limpiar" }
+    {
+      "id": 201,
+      "propertyId": 101,
+      "number": "101",
+      "status": "Limpia"
+    },
+    {
+      "id": 202,
+      "propertyId": 101,
+      "number": "102",
+      "status": "Ocupada"
+    },
+    {
+      "id": 301,
+      "propertyId": 102,
+      "number": "A1",
+      "status": "Limpia"
+    },
+    {
+      "id": 302,
+      "propertyId": 102,
+      "number": "A2",
+      "status": "Por limpiar"
+    }
   ],
   "bookings": [
     {
@@ -52,7 +102,7 @@
       "checkIn": "2025-11-10T15:00:00Z",
       "checkOut": "2025-11-15T11:00:00Z",
       "status": "Confirmada",
-      "totalPrice": 450.00,
+      "totalPrice": 450,
       "createdAt": "2025-10-25T10:00:00Z"
     },
     {
@@ -63,7 +113,7 @@
       "checkIn": "2025-12-20T14:00:00Z",
       "checkOut": "2025-12-23T10:00:00Z",
       "status": "Pendiente",
-      "totalPrice": 240.00,
+      "totalPrice": 240,
       "createdAt": "2025-10-28T14:30:00Z"
     }
   ],
@@ -83,7 +133,7 @@
       "id": "pay_701",
       "bookingId": 501,
       "guestId": 3,
-      "amount": 450.00,
+      "amount": 450,
       "method": "Tarjeta de Crédito",
       "status": "Completado",
       "createdAt": "2025-10-26T11:00:00Z"
@@ -92,7 +142,7 @@
       "id": "pay_702",
       "bookingId": 502,
       "guestId": 3,
-      "amount": 50.00,
+      "amount": 50,
       "method": "Yape/Plin",
       "status": "Pendiente",
       "createdAt": "2025-10-28T14:35:00Z"
@@ -106,7 +156,7 @@
       "guestId": 3,
       "issueDate": "2025-11-15T12:00:00Z",
       "dueDate": "2025-11-15T12:00:00Z",
-      "totalAmount": 450.00,
+      "totalAmount": 450,
       "status": "Pagada"
     }
   ],
@@ -119,15 +169,6 @@
       "status": "Pendiente",
       "assignedTo": 2,
       "createdAt": "2025-10-28T16:00:00Z"
-    },
-    {
-      "id": 902,
-      "roomId": 203,
-      "propertyId": 101,
-      "description": "Reparar aire acondicionado Hab 201",
-      "status": "En proceso",
-      "assignedTo": 2,
-      "createdAt": "2025-10-27T08:00:00Z"
     }
   ]
 }

@@ -81,6 +81,19 @@
     "authoring": "Forjado con egoísmo por {author} para el Proyecto Blue Lock"
   },
   "errors": {
-    "occurred": "Ocurrieron errores"
+    "occurred": "Ocurrieron errores",
+    "fetchError": "Error al Cargar",
+    "deleteError": "Error al Eliminar",
+    "saveError": "Error al Guardar",
+    "tryAgain": "Por favor, inténtalo de nuevo."
+  },
+  "common": {
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "success": "Éxito",
+    "cancelled": "Cancelado",
+    "edit": "Editar",
+    "refresh": "Actualizar",
+    "add": "Añadir"
   }
 }
