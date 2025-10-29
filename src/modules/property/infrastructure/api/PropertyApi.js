@@ -15,11 +15,12 @@ export const propertyApi = {
         const res = await axios.get(`${API_BASE_URL}${PROPERTIES_ENDPOINT}`);
         return res.data;
     },
-    async fetchTasks() {
-        const res = await axios.get(`${API_BASE_URL}${TASKS_ENDPOINT}`);
+    async fetchTasks(assignedTo = null) { // Permite filtrar por assignedTo
+        const params = assignedTo ? { assignedTo: assignedTo } : {};
+        const res = await axios.get(`${API_BASE_URL}${TASKS_ENDPOINT}`, { params });
         return res.data;
     },
-    async patchTask(taskId, data) { // Usamos PATCH para actualizar parcialmente
+    async patchTask(taskId, data) {
         const res = await axios.patch(`${API_BASE_URL}${TASKS_ENDPOINT}/${taskId}`, data);
         return res.data;
     }
