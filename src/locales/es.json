@@ -55,10 +55,14 @@
     "content": "Bienvenido a ACME Learning Center, tu puerta de entrada a la educación de calidad."
   },
   "dashboard": {
-    "title": "Panel Central",
-    "welcomeMessage": "Bienvenido al Centro de Datos de Blue Lock, Delantero.",
-    "facilitiesTitle": "Instalaciones de Entrenamiento Activas",
-    "loading": "Cargando datos de las instalaciones..."
+    "adminTitle": "Panel del Administrador",
+    "staffTitle": "Panel del Personal",
+    "guestTitle": "Panel del Huésped",
+    "welcomeMessage": "¡Bienvenido/a, {name}!",
+    "defaultUser": "Usuario",
+    "manageStaffButton": "Gestionar Staff",
+    "manageRoomsButton": "Gestionar Habitaciones",
+    "logoutButton": "Cerrar Sesión"
   },
   "page-not-found": {
     "title": "Página No Encontrada",

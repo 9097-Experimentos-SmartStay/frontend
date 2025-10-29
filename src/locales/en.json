@@ -55,10 +55,14 @@
     "content": "Welcome to ACME Learning Center, your gateway to quality education."
   },
   "dashboard": {
-    "title": "Central Dashboard",
-    "welcomeMessage": "Welcome to the Blue Lock Data Hub, Striker.",
-    "facilitiesTitle": "Active Training Facilities",
-    "loading": "Loading facility data..."
+    "adminTitle": "Administrator Dashboard",
+    "staffTitle": "Staff Dashboard",
+    "guestTitle": "Guest Dashboard",
+    "welcomeMessage": "Welcome, {name}!",
+    "defaultUser": "User",
+    "manageStaffButton": "Manage Staff", 
+    "manageRoomsButton": "Manage Rooms",
+    "logoutButton": "Logout"
   },
   "page-not-found": {
     "title": "Page Not Found",
