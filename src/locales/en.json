@@ -60,9 +60,17 @@
     "guestTitle": "Guest Dashboard",
     "welcomeMessage": "Welcome, {name}!",
     "defaultUser": "User",
-    "manageStaffButton": "Manage Staff", 
+    "manageStaffButton": "Manage Staff",
     "manageRoomsButton": "Manage Rooms",
     "logoutButton": "Logout"
+  },
+  "staffStatus": {
+    "available": "Available",
+    "busy": "Busy",
+    "on_break": "On Break",
+    "off_duty": "Off Duty",
+    "onShift": "On Shift",
+    "offShift": "Off Shift"
   },
   "page-not-found": {
     "title": "Page Not Found",

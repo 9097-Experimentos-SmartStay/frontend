@@ -64,6 +64,14 @@
     "manageRoomsButton": "Gestionar Habitaciones",
     "logoutButton": "Cerrar Sesión"
   },
+  "staffStatus": {
+    "available": "Disponible",
+    "busy": "Ocupado",
+    "on_break": "En Descanso",
+    "off_duty": "Fuera de Turno",
+    "onShift": "En Turno",
+    "offShift": "Fuera de Turno"
+  },
   "page-not-found": {
     "title": "Página No Encontrada",
     "content": "La ruta {unavailable-route} que buscas no existe.",

@@ -1,6 +1,6 @@
 ﻿// src/modules/auth/infrastructure/repositories/ProfileApiRepository.js
-import { IProfileRepository } from "./IProfileRepository.js";
-import { profileApi } from "../../infrastructure/api/profileApi.js";
+import { IProfileRepository } from "../../domain/repositories/IProfileRepository.js";
+import { profileApi } from "../api/profileApi.js";
 
 export class ProfileApiRepository extends IProfileRepository {
     async getProfileByUserId(userId) {
