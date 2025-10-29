@@ -23,6 +23,12 @@
       "email": "staff2@smartstay.com",
       "password": "password123",
       "role": "staff"
+    },
+    {
+      "email": "okami@gmail.com",
+      "password": "okami123",
+      "role": "staff",
+      "id": 5
     }
   ],
   "profiles": [
@@ -53,57 +59,103 @@
       "shift_start": "15:00",
       "shift_end": "23:00",
       "current_status": "available"
+    },
+    {
+      "full_name": "okami",
+      "position": "Housekeeping",
+      "shift_start": "08:00",
+      "shift_end": "16:00",
+      "user_id": 5,
+      "id": 5
     }
   ],
   "properties": [
-    {
-      "id": 101,
-      "name": "Hotel Paraíso Costero",
-      "location": "Miraflores, Lima"
-    },
-    {
-      "id": 102,
-      "name": "Posada Andina Tradicional",
-      "location": "San Blas, Cusco"
-    }
+    { "id": 101, "hostId": 1, "name": "Hotel Paraíso Costero", "location": "Miraflores, Lima" },
+    { "id": 102, "hostId": 1, "name": "Posada Andina Tradicional", "location": "San Blas, Cusco" }
   ],
   "rooms": [
     {
       "id": 201,
       "propertyId": 101,
       "number": "101",
-      "status": "Limpia"
+      "type": "Doble Vista Mar",
+      "price": 150.00,
+      "status": "available",
+      "image_url": "https://via.placeholder.com/300x200/007bff/ffffff?text=Hab+101",
+      "amenities": {
+        "has_tv": true,
+        "has_room_service": true,
+        "has_wifi": true
+      },
+      "promotion": "Descuento 10% Fin de Semana"
     },
     {
       "id": 202,
       "propertyId": 101,
       "number": "102",
-      "status": "Ocupada"
+      "type": "Simple Interior",
+      "price": 90.00,
+      "status": "occupied",
+      "image_url": "https://via.placeholder.com/300x200/dc3545/ffffff?text=Hab+102",
+      "amenities": {
+        "has_tv": true,
+        "has_room_service": false,
+        "has_wifi": true
+      },
+      "promotion": null
+    },
+    {
+      "id": 203,
+      "propertyId": 101,
+      "number": "201",
+      "type": "Suite Jr",
+      "price": 250.00,
+      "status": "maintenance",
+      "image_url": "https://via.placeholder.com/300x200/ffc107/000000?text=Hab+201",
+      "amenities": {
+        "has_tv": true,
+        "has_room_service": true,
+        "has_wifi": true
+      },
+      "promotion": null
     },
     {
       "id": 301,
       "propertyId": 102,
       "number": "A1",
-      "status": "Limpia"
+      "type": "Matrimonial Colonial",
+      "price": 80.00,
+      "status": "available",
+      "image_url": "https://via.placeholder.com/300x200/28a745/ffffff?text=Hab+A1",
+      "amenities": {
+        "has_tv": false,
+        "has_room_service": true,
+        "has_wifi": true
+      },
+      "promotion": null
     },
     {
       "id": 302,
       "propertyId": 102,
       "number": "A2",
-      "status": "Por limpiar"
+      "type": "Doble Balcón",
+      "price": 100.00,
+      "status": "cleaning",
+      "image_url": "https://via.placeholder.com/300x200/6c757d/ffffff?text=Hab+A2",
+      "amenities": {
+        "has_tv": true,
+        "has_room_service": false,
+        "has_wifi": false
+      },
+      "promotion": "Noches gratis en temporada baja"
     }
   ],
   "bookings": [
     {
-      "id": 501,
-      "propertyId": 101,
-      "roomId": 202,
-      "guestId": 3,
-      "checkIn": "2025-11-10T15:00:00Z",
-      "checkOut": "2025-11-15T11:00:00Z",
-      "status": "Confirmada",
-      "totalPrice": 450,
-      "createdAt": "2025-10-25T10:00:00Z"
+      "id": 501, "propertyId": 101, "roomId": 202, "guestId": 3,
+      "checkIn": "2025-10-28T15:00:00Z",
+      "checkOut": "2025-11-02T11:00:00Z",
+      "status": "Confirmada", "totalPrice": 450.00, "createdAt": "2025-10-25T10:00:00Z"
     },
     {
       "id": 502,

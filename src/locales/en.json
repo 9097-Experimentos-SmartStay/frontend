@@ -70,11 +70,13 @@
     "on_break": "On Break",
     "off_duty": "Off Duty",
     "onShift": "On Shift",
-    "offShift": "Off Shift"
+    "offShift": "Off Shift",
+    "unknown": "Unknown"
   },
   "adminManageUsers": {
     "registeredStaff": "Registered Staff",
     "refreshTooltip": "Refresh List",
+    "addUserTooltip": "Add New Staff Member",
     "headerName": "Name",
     "headerPosition": "Position",
     "headerShiftStatus": "Shift Status",
@@ -91,6 +93,24 @@
     "confirmDeleteHeader": "Confirm Deletion",
     "deleteCancelled": "Deletion cancelled.",
     "deleteSuccess": "Staff member deleted successfully."
+  },
+  "adminAddUser": {
+    "title": "Add New User",
+    "nameLabel": "Full Name",
+    "namePlaceholder": "Enter full name",
+    "emailLabel": "Email",
+    "emailPlaceholder": "user@example.com",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "Enter initial password",
+    "roleLabel": "Role",
+    "rolePlaceholder": "Select Role",
+    "positionLabel": "Position (if Staff)",
+    "positionPlaceholder": "e.g., Housekeeping, Reception",
+    "shiftStartLabel": "Shift Start (HH:MM)",
+    "shiftEndLabel": "Shift End (HH:MM)",
+    "createButton": "Create User",
+    "validationDetail": "Please fill in Name, Email, Password, and Role.",
+    "createSuccess": "User {name} created successfully."
   },
   "page-not-found": {
     "title": "Page Not Found",
@@ -114,6 +134,7 @@
     "cancelled": "Cancelled",
     "edit": "Edit",
     "refresh": "Refresh",
-    "add": "Add"
+    "add": "Add",
+    "back": "Back"
   }
 }

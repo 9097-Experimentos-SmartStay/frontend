@@ -28,5 +28,14 @@ export const profileApi = {
             console.log(`API: No profile found for user ID ${userId} to delete.`);
         }
         // Opción 2 (Si tu backend lo soportara): await axios.delete(`${API_BASE_URL}${PROFILES_ENDPOINT}`, { params: { user_id: userId } });
+    },
+    async postProfile(profileData) { // <-- AÑADIR
+        console.log(`API: Posting new profile:`, profileData);
+        // Asegúrate que user_id sea número si así lo espera tu db/backend
+        if (profileData.user_id && typeof profileData.user_id === 'string') {
+            profileData.user_id = parseInt(profileData.user_id);
+        }
+        const res = await axios.post(`${API_BASE_URL}${PROFILES_ENDPOINT}`, profileData);
+        return res.data; // Devuelve el perfil creado con su ID
     }
 };

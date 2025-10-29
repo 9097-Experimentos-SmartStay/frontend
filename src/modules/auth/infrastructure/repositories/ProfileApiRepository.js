@@ -12,4 +12,7 @@ export class ProfileApiRepository extends IProfileRepository {
     async deleteProfileByUserId(userId) {
         await profileApi.removeProfileByUserId(userId);
     }
+    async createProfile(profileData) {
+        return await profileApi.postProfile(profileData);
+    }
 }

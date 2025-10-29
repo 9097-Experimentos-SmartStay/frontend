@@ -41,6 +41,24 @@
     "authFailedPrefix": "Fallo de autenticación",
     "authFailedGeneric": "Por favor, revisa tus datos e inténtalo de nuevo."
   },
+  "adminAddUser": {
+    "title": "Añadir Nuevo Usuario",
+    "nameLabel": "Nombre Completo",
+    "namePlaceholder": "Ingresa el nombre completo",
+    "emailLabel": "Correo Electrónico",
+    "emailPlaceholder": "usuario'@'ejemplo.com",
+    "passwordLabel": "Contraseña",
+    "passwordPlaceholder": "Ingresa la contraseña inicial",
+    "roleLabel": "Rol",
+    "rolePlaceholder": "Selecciona un Rol",
+    "positionLabel": "Puesto (si es Staff)",
+    "positionPlaceholder": "Ej: Limpieza, Recepción",
+    "shiftStartLabel": "Inicio Turno (HH:MM)",
+    "shiftEndLabel": "Fin Turno (HH:MM)",
+    "createButton": "Crear Usuario",
+    "validationDetail": "Por favor, completa Nombre, Correo, Contraseña y Rol.",
+    "createSuccess": "Usuario {name} creado con éxito."
+  },
   "authoring-phrase": {
     "intro": "Hecho con",
     "use": "usando",
@@ -72,6 +90,27 @@
     "onShift": "En Turno",
     "offShift": "Fuera de Turno"
   },
+  "adminManageUsers": {
+    "registeredStaff": "Personal Registrado",
+    "refreshTooltip": "Actualizar Lista",
+    "addUserTooltip": "Añadir Nuevo Miembro del Staff",
+    "headerName": "Nombre",
+    "headerPosition": "Puesto",
+    "headerShiftStatus": "Estado Turno",
+    "headerCurrentStatus": "Estado Actual",
+    "headerCurrentTask": "Tarea Actual",
+    "headerCleanedToday": "Limp. Hoy",
+    "headerShift": "Turno",
+    "headerActions": "Acciones",
+    "loadingMessage": "Cargando datos del personal...",
+    "emptyMessage": "No se encontró personal.",
+    "editTooltip": "Editar",
+    "deleteTooltip": "Eliminar",
+    "confirmDeleteMessage": "¿Estás seguro de que quieres eliminar a {name}?",
+    "confirmDeleteHeader": "Confirmar Eliminación",
+    "deleteCancelled": "Eliminación cancelada.",
+    "deleteSuccess": "Miembro del personal eliminado con éxito."
+  },
   "page-not-found": {
     "title": "Página No Encontrada",
     "content": "La ruta {unavailable-route} que buscas no existe.",
@@ -94,6 +133,7 @@
     "cancelled": "Cancelado",
     "edit": "Editar",
     "refresh": "Actualizar",
-    "add": "Añadir"
+    "add": "Añadir",
+    "back": "Regresar"
   }
 }
