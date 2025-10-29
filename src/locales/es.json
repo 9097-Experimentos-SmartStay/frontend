@@ -124,7 +124,8 @@
     "fetchError": "Error al Cargar",
     "deleteError": "Error al Eliminar",
     "saveError": "Error al Guardar",
-    "tryAgain": "Por favor, inténtalo de nuevo."
+    "tryAgain": "Por favor, inténtalo de nuevo.",
+    "uploadError": "Error de Subida"
   },
   "common": {
     "cancel": "Cancelar",
@@ -134,6 +135,56 @@
     "edit": "Editar",
     "refresh": "Actualizar",
     "add": "Añadir",
-    "back": "Regresar"
+    "back": "Regresar",
+    "save": "Guardar"
+  },
+  "adminManageRooms": {
+    "totalRooms": "{count} Habitaciones Encontradas",
+    "roomNumber": "Habitación",
+    "status": "Estado",
+    "promotion": "Promoción",
+    "roomService": "Servicio Hab.",
+    "imageUploadHint": "Tamaño máx: 1MB. Clic para elegir imagen.",
+    "formNumber": "Número Habitación",
+    "validationNumber": "El número es requerido.",
+    "formType": "Tipo Habitación",
+    "validationType": "El tipo es requerido.",
+    "formPrice": "Precio por Noche",
+    "validationPrice": "El precio es requerido.",
+    "formStatus": "Estado",
+    "validationStatus": "El estado es requerido.",
+    "formAmenities": "Comodidades",
+    "amenityTv": "TV",
+    "amenityRoomService": "Servicio Hab.",
+    "amenityWifi": "WiFi",
+    "formPromotion": "Promoción (Opcional)",
+    "createSuccess": "Habitación creada con éxito.",
+    "updateSuccess": "Habitación actualizada con éxito.",
+    "deleteSuccess": "Habitación eliminada con éxito.",
+    "deleteSelectedSuccess": "{count} habitaciones eliminadas con éxito.",
+    "confirmDeleteMessage": "¿Estás seguro de que quieres eliminar la Habitación {number}?",
+    "confirmDeleteSelectedMessage": "¿Estás seguro de que quieres eliminar las {count} habitaciones seleccionadas?",
+    "confirmDeleteHeader": "Confirmar Eliminación",
+    "deleteCancelled": "Eliminación cancelada.",
+    "validationAllFields": "Por favor, completa todos los campos requeridos.",
+    "imageUploaded": "Imagen seleccionada.",
+    "imageUploadError": "Error al leer el archivo de imagen.",
+    "deletePartialError": "Eliminación Parcial",
+    "deletePartialDetail": "Se eliminaron {success} habitaciones con éxito. Algunas eliminaciones fallaron.",
+    "emptyMessage": "No se encontraron habitaciones.",
+    "loadingMessage": "Cargando datos de habitaciones...",
+    "dialogNewHeader": "Añadir Nueva Habitación",
+    "dialogEditHeader": "Editar Habitación",
+    "registeredStaff": "Personal Registrado",
+    "refreshTooltip": "Actualizar Lista",
+    "addUserTooltip": "Añadir Nuevo Miembro del Staff",
+    "headerName": "Nombre"
+  },
+  "roomStatus": {
+    "available": "Disponible",
+    "occupied": "Ocupada",
+    "cleaning": "Limpieza",
+    "maintenance": "Mantenimiento",
+    "unknown": "Desconocido"
   }
 }

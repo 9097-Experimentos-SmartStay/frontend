@@ -125,7 +125,8 @@
     "fetchError": "Fetch Error",
     "deleteError": "Deletion Error",
     "saveError": "Save Error",
-    "tryAgain": "Please try again."
+    "tryAgain": "Please try again.",
+    "uploadError": "Upload Error"
   },
   "common": {
     "cancel": "Cancel",
@@ -135,6 +136,56 @@
     "edit": "Edit",
     "refresh": "Refresh",
     "add": "Add",
-    "back": "Back"
+    "back": "Back",
+    "save": "Save"
+  },
+  "adminManageRooms": {
+    "totalRooms": "{count} Rooms Found",
+    "roomNumber": "Room",
+    "status": "Status",
+    "promotion": "Promotion",
+    "roomService": "Room Service",
+    "imageUploadHint": "Max file size: 1MB. Click to choose image.",
+    "formNumber": "Room Number",
+    "validationNumber": "Room number is required.",
+    "formType": "Room Type",
+    "validationType": "Room type is required.",
+    "formPrice": "Price per Night",
+    "validationPrice": "Price is required.",
+    "formStatus": "Status",
+    "validationStatus": "Status is required.",
+    "formAmenities": "Amenities",
+    "amenityTv": "TV",
+    "amenityRoomService": "Room Service",
+    "amenityWifi": "WiFi",
+    "formPromotion": "Promotion (Optional)",
+    "createSuccess": "Room created successfully.",
+    "updateSuccess": "Room updated successfully.",
+    "deleteSuccess": "Room deleted successfully.",
+    "deleteSelectedSuccess": "{count} rooms deleted successfully.",
+    "confirmDeleteMessage": "Are you sure you want to delete Room {number}?",
+    "confirmDeleteSelectedMessage": "Are you sure you want to delete the {count} selected rooms?",
+    "confirmDeleteHeader": "Confirm Deletion",
+    "deleteCancelled": "Deletion cancelled.",
+    "validationAllFields": "Please fill in all required fields.",
+    "imageUploaded": "Image selected.",
+    "imageUploadError": "Error reading image file.",
+    "deletePartialError": "Partial Deletion",
+    "deletePartialDetail": "Successfully deleted {success} rooms. Some deletions failed.",
+    "emptyMessage": "No rooms found.",
+    "loadingMessage": "Loading rooms data...",
+    "registeredStaff": "Registered Staff",
+    "refreshTooltip": "Refresh List",
+    "addUserTooltip": "Add New Staff Member",
+    "headerName": "Name",
+    "dialogNewHeader": "Add New Room",
+    "dialogEditHeader": "Edit Room"
+  },
+  "roomStatus": {
+    "available": "Available",
+    "occupied": "Occupied",
+    "cleaning": "Cleaning",
+    "maintenance": "Maintenance",
+    "unknown": "Unknown"
   }
 }
