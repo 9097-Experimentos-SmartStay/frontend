@@ -315,23 +315,22 @@ async function saveTask() {
 // [NUEVO] Función para el Checkbox
 async function toggleTaskCompletion(taskData) {
   const originalStatus = taskData.status;
-  const newStatus = taskData.isCompleted ? 'Completada' : 'Pendiente';
-
-  if (originalStatus.toLowerCase() === newStatus.toLowerCase()) return;
+  const newIsCompleted = taskData.isCompleted; // El checkbox YA cambió el v-model
 
   try {
-    if (newStatus === 'Completada') {
+    if (newIsCompleted) {
+      // Marcar como Completada
       await propertyService.markTaskAsCompleted(taskData.id);
       toast.add({ severity: 'success', summary: t('common.success'), detail: t('staffDashboard.taskCompleted'), life: 2000 });
     } else {
-      // Permite "descompletar" la tarea
-      await propertyService.updateTaskDetails(taskData.id, { status: 'Pendiente' });
+      // Marcar como Pendiente (Desmarcar)
+      await propertyService.markTaskAsPending(taskData.id);
       toast.add({ severity: 'info', summary: t('common.updated'), detail: t('tasks.taskMarkedPending'), life: 2000 });
     }
-    await loadTasks(); // Recarga la lista
+    await loadTasks(); // Recarga la lista para actualizar todo
   } catch (error) {
-    // Si falla la API, revierte el checkbox
-    taskData.isCompleted = !taskData.isCompleted;
+    // Revierte el checkbox si falla la API
+    taskData.isCompleted = !newIsCompleted;
     console.error("Error toggling task status:", error);
     toast.add({ severity: 'error', summary: t('errors.taskError'), detail: error.message || t('errors.tryAgain'), life: 3000 });
   }

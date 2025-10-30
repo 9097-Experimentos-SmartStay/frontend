@@ -21,7 +21,6 @@
           <h2 class="text-2xl font-bold">{{ t('staffDashboard.welcome', { name: staffProfile.name }) }}</h2>
           <p class="text-lg text-color-secondary">{{ staffProfile.position || 'Staff' }} | {{ t('staffDashboard.shift') }}: {{ staffProfile.shift || 'N/A' }}</p>
         </div>
-
         <div class="col-12 md:col-4">
           <pv-card class="quick-actions-card">
             <template #title>{{ t('staffDashboard.quickActions') }}</template>
@@ -38,23 +37,28 @@
       <div class="grid mb-4">
         <div class="col-12">
           <pv-card>
-            <template #title>{{ t('staffDashboard.performanceStats') }}</template>
+            <template #title>
+              <div class="flex flex-col sm:flex-row justify-between items-center">
+                <span class="text-xl font-semibold mb-2 sm:mb-0">{{ t('staffDashboard.performanceStats') }}</span>
+                <pv-select-button v-model="statsPeriod" :options="statsPeriodOptions" optionLabel="label" optionValue="value" :allowEmpty="false" />
+              </div>
+            </template>
             <template #content>
               <div class="grid text-center">
                 <div class="col-6 md:col-3">
-                  <div class="stat-value">{{ stats.daily }}</div>
+                  <div class="stat-value">{{ stats.kpi.daily }}</div>
                   <div class="stat-label">{{ t('staffDashboard.tasksToday') }}</div>
                 </div>
                 <div class="col-6 md:col-3">
-                  <div class="stat-value">{{ stats.weekly }}</div>
+                  <div class="stat-value">{{ stats.kpi.weekly }}</div>
                   <div class="stat-label">{{ t('staffDashboard.tasksThisWeek') }}</div>
                 </div>
                 <div class="col-6 md:col-3">
-                  <div class="stat-value">{{ stats.monthly }}</div>
+                  <div class="stat-value">{{ stats.kpi.monthly }}</div>
                   <div class="stat-label">{{ t('staffDashboard.tasksThisMonth') }}</div>
                 </div>
                 <div class="col-6 md:col-3">
-                  <div class="stat-value">{{ stats.yearly }}</div>
+                  <div class="stat-value">{{ stats.kpi.yearly }}</div>
                   <div class="stat-label">{{ t('staffDashboard.tasksThisYear') }}</div>
                 </div>
               </div>
@@ -76,19 +80,30 @@
               </div>
             </template>
             <template #content>
-              <pv-data-table :value="pendingTasks" :loading="loading" class="p-datatable-sm" :rows="5" responsiveLayout="scroll">
+              <pv-data-table :value="pendingTasksWithStatus" :loading="loading" class="p-datatable-sm" :rows="5" responsiveLayout="scroll">
+
+                <pv-column headerStyle="width: 4rem" bodyClass="text-center">
+                  <template #body="slotProps">
+                    <pv-checkbox
+                        v-model="slotProps.data.isCompleted"
+                        :binary="true"
+                        @change="toggleDashboardTask(slotProps.data)"
+                    />
+                  </template>
+                </pv-column>
+
                 <pv-column field="description" :header="t('staffDashboard.taskDescription')"></pv-column>
-                <pv-column field="roomId" :header="t('staffDashboard.taskRoom')"></pv-column>
+                <pv-column field="roomId" :header="t('staffDashboard.taskRoom')">
+                  <template #body="slotProps">
+                    {{ getRoomNumber(slotProps.data.roomId) }}
+                  </template>
+                </pv-column>
                 <pv-column field="status" :header="t('staffDashboard.taskStatus')">
                   <template #body="slotProps">
                     <pv-tag :severity="getStatusSeverity(slotProps.data.status)" :value="t(`taskStatus.${slotProps.data.status.toLowerCase()}`)" />
                   </template>
                 </pv-column>
-                <pv-column :header="t('common.actions')">
-                  <template #body="slotProps">
-                    <pv-button icon="pi pi-check" class="p-button-rounded p-button-success p-button-text" @click="completeTask(slotProps.data)" v-tooltip.top="t('common.complete')" />
-                  </template>
-                </pv-column>
+
                 <template #empty>{{ t('staffDashboard.noPendingTasks') }}</template>
                 <template #loading>{{ t('common.loading') }}</template>
               </pv-data-table>
@@ -125,8 +140,8 @@
 </template>
 
 <script setup>
-// [NUEVO] Importa onActivated
-import { ref, onMounted, computed, onActivated } from 'vue';
+// [COMPLETO] Imports
+import { ref, onMounted, computed, onActivated, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 import { useToast } from "primevue/usetoast";
@@ -141,6 +156,8 @@ import PvColumn from 'primevue/column';
 import PvTag from 'primevue/tag';
 import PvChart from 'primevue/chart';
 import PvToast from 'primevue/toast';
+import PvCheckbox from 'primevue/checkbox';
+import PvSelectButton from 'primevue/selectbutton';
 import Tooltip from 'primevue/tooltip';
 import LanguageSwitcher from '../../../../shared/presentation/components/language-switcher.vue';
 
@@ -168,11 +185,13 @@ const propertyService = new PropertyService(propertyRepository);
 const staffId = ref(null);
 const staffProfile = ref({ name: 'Staff', position: '', shift: '' });
 const allTasks = ref([]);
-const stats = ref({ daily: 0, weekly: 0, monthly: 0, yearly: 0, chartData: {} });
+const rooms = ref([]);
+const stats = ref({ kpi: {}, chartData: {} });
 const assignedRooms = ref([]);
 const loading = ref(true);
+const statsPeriod = ref('week');
 
-// ... (Opciones de Gráfico y Menú se mantienen igual) ...
+// --- Configuraciones ---
 const chartOptions = ref({
   responsive: true,
   maintainAspectRatio: false,
@@ -186,31 +205,35 @@ const menuItems = ref([
   { label: t('menu.assignedRooms'), icon: 'pi pi-key', command: () => goToRooms() },
 ]);
 
-// --- [NUEVO] Lógica de Carga Refactorizada ---
+const statsPeriodOptions = computed(() => [
+  { label: t('tasks.filterToday'), value: 'today' },
+  { label: t('tasks.filterWeek'), value: 'week' },
+  { label: t('tasks.filterMonth'), value: 'month' },
+  { label: t('tasks.filterYear'), value: 'year' }
+]);
+
+// --- Lógica de Carga ---
 async function loadDashboardData() {
   loading.value = true;
-  console.log("Refreshing dashboard data...");
+  console.log("Refreshing dashboard data for period:", statsPeriod.value);
   try {
-    // 1. Obtener ID del staff logueado
     const storedUser = localStorage.getItem('user');
     if (!storedUser) throw new Error("User not found in localStorage.");
     staffId.value = JSON.parse(storedUser).id;
 
-    // 2. Cargar Perfil, Tareas, Estadísticas y Habitaciones en paralelo
-    const [profileDetails, tasksData, statsData, roomsData] = await Promise.all([
+    const [profileDetails, tasksData, statsData, roomsData, allRoomsData] = await Promise.all([
       userService.getStaffDetailsList().then(list => list.find(s => s.id === staffId.value)),
       propertyService.getTaskList(staffId.value),
-      propertyService.getTaskStats(staffId.value),
-      propertyService.getAssignedRoomsForStaff()
+      propertyService.getTaskStats(staffId.value, statsPeriod.value, t),
+      propertyService.getAssignedRoomsForStaff(),
+      propertyService.getRoomList()
     ]);
 
-    // 3. Asignar valores
     if (profileDetails) staffProfile.value = profileDetails;
     allTasks.value = tasksData || [];
-    stats.value = statsData || { daily: 0, weekly: 0, monthly: 0, yearly: 0, chartData: {} };
+    stats.value = statsData || { kpi: { daily: 0, weekly: 0, monthly: 0, yearly: 0 }, chartData: {} };
     assignedRooms.value = roomsData || [];
-
-    console.log("Staff Dashboard: Data re-loaded.", { stats: stats.value });
+    rooms.value = allRoomsData || [];
 
   } catch (error) {
     console.error("Error loading staff dashboard:", error);
@@ -222,16 +245,26 @@ async function loadDashboardData() {
 
 // --- Hooks de Ciclo de Vida ---
 onMounted(loadDashboardData);
-onActivated(loadDashboardData); // <-- [NUEVO] Vuelve a cargar datos cuando regresas a la vista
+onActivated(loadDashboardData);
+watch(statsPeriod, loadDashboardData);
 
 // --- Propiedades Computadas ---
-const pendingTasks = computed(() => {
+const pendingTasksWithStatus = computed(() => {
   return allTasks.value
       .filter(t => t.status.toLowerCase() === 'pendiente' || t.status.toLowerCase() === 'en proceso')
+      .map(t => ({
+        ...t,
+        isCompleted: false
+      }))
       .slice(0, 5);
 });
 
 // --- Métodos ---
+function getRoomNumber(roomId) {
+  const room = rooms.value.find(r => r.id === roomId);
+  return room ? room.number : `ID: ${roomId}`;
+}
+
 function toggleMenu(event) {
   menu.value.toggle(event);
 }
@@ -241,18 +274,13 @@ function logout() {
   router.push({ name: 'login' });
 }
 
-// --- [NUEVO] Acciones Rápidas ---
 function reportIssue() {
-  // Aquí podrías abrir un Dialog para un formulario de reporte
   toast.add({ severity: 'info', summary: t('staffDashboard.issueReported'), detail: t('staffDashboard.notifyMaintenance'), life: 3000 });
 }
 function requestSupplies() {
-  // Igual, podría abrir un Dialog
   toast.add({ severity: 'info', summary: t('staffDashboard.suppliesRequested'), detail: t('staffDashboard.notifyHousekeeping'), life: 3000 });
 }
 
-
-// --- Navegación ---
 function goToProfile() {
   console.log("Navigate to Profile...");
   // router.push({ name: 'staff-profile' });
@@ -264,21 +292,23 @@ function goToRooms() {
   router.push({ name: 'staff-room-cleaning' });
 }
 
-// --- Acciones ---
-async function completeTask(task) {
-  console.log("Completing task:", task.id);
+async function toggleDashboardTask(taskData) {
+  // El v-model (taskData.isCompleted) ya se actualizó a 'true' por el clic
   try {
-    await propertyService.markTaskAsCompleted(task.id);
-    toast.add({ severity: 'success', summary: t('common.success'), detail: t('staffDashboard.taskCompleted'), life: 3000 });
-
-    // [MODIFICADO] Llama a la función de recarga en lugar de onMounted
-    await loadDashboardData();
+    if (taskData.isCompleted) {
+      await propertyService.markTaskAsCompleted(taskData.id);
+      toast.add({ severity: 'success', summary: t('common.success'), detail: t('staffDashboard.taskCompleted'), life: 3000 });
+      // Recarga todo para que las stats y la lista de pendientes se actualicen
+      await loadDashboardData();
+    }
+    // No implementamos "desmarcar" desde el dashboard para mantenerlo simple.
+    // El staff debería ir a la página de "Manage Tasks" para revertir una tarea.
   } catch (error) {
-    console.error("Error completing task:", error);
+    taskData.isCompleted = false; // Revierte el check
+    console.error("Error completing task from dashboard:", error);
     toast.add({ severity: 'error', summary: t('errors.taskError'), detail: error.message || t('errors.tryAgain'), life: 3000 });
   }
 }
-
 // --- Helpers Visuales ---
 function getStatusSeverity(status) {
   const s = status?.toLowerCase();
@@ -296,12 +326,11 @@ function getStatusSeverity(status) {
   }
 }
 
-// Registra la directiva Tooltip
 const vTooltip = Tooltip;
 </script>
 
 <style scoped>
-/* ... (Estilos de toolbar, stat-value, etc. se mantienen) ... */
+/* [COMPLETO] Estilos */
 .staff-toolbar {
   background-color: var(--surface-card);
   border-bottom: 1px solid var(--surface-border);
@@ -311,7 +340,6 @@ const vTooltip = Tooltip;
   font-weight: 600;
   margin: 0;
 }
-/* [MODIFICADO] Ajuste para la nueva tarjeta */
 .quick-actions-card .p-card-body,
 .time-clock-card .p-card-body {
   padding: 1rem;
