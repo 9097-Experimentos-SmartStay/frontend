@@ -247,7 +247,7 @@
       "roomId": 302,
       "propertyId": 102,
       "description": "Limpieza habitación A2",
-      "status": "Pendiente",
+      "status": "Completada",
       "assignedTo": 2,
       "createdAt": "2025-10-28T16:00:00Z"
     }

@@ -9,5 +9,7 @@ export class IPropertyRepository {
     getProperties() { throw new Error("Not implemented"); }
     getTasks(assignedTo = null) { throw new Error("Not implemented"); } // Ajustado
     updateTask(taskId, data) { throw new Error("Not implemented"); }
+    addTask(taskData) { throw new Error("Not implemented: addTask"); }
+    deleteTask(taskId) { throw new Error("Not implemented: deleteTask"); }
 
 }

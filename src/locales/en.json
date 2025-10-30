@@ -162,7 +162,10 @@
     "saveError": "Save Error",
     "tryAgain": "Please try again.",
     "uploadError": "Upload Error",
-    "taskError": "Task Error"
+    "taskError": "Task Error",
+    "descriptionRequired": "Description is required.",
+    "authError": "Authentication Error",
+    "userNotFound": "User session not found. Please log in again."
   },
   "common": {
     "cancel": "Cancel",
@@ -176,7 +179,21 @@
     "save": "Save",
     "actions": "Actions",
     "complete": "Complete",
-    "warning": "Warning"
+    "warning": "Warning",
+    "loading": "Loading...",
+    "notAvailable": "N/A"
+  },
+  "tasks": {
+    "title": "Task Management",
+    "newTask": "New Task",
+    "created": "Created At",
+    "noTasksFound": "No tasks found.",
+    "taskDetails": "Task Details",
+    "selectStatus": "Select a status",
+    "taskUpdated": "Task updated successfully.",
+    "taskCreated": "Task created successfully.",
+    "taskDeleted": "Task deleted successfully.",
+    "deleteConfirmMsg": "Are you sure you want to delete the task \"{description}\"?"
   },
   "adminManageRooms": {
     "totalRooms": "{count} Rooms Found",

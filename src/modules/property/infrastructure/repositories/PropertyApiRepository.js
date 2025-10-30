@@ -12,4 +12,6 @@ export class PropertyApiRepository extends IPropertyRepository {
     async getProperties() { return await propertyApi.fetchProperties(); }
     async getTasks(assignedTo = null) { return await propertyApi.fetchTasks(assignedTo); }
     async updateTask(taskId, data) { return await propertyApi.patchTask(taskId, data); }
+    async addTask(taskData) { return await propertyApi.postTask(taskData); }
+    async deleteTask(taskId) { await propertyApi.removeTask(taskId); }
 }

@@ -20,13 +20,44 @@ export class PropertyService {
         await this.propertyRepository.deleteRoom(roomId);
     }
     async getPropertyList() { return await this.propertyRepository.getProperties(); }
+
     async getTaskList(assignedTo = null) {
+        // CORRECCIÓN IMPORTANTE: ¡Pasa el 'assignedTo' al repositorio!
+        // Tu dashboard lo pasaba, pero esta vista no. Ahora lo haremos.
         return await this.propertyRepository.getTasks(assignedTo);
+    }
+
+    async createTask(taskData) { // <-- NUEVO
+        // Aquí validaciones (ej: que la descripción no esté vacía)
+        if (!taskData.description) throw new Error("Description is required.");
+        // Asigna valores por defecto si no vienen
+        const defaults = {
+            status: 'Pendiente',
+            createdAt: new Date().toISOString()
+        };
+        const newTask = { ...defaults, ...taskData };
+        return await this.propertyRepository.addTask(newTask);
+    }
+
+    async updateTaskDetails(taskId, taskData) { // <-- NUEVO (Genérico)
+        // No actualiza el estado si solo completa
+        const { status, ...dataToUpdate } = taskData;
+        console.log(`Service: Updating task ${taskId}`, dataToUpdate);
+        return await this.propertyRepository.updateTask(taskId, dataToUpdate);
+    }
+
+    async removeTask(taskId) { // <-- NUEVO
+        console.log(`Service: Deleting task ${taskId}`);
+        await this.propertyRepository.deleteTask(taskId);
     }
 
     async markTaskAsCompleted(taskId) {
         try {
-            const updatedTask = await this.propertyRepository.updateTask(taskId, { status: 'Completada' }); // Ajusta el estado según tu modelo
+            // Este servicio es específico para 'completar'
+            const updatedTask = await this.propertyRepository.updateTask(taskId, {
+                status: 'Completada',
+                completedAt: new Date().toISOString() // Importante para las stats
+            });
             console.log(`✅ Tarea ${taskId} marcada como completada.`);
             return updatedTask;
         } catch (error) {

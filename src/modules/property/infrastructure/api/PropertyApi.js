@@ -38,9 +38,16 @@ export const propertyApi = {
         const res = await axios.get(`${API_BASE_URL}${TASKS_ENDPOINT}`, { params });
         return res.data;
     },
+    async postTask(taskData) { // <-- NUEVO
+        const res = await axios.post(`${API_BASE_URL}${TASKS_ENDPOINT}`, taskData);
+        return res.data;
+    },
     async patchTask(taskId, data) {
         const res = await axios.patch(`${API_BASE_URL}${TASKS_ENDPOINT}/${taskId}`, data);
         return res.data;
+    },
+    async removeTask(taskId) { // <-- NUEVO
+        await axios.delete(`${API_BASE_URL}${TASKS_ENDPOINT}/${taskId}`);
     }
     // Añadir llamadas API para otras operaciones (POST, PUT, DELETE)
 };
