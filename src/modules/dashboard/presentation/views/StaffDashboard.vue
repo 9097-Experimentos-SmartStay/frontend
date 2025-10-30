@@ -1,4 +1,3 @@
-// src/modules/dashboard/presentation/views/StaffDashboard.vue
 <template>
   <div class="staff-dashboard">
     <pv-toast position="bottom-right" />
@@ -22,14 +21,14 @@
           <h2 class="text-2xl font-bold">{{ t('staffDashboard.welcome', { name: staffProfile.name }) }}</h2>
           <p class="text-lg text-color-secondary">{{ staffProfile.position || 'Staff' }} | {{ t('staffDashboard.shift') }}: {{ staffProfile.shift || 'N/A' }}</p>
         </div>
+
         <div class="col-12 md:col-4">
-          <pv-card class="time-clock-card">
-            <template #title>{{ t('staffDashboard.timeClock') }}</template>
+          <pv-card class="quick-actions-card">
+            <template #title>{{ t('staffDashboard.quickActions') }}</template>
             <template #content>
               <div class="flex flex-wrap gap-2 justify-center">
-                <pv-button :label="t('staffDashboard.clockIn')" icon="pi pi-play" class="p-button-success" />
-                <pv-button :label="t('staffDashboard.startBreak')" icon="pi pi-pause" class="p-button-warning" />
-                <pv-button :label="t('staffDashboard.clockOut')" icon="pi pi-stop" class="p-button-danger" />
+                <pv-button :label="t('staffDashboard.reportIssue')" icon="pi pi-exclamation-triangle" class="p-button-warning" @click="reportIssue" />
+                <pv-button :label="t('staffDashboard.requestSupplies')" icon="pi pi-box" class="p-button-info" @click="requestSupplies" />
               </div>
             </template>
           </pv-card>
@@ -91,7 +90,7 @@
                   </template>
                 </pv-column>
                 <template #empty>{{ t('staffDashboard.noPendingTasks') }}</template>
-                <template #loading>{{ t('adminManageUsers.loadingMessage') }}</template>
+                <template #loading>{{ t('common.loading') }}</template>
               </pv-data-table>
             </template>
           </pv-card>
@@ -114,7 +113,7 @@
                   </template>
                 </pv-column>
                 <template #empty>{{ t('staffDashboard.noAssignedRooms') }}</template>
-                <template #loading>{{ t('adminManageUsers.loadingMessage') }}</template>
+                <template #loading>{{ t('common.loading') }}</template>
               </pv-data-table>
             </template>
           </pv-card>
@@ -126,7 +125,8 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+// [NUEVO] Importa onActivated
+import { ref, onMounted, computed, onActivated } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 import { useToast } from "primevue/usetoast";
@@ -141,11 +141,10 @@ import PvColumn from 'primevue/column';
 import PvTag from 'primevue/tag';
 import PvChart from 'primevue/chart';
 import PvToast from 'primevue/toast';
-import Tooltip from 'primevue/tooltip'; // Importa la directiva
-import LanguageSwitcher from '../../../../shared/presentation/components/language-switcher.vue'; // Ajusta ruta
+import Tooltip from 'primevue/tooltip';
+import LanguageSwitcher from '../../../../shared/presentation/components/language-switcher.vue';
 
 // --- Servicios ---
-// Nota: UserService (para perfil) y PropertyService (para tareas/habitaciones)
 import { UserService } from '../../../auth/application/UserService.js';
 import { UserAPIRepository } from '../../../auth/infrastructure/repositories/user_api_repository.js';
 import { ProfileApiRepository } from '../../../auth/infrastructure/repositories/ProfileApiRepository.js';
@@ -156,7 +155,7 @@ import { PropertyApiRepository } from '../../../property/infrastructure/reposito
 const { t } = useI18n();
 const router = useRouter();
 const toast = useToast();
-const menu = ref(); // Ref para el menú popup
+const menu = ref();
 
 // --- Instancia Servicios ---
 const userRepository = new UserAPIRepository();
@@ -173,7 +172,7 @@ const stats = ref({ daily: 0, weekly: 0, monthly: 0, yearly: 0, chartData: {} })
 const assignedRooms = ref([]);
 const loading = ref(true);
 
-// --- Opciones de Gráfico ---
+// ... (Opciones de Gráfico y Menú se mantienen igual) ...
 const chartOptions = ref({
   responsive: true,
   maintainAspectRatio: false,
@@ -181,17 +180,16 @@ const chartOptions = ref({
   plugins: { legend: { display: false } }
 });
 
-// --- Menú de Navegación ---
 const menuItems = ref([
   { label: t('menu.profile'), icon: 'pi pi-user', command: () => goToProfile() },
   { label: t('menu.tasks'), icon: 'pi pi-check-square', command: () => goToTasks() },
   { label: t('menu.assignedRooms'), icon: 'pi pi-key', command: () => goToRooms() },
-  // Puedes añadir más opciones aquí (ej: 'Notificaciones', 'Soporte')
 ]);
 
-// --- Carga Inicial ---
-onMounted(async () => {
+// --- [NUEVO] Lógica de Carga Refactorizada ---
+async function loadDashboardData() {
   loading.value = true;
+  console.log("Refreshing dashboard data...");
   try {
     // 1. Obtener ID del staff logueado
     const storedUser = localStorage.getItem('user');
@@ -200,10 +198,10 @@ onMounted(async () => {
 
     // 2. Cargar Perfil, Tareas, Estadísticas y Habitaciones en paralelo
     const [profileDetails, tasksData, statsData, roomsData] = await Promise.all([
-      userService.getStaffDetailsList().then(list => list.find(s => s.id === staffId.value)), // Busca el perfil específico
+      userService.getStaffDetailsList().then(list => list.find(s => s.id === staffId.value)),
       propertyService.getTaskList(staffId.value),
       propertyService.getTaskStats(staffId.value),
-      propertyService.getAssignedRoomsForStaff() // Ya filtra por estado
+      propertyService.getAssignedRoomsForStaff()
     ]);
 
     // 3. Asignar valores
@@ -212,7 +210,7 @@ onMounted(async () => {
     stats.value = statsData || { daily: 0, weekly: 0, monthly: 0, yearly: 0, chartData: {} };
     assignedRooms.value = roomsData || [];
 
-    console.log("Staff Dashboard: Data loaded.", { profile: staffProfile.value, tasks: allTasks.value, stats: stats.value, rooms: assignedRooms.value });
+    console.log("Staff Dashboard: Data re-loaded.", { stats: stats.value });
 
   } catch (error) {
     console.error("Error loading staff dashboard:", error);
@@ -220,11 +218,14 @@ onMounted(async () => {
   } finally {
     loading.value = false;
   }
-});
+}
+
+// --- Hooks de Ciclo de Vida ---
+onMounted(loadDashboardData);
+onActivated(loadDashboardData); // <-- [NUEVO] Vuelve a cargar datos cuando regresas a la vista
 
 // --- Propiedades Computadas ---
 const pendingTasks = computed(() => {
-  // Muestra solo las primeras 5 tareas pendientes
   return allTasks.value
       .filter(t => t.status.toLowerCase() === 'pendiente' || t.status.toLowerCase() === 'en proceso')
       .slice(0, 5);
@@ -240,18 +241,27 @@ function logout() {
   router.push({ name: 'login' });
 }
 
+// --- [NUEVO] Acciones Rápidas ---
+function reportIssue() {
+  // Aquí podrías abrir un Dialog para un formulario de reporte
+  toast.add({ severity: 'info', summary: t('staffDashboard.issueReported'), detail: t('staffDashboard.notifyMaintenance'), life: 3000 });
+}
+function requestSupplies() {
+  // Igual, podría abrir un Dialog
+  toast.add({ severity: 'info', summary: t('staffDashboard.suppliesRequested'), detail: t('staffDashboard.notifyHousekeeping'), life: 3000 });
+}
+
+
 // --- Navegación ---
 function goToProfile() {
   console.log("Navigate to Profile...");
-  // router.push({ name: 'staff-profile' }); // Necesitas crear esta ruta
+  // router.push({ name: 'staff-profile' });
 }
 function goToTasks() {
-  console.log("Navigate to Tasks...");
-  router.push({ name: 'staff-task-list' }); // Ruta que ya existe en property.router.js
+  router.push({ name: 'staff-task-list' });
 }
 function goToRooms() {
-  console.log("Navigate to Rooms...");
-  router.push({ name: 'staff-room-cleaning' }); // Ruta que ya existe en property.router.js
+  router.push({ name: 'staff-room-cleaning' });
 }
 
 // --- Acciones ---
@@ -261,8 +271,8 @@ async function completeTask(task) {
     await propertyService.markTaskAsCompleted(task.id);
     toast.add({ severity: 'success', summary: t('common.success'), detail: t('staffDashboard.taskCompleted'), life: 3000 });
 
-    // Recargar datos para actualizar todo
-    await onMounted(); // Vuelve a ejecutar la lógica de carga
+    // [MODIFICADO] Llama a la función de recarga en lugar de onMounted
+    await loadDashboardData();
   } catch (error) {
     console.error("Error completing task:", error);
     toast.add({ severity: 'error', summary: t('errors.taskError'), detail: error.message || t('errors.tryAgain'), life: 3000 });
@@ -291,6 +301,7 @@ const vTooltip = Tooltip;
 </script>
 
 <style scoped>
+/* ... (Estilos de toolbar, stat-value, etc. se mantienen) ... */
 .staff-toolbar {
   background-color: var(--surface-card);
   border-bottom: 1px solid var(--surface-border);
@@ -300,9 +311,12 @@ const vTooltip = Tooltip;
   font-weight: 600;
   margin: 0;
 }
+/* [MODIFICADO] Ajuste para la nueva tarjeta */
+.quick-actions-card .p-card-body,
 .time-clock-card .p-card-body {
   padding: 1rem;
 }
+.quick-actions-card .p-card-content,
 .time-clock-card .p-card-content {
   padding: 0.5rem 0 0 0;
 }
@@ -319,7 +333,6 @@ const vTooltip = Tooltip;
   max-width: 1400px;
   margin: 0 auto;
 }
-/* Asegura que el gráfico tenga altura */
 :deep(.p-chart) {
   height: 250px;
 }

@@ -135,7 +135,14 @@
     "viewAllRooms": "View All",
     "roomNumber": "Room",
     "noAssignedRooms": "No rooms assigned for cleaning.",
-    "taskCompleted": "Task marked as complete."
+    "taskCompleted": "Task marked as complete.",
+    "quickActions": "Quick Actions",
+    "reportIssue": "Report Issue",
+    "requestSupplies": "Request Supplies",
+    "issueReported": "Issue Reported",
+    "notifyMaintenance": "Maintenance has been notified.",
+    "suppliesRequested": "Supplies Requested",
+    "notifyHousekeeping": "Housekeeping manager notified."
   },
   "menu": {
     "profile": "My Profile",
@@ -193,7 +200,11 @@
     "taskUpdated": "Task updated successfully.",
     "taskCreated": "Task created successfully.",
     "taskDeleted": "Task deleted successfully.",
-    "deleteConfirmMsg": "Are you sure you want to delete the task \"{description}\"?"
+    "deleteConfirmMsg": "Are you sure you want to delete the task \"{description}\"?",
+    "filterAll": "All",
+    "filterPending": "Pending",
+    "filterInProgress": "In Progress",
+    "filterCompleted": "Completed"
   },
   "adminManageRooms": {
     "totalRooms": "{count} Rooms Found",

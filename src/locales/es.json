@@ -135,7 +135,14 @@
     "viewAllRooms": "Ver Todas",
     "roomNumber": "Habitación",
     "noAssignedRooms": "No hay habitaciones asignadas para limpieza.",
-    "taskCompleted": "Tarea marcada como completada."
+    "taskCompleted": "Tarea marcada como completada.",
+    "quickActions": "Acciones Rápidas",
+    "reportIssue": "Reportar Incidencia",
+    "requestSupplies": "Solicitar Suministros",
+    "issueReported": "Incidencia Reportada",
+    "notifyMaintenance": "Se ha notificado a mantenimiento.",
+    "suppliesRequested": "Suministros Solicitados",
+    "notifyHousekeeping": "Se ha notificado al jefe de limpieza."
   },
   "menu": {
     "profile": "Mi Perfil",
@@ -193,7 +200,11 @@
     "taskUpdated": "Tarea actualizada con éxito.",
     "taskCreated": "Tarea creada con éxito.",
     "taskDeleted": "Tarea eliminada con éxito.",
-    "deleteConfirmMsg": "¿Estás seguro de que quieres eliminar la tarea \"{description}\"?"
+    "deleteConfirmMsg": "¿Estás seguro de que quieres eliminar la tarea \"{description}\"?",
+    "filterAll": "Todas",
+    "filterPending": "Pendientes",
+    "filterInProgress": "En Proceso",
+    "filterCompleted": "Completadas"
   },
   "adminManageRooms": {
     "totalRooms": "{count} Habitaciones Encontradas",
