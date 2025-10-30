@@ -39,7 +39,8 @@ import Textarea from 'primevue/textarea';
 import Toast from 'primevue/toast';
 import Toolbar from 'primevue/toolbar';
 import Password from "primevue/password";
-import Badge from "primevue/badge"; // Importa Badge (no PvBadge)
+import Badge from "primevue/badge";
+import Chart from 'primevue/chart';
 
 // noinspection JSCheckFunctionSignatures
 createApp(App)
@@ -75,7 +76,8 @@ createApp(App)
     .component('pv-toast', Toast)
     .component('pv-avatar', Avatar)
     .component('pv-password', Password)
-    .component('pv-badge', Badge) // Usa 'Badge' importado, no 'PvBadge'
+    .component('pv-badge', Badge)
+    .component('pv-chart', Chart)
     .directive('tooltip', Tooltip)
     .use(router)
     .use(pinia)

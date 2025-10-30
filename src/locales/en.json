@@ -112,6 +112,41 @@
     "validationDetail": "Please fill in Name, Email, Password, and Role.",
     "createSuccess": "User {name} created successfully."
   },
+  "staffDashboard": {
+    "title": "Staff Panel",
+    "welcome": "Welcome back, {name}!",
+    "shift": "Shift",
+    "timeClock": "Time Clock",
+    "clockIn": "Clock In",
+    "startBreak": "Start Break",
+    "clockOut": "Clock Out",
+    "performanceStats": "Performance Statistics (Last 7 Days)",
+    "tasksToday": "Tasks Today",
+    "tasksThisWeek": "Tasks This Week",
+    "tasksThisMonth": "Tasks This Month",
+    "tasksThisYear": "Tasks This Year",
+    "pendingTasks": "Pending Tasks",
+    "viewAllTasks": "View All",
+    "taskDescription": "Description",
+    "taskRoom": "Room",
+    "taskStatus": "Status",
+    "noPendingTasks": "No pending tasks. Great job!",
+    "assignedRooms": "Assigned Rooms (Pending)",
+    "viewAllRooms": "View All",
+    "roomNumber": "Room",
+    "noAssignedRooms": "No rooms assigned for cleaning.",
+    "taskCompleted": "Task marked as complete."
+  },
+  "menu": {
+    "profile": "My Profile",
+    "tasks": "Manage Tasks",
+    "assignedRooms": "Assigned Rooms"
+  },
+  "taskStatus": {
+    "pendiente": "Pending",
+    "en proceso": "In Progress",
+    "completada": "Completed"
+  },
   "page-not-found": {
     "title": "Page Not Found",
     "content": "The path {unavailable-route} you are looking for does not exist.",
@@ -126,7 +161,8 @@
     "deleteError": "Deletion Error",
     "saveError": "Save Error",
     "tryAgain": "Please try again.",
-    "uploadError": "Upload Error"
+    "uploadError": "Upload Error",
+    "taskError": "Task Error"
   },
   "common": {
     "cancel": "Cancel",
@@ -137,7 +173,10 @@
     "refresh": "Refresh",
     "add": "Add",
     "back": "Back",
-    "save": "Save"
+    "save": "Save",
+    "actions": "Actions",
+    "complete": "Complete",
+    "warning": "Warning"
   },
   "adminManageRooms": {
     "totalRooms": "{count} Rooms Found",
@@ -186,6 +225,8 @@
     "occupied": "Occupied",
     "cleaning": "Cleaning",
     "maintenance": "Maintenance",
+    "por limpiar": "Cleaning Pending",
+    "revisión pendiente": "Review Pending",
     "unknown": "Unknown"
   }
 }
