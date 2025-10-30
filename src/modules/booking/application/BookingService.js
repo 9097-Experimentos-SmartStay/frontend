@@ -74,4 +74,10 @@ export class BookingService {
         // return new Review(newReviewRaw.id, ...);
         return newReviewRaw;
     }
+
+    async getAllBookings() {
+        console.log(`BookingService: Getting all bookings`);
+        return await this.bookingRepository.getAllBookings();
+    }
+
 }

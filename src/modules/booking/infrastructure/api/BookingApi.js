@@ -24,6 +24,11 @@ export const bookingApi = {
         console.log(`API: Posting new review:`, reviewData);
         const res = await axios.post(`${API_BASE_URL}${REVIEWS_ENDPOINT}`, reviewData);
         return res.data;
+    },
+    async fetchAllBookings() { // [NUEVO]
+        console.log(`API: Fetching all bookings`);
+        const res = await axios.get(`${API_BASE_URL}${BOOKINGS_ENDPOINT}`);
+        return res.data;
     }
     // TODO: add call to put and patch is you needed to update appointments or reviews
 };

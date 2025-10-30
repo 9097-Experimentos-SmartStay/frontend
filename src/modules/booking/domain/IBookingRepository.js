@@ -12,5 +12,6 @@ export class IBookingRepository {
     addBooking(bookingData) { throw new Error("Not implemented: addBooking"); }
     deleteBooking(bookingId) { throw new Error("Not implemented: deleteBooking"); }
     addReview(reviewData) { throw new Error("Not implemented: addReview"); }
+    getAllBookings() { throw new Error("Not implemented: getAllBookings"); }
     // You can add more method signatures as needed
 }

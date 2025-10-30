@@ -15,4 +15,7 @@ export class BookingApiRepository extends IBookingRepository {
     async addReview(reviewData) {
         return await bookingApi.postReview(reviewData);
     }
+    async getAllBookings() { // [NUEVO]
+        return await bookingApi.fetchAllBookings();
+    }
 }

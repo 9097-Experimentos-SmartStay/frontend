@@ -1,3 +1,4 @@
+// src/main.js
 import { createApp } from 'vue'
 import App from './app.vue'
 import i18n from "./i18n.js";
@@ -20,7 +21,7 @@ import Checkbox from 'primevue/checkbox';
 import Column from 'primevue/column';
 import ConfirmDialog from 'primevue/confirmdialog';
 import DataTable from 'primevue/datatable';
-import DataView from 'primevue/dataview'; // Importante
+import DataView from 'primevue/dataview'; // Importación de DataView
 import Dialog from 'primevue/dialog';
 import Drawer from 'primevue/drawer';
 import FileUpload from 'primevue/fileupload';
@@ -56,7 +57,7 @@ createApp(App)
     .component('pv-confirm-dialog', ConfirmDialog)
     .component('pv-checkbox', Checkbox)
     .component('pv-data-table', DataTable)
-    .component('pv-data-view', DataView) // Registrado
+    .component('pv-data-view', DataView)
     .component('pv-dialog', Dialog)
     .component('pv-select', Select)
     .component('pv-select-button', SelectButton)

@@ -267,6 +267,16 @@
       "assignedTo": 2,
       "id": 903,
       "completedAt": "2025-10-30T17:01:50.289Z"
+    },
+    {
+      "status": "Completada",
+      "createdAt": "2025-10-30T18:25:26.296Z",
+      "description": "501",
+      "roomId": 202,
+      "assignedTo": 4,
+      "id": 904,
+      "completedAt": "2025-10-30T18:25:30.646Z",
+      "isCompleted": true
     }
   ]
 }
