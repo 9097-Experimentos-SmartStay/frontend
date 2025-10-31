@@ -91,7 +91,7 @@
       "type": "Doble Vista Mar",
       "price": 150,
       "status": "available",
-      "image_url": "https://via.placeholder.co/300x200/007bff/ffffff?text=Hab+101",
+      "image_url": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1280&h=850&fit=crop",
       "amenities": {
         "has_tv": true,
         "has_room_service": true,
@@ -106,7 +106,7 @@
       "type": "Simple Interior",
       "price": 90,
       "status": "occupied",
-      "image_url": "https://via.placeholder.co/300x200/dc3545/ffffff?text=Hab+102",
+      "image_url": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1280&h=850&fit=crop",
       "amenities": {
         "has_tv": true,
         "has_room_service": false,
@@ -121,7 +121,7 @@
       "type": "Suite Jr",
       "price": 250,
       "status": "maintenance",
-      "image_url": "https://via.placeholder.co/300x200/ffc107/000000?text=Hab+201",
+      "image_url": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1280&h=850&fit=crop",
       "amenities": {
         "has_tv": true,
         "has_room_service": true,
@@ -136,7 +136,7 @@
       "type": "Matrimonial Colonial",
       "price": 80,
       "status": "available",
-      "image_url": "https://via.placeholder.co/300x200/28a745/ffffff?text=Hab+A1",
+      "image_url": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1280&h=850&fit=crop",
       "amenities": {
         "has_tv": false,
         "has_room_service": true,
@@ -151,7 +151,7 @@
       "type": "Doble Balcón",
       "price": 100,
       "status": "cleaning",
-      "image_url": "https://via.placeholder.co/300x200/6c757d/ffffff?text=Hab+A2",
+      "image_url": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1280&h=850&fit=crop",
       "amenities": {
         "has_tv": true,
         "has_room_service": false,
