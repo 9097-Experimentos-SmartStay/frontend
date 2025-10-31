@@ -188,7 +188,9 @@
     "complete": "Complete",
     "warning": "Warning",
     "loading": "Loading...",
-    "notAvailable": "N/A"
+    "notAvailable": "N/A",
+    "yes": "Yes",
+    "updated": "Updated"
   },
   "tasks": {
     "title": "Task Management",
@@ -283,5 +285,27 @@
     "por limpiar": "Cleaning Pending",
     "revisión pendiente": "Review Pending",
     "unknown": "Unknown"
+  },
+  "rooms": {
+    "title": "Room Management",
+    "filterAll": "All Rooms",
+    "filterAvailable": "Available",
+    "filterOccupied": "Occupied",
+    "filterCleaning": "Cleaning",
+    "filterMaintenance": "Maintenance",
+    "searchPlaceholder": "Search by number, type, or guest...",
+    "roomLabel": "Room",
+    "room": "Room",
+    "unknownGuest": "Unknown Guest",
+    "markClean": "Mark as Clean",
+    "markForCleaning": "Mark for Cleaning",
+    "reportIssue": "Report Issue",
+    "markFixed": "Mark as Fixed",
+    "noRoomsFound": "No Rooms Found",
+    "noRoomsFoundMsg": "No rooms match the current filters.",
+    "statusUpdateSuccess": "Room {number} status updated to {status}.",
+    "confirmIssueMsg": "Are you sure you want to report an issue for Room {number}? This will set its status to Maintenance.",
+    "noPendingRoomsTitle": "All Rooms are Clean!",
+    "noPendingRoomsMsg": "There are currently no rooms assigned for cleaning or review."
   }
 }

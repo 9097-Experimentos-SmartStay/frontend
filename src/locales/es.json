@@ -188,7 +188,31 @@
     "complete": "Completar",
     "warning": "Advertencia",
     "loading": "Cargando...",
-    "notAvailable": "N/D"
+    "notAvailable": "N/D",
+    "yes": "Sí",
+    "updated": "Actualizado"
+  },
+  "rooms": {
+    "title": "Gestión de Habitaciones",
+    "filterAll": "Todas",
+    "filterAvailable": "Disponibles",
+    "filterOccupied": "Ocupadas",
+    "filterCleaning": "Limpieza",
+    "filterMaintenance": "Mantenimiento",
+    "searchPlaceholder": "Buscar por n°, tipo o huésped...",
+    "roomLabel": "Hab.",
+    "room": "Habitación",
+    "unknownGuest": "Huésped Desconocido",
+    "markClean": "Marcar Limpia",
+    "markForCleaning": "Marcar para Limpieza",
+    "reportIssue": "Reportar Incidencia",
+    "markFixed": "Marcar Arreglada",
+    "noRoomsFound": "No se Encontraron Habitaciones",
+    "noRoomsFoundMsg": "No se encontraron habitaciones con los filtros actuales.",
+    "statusUpdateSuccess": "Habitación {number} actualizada a {status}.",
+    "confirmIssueMsg": "¿Seguro que quieres reportar una incidencia en la Habitación {number}? Su estado cambiará a Mantenimiento.",
+    "noPendingRoomsTitle": "¡Todas las Habitaciones Limpias!",
+    "noPendingRoomsMsg": "Actualmente no hay habitaciones asignadas para limpieza o revisión."
   },
   "tasks": {
     "title": "Gestión de Tareas",

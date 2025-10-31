@@ -149,9 +149,8 @@ export class UserService {
      * Fetches a list of all user profiles.
      * @returns {Promise<Array<object>>} A list of profile objects.
      */
-    async getGuestProfileList() { // [NUEVO]
-        // Asume que profileRepository.getProfiles() trae todos
-        return await this.profileRepository.getProfiles();
+    async getGuestProfileList() {
+        return await this.profileRepository.getAllProfiles();
     }
 
 }
