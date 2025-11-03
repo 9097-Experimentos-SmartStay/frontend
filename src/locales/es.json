@@ -319,8 +319,25 @@
     "lastUpdated": "Last Updated"
   },
   "guestDashboard": {
-    "upcomingBookings": "Reservas próximas",
-    "viewAll": "Ver todas",
-    "noUpcoming": "No hay reservas próximas"
+    "title": "Bienvenido, Invitado",
+    "subtitle": "Aquí tienes un resumen de tu panel",
+    "viewProperties": "Ver Propiedades",
+    "myBookings": "Mis Reservas",
+    "activeServices": "Servicios Activos",
+    "recommendations": "Recomendaciones",
+    "recentProperties": "Propiedades Recientes",
+    "upcomingBookings": "Próximas Reservas",
+    "viewAll": "Ver Todas",
+    "noUpcoming": "No hay próximas reservas",
+    "recommendationsTitle": "Recomendaciones",
+    "refresh": "Actualizar",
+    "recommendationsSubtitle": "Recomendado para ti",
+    "noRecommendations": "No hay recomendaciones disponibles",
+    "quickServices": "Servicios Rápidos",
+    "requestService": "Solicitar Servicio",
+    "leaveReview": "Dejar una Reseña",
+    "viewMap": "Ver Mapa",
+    "noProperties": "No hay propiedades disponibles"
   }
+
 }
