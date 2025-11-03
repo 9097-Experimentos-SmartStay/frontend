@@ -307,5 +307,15 @@
     "por limpiar": "Limpieza Pendiente",
     "revisión pendiente": "Revisión Pendiente",
     "unknown": "Desconocido"
+  },
+  "staffProfile": {
+    "title": "Staff Profile",
+    "name": "Name",
+    "email": "Email",
+    "position": "Position",
+    "shift": "Shift",
+    "role": "Role",
+    "phone": "Phone",
+    "lastUpdated": "Last Updated"
   }
 }

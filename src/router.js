@@ -8,35 +8,23 @@ import authRoutes from './modules/auth/presentation/routes.js'; // Contiene /log
 import dashboardRoutes from './modules/dashboard/presentation/routes.js'; // Contiene /dashboard (redirector) y /admin/dashboard, etc.
 import propertyRoutes from './modules/property/presentation/routes.js'; // Contiene /admin/property/rooms, /guest/property/list, etc.
 import bookingRoutes from './modules/booking/presentation/routes.js'; // Contiene /guest/booking/my-list, /guest/booking/review
+import staffRoutes from './modules/staff/presentation/routes.js';
 // import billingRoutes from './modules/billing/router.js'; // Descomenta cuando existan
 
 
 // --- 2. Import Shared Views ---
-// Ajusta la ruta si es necesario
 const PageNotFound = () => import('./shared/presentation/views/page-not-found.vue');
-// const HomeView = () => import('./shared/presentation/views/home.vue'); // Ya no necesitamos DashboardView aquí
 
 
 // --- 3. Combine All Route Definitions ---
 const routes = [
     // Spread routes imported from feature modules first.
     ...authRoutes,
-    ...dashboardRoutes, // <--- Rutas de dashboard (incluye el redirector /dashboard)
+    ...dashboardRoutes,
     ...propertyRoutes,
     ...bookingRoutes,
-    // ...billingRoutes,
-    // ... otros módulos ...
+    ...staffRoutes,
 
-    // --- ELIMINA ESTA DEFINICIÓN REDUNDANTE ---
-    // {
-    //     path: '/dashboard', // Ya está definido en dashboardRoutes
-    //     name: 'dashboard',
-    //     component: DashboardView, // Ya no se usa directamente
-    //     meta: { title: 'Dashboard', requiresAuth: true }
-    // },
-    // --- FIN ELIMINACIÓN ---
-
-    // Define root path redirect y catch-all route last.
     {
         path: '/',
         // Redirige a login o a dashboard según si está autenticado (la guardia global lo maneja)

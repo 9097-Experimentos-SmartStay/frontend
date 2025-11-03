@@ -283,7 +283,7 @@ function requestSupplies() {
 
 function goToProfile() {
   console.log("Navigate to Profile...");
-  // router.push({ name: 'staff-profile' });
+  router.push({ name: 'staff-profile' });
 }
 function goToTasks() {
   router.push({ name: 'staff-task-list' });

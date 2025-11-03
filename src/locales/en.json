@@ -307,5 +307,15 @@
     "confirmIssueMsg": "Are you sure you want to report an issue for Room {number}? This will set its status to Maintenance.",
     "noPendingRoomsTitle": "All Rooms are Clean!",
     "noPendingRoomsMsg": "There are currently no rooms assigned for cleaning or review."
+  },
+  "staffProfile": {
+    "title": "Perfil del Personal",
+    "name": "Nombre",
+    "email": "Correo Electrónico",
+    "position": "Cargo",
+    "shift": "Turno",
+    "role": "Rol",
+    "phone": "Teléfono",
+    "lastUpdated": "Última actualización"
   }
 }
