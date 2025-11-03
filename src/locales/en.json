@@ -317,5 +317,26 @@
     "role": "Rol",
     "phone": "Teléfono",
     "lastUpdated": "Última actualización"
+  },
+  "guestDashboard": {
+    "title": "Welcome, Guest",
+    "subtitle": "Here is your dashboard overview",
+    "viewProperties": "View Properties",
+    "myBookings": "My Bookings",
+    "activeServices": "Active Services",
+    "recommendations": "Recommendations",
+    "recentProperties": "Recent Properties",
+    "upcomingBookings": "Upcoming Bookings",
+    "viewAll": "View All",
+    "noUpcoming": "No Upcoming Bookings",
+    "recommendationsTitle": "Recommendations",
+    "refresh": "Refresh",
+    "recommendationsSubtitle": "Recommended for you",
+    "noRecommendations": "No recommendations available",
+    "quickServices": "Quick Services",
+    "requestService": "Request Service",
+    "leaveReview": "Leave a Review",
+    "viewMap": "View Map",
+    "noProperties": "No properties available"
   }
 }

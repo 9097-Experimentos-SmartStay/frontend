@@ -317,5 +317,10 @@
     "role": "Role",
     "phone": "Phone",
     "lastUpdated": "Last Updated"
+  },
+  "guestDashboard": {
+    "upcomingBookings": "Reservas próximas",
+    "viewAll": "Ver todas",
+    "noUpcoming": "No hay reservas próximas"
   }
 }

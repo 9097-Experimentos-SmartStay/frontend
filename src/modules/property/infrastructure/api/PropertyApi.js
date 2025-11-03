@@ -11,6 +11,21 @@ export const propertyApi = {
         const res = await axios.get(`${API_BASE_URL}${ROOMS_ENDPOINT}`);
         return res.data;
     },
+    async fetchPropertyById(id) {
+        const res = await axios.get(`${API_BASE_URL}${PROPERTIES_ENDPOINT}/${id}`);
+        return res.data;
+    },
+    async postProperty(data) {
+        const res = await axios.post(`${API_BASE_URL}${PROPERTIES_ENDPOINT}`, data);
+        return res.data;
+    },
+    async patchProperty(id, data) {
+        const res = await axios.patch(`${API_BASE_URL}${PROPERTIES_ENDPOINT}/${id}`, data);
+        return res.data;
+    },
+    async removeProperty(id) {
+        await axios.delete(`${API_BASE_URL}${PROPERTIES_ENDPOINT}/${id}`);
+    },
     async fetchRoomById(roomId) { // NUEVO
         const res = await axios.get(`${API_BASE_URL}${ROOMS_ENDPOINT}/${roomId}`);
         return res.data;
@@ -49,5 +64,4 @@ export const propertyApi = {
     async removeTask(taskId) { // <-- NUEVO
         await axios.delete(`${API_BASE_URL}${TASKS_ENDPOINT}/${taskId}`);
     }
-    // Añadir llamadas API para otras operaciones (POST, PUT, DELETE)
 };

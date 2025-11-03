@@ -1,11 +1,16 @@
+// src/modules/guest/application/guest_service.js
 import { guestRepository } from "../domain/guest_repository.js";
 
 export const guestService = {
-    getAvailableProperties() {
-        return guestRepository.getProperties();
+    async getAvailableProperties() {
+        return await guestRepository.getProperties();
     },
 
-    getMyBookings() {
-        return guestRepository.getBookings();
+    async getMyBookings(guestId) {
+        return await guestRepository.getBookings(guestId);
+    },
+
+    async getActiveServices(guestId) {
+        return await guestRepository.getActiveServices(guestId);
     }
 };

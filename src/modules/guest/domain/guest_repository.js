@@ -1,14 +1,23 @@
+// src/modules/guest/domain/guest_repository.js
+import { guestApi } from "../infrastructure/guest_api.js";
+
 export const guestRepository = {
-    getProperties() {
-        return [
-            { id: 1, name: "Hotel Costa del Sol", city: "Lima", price: 200 },
-            { id: 2, name: "Hostal El Valle", city: "Cusco", price: 120 },
-        ];
+    async getProperties() {
+        console.log("📡 guestRepository: fetching properties from DB...");
+        return await guestApi.fetchProperties();
     },
 
-    getBookings() {
-        return [
-            { id: 10, property: "Hotel Costa del Sol", date: "2025-11-02", status: "Confirmada" },
-        ];
+    async getBookings(guestId = null) {
+        console.log("📡 guestRepository: fetching bookings from DB...");
+        const allBookings = await guestApi.fetchBookings();
+        if (!guestId) return allBookings;
+        return allBookings.filter(b => b.guestId === guestId);
+    },
+
+    async getActiveServices(guestId) {
+        console.log("📡 guestRepository: fetching active services for guest", guestId);
+        // si tu API aún no tiene un endpoint de servicios, retorna arreglo vacío
+        const res = await guestApi.fetchServices?.(guestId);
+        return res || [];
     }
 };

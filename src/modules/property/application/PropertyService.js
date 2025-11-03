@@ -17,8 +17,35 @@
         await this.propertyRepository.deleteRoom(roomId);
     }
 
+    /**
+     * A specific service to quickly update only the room status.
+     * @param {number|string} roomId - The ID of the room.
+     * @param {string} status - The new status (e.g., 'available', 'cleaning').
+     * @returns {Promise<object>} The updated room object.
+     */
+    async updateRoomStatus(roomId, status) {
+        try {
+            console.log(`Service: Updating room ${roomId} status to ${status}`);
+            return await this.propertyRepository.updateRoom(roomId, { status: status });
+        } catch (error) {
+            console.error(`Error updating room status:`, error);
+            throw error;
+        }
+    }
+
     // --- Métodos de Property ---
     async getPropertyList() { return await this.propertyRepository.getProperties(); }
+
+    async getAllProperties() {
+        try {
+            const properties = await this.propertyRepository.getAllProperties();
+            console.log(`Service: Fetched ${properties.length} total properties`);
+            return properties;
+        } catch (error) {
+            console.error("Error getting all properties:", error);
+            throw new Error("No se pudieron obtener todas las propiedades");
+        }
+    }
 
     // --- Métodos de Task ---
     async getTaskList(assignedTo = null) {
@@ -36,7 +63,6 @@
     }
 
     async updateTaskDetails(taskId, taskData) {
-        // No actualiza el estado si solo completa
         const { status, ...dataToUpdate } = taskData;
         console.log(`Service: Updating task ${taskId}`, dataToUpdate);
         return await this.propertyRepository.updateTask(taskId, dataToUpdate);
@@ -75,22 +101,6 @@
             return updatedTask;
         } catch (error) {
             console.error(`Error reverting task ${taskId}:`, error);
-            throw error;
-        }
-    }
-
-    /**
-     * A specific service to quickly update only the room status.
-     * @param {number|string} roomId - The ID of the room.
-     * @param {string} status - The new status (e.g., 'available', 'cleaning').
-     * @returns {Promise<object>} The updated room object.
-     */
-    async updateRoomStatus(roomId, status) {
-        try {
-            console.log(`Service: Updating room ${roomId} status to ${status}`);
-            return await this.propertyRepository.updateRoom(roomId, { status: status });
-        } catch (error) {
-            console.error(`Error updating room status:`, error);
             throw error;
         }
     }

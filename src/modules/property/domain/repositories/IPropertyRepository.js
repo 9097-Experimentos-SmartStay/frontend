@@ -11,5 +11,10 @@ export class IPropertyRepository {
     updateTask(taskId, data) { throw new Error("Not implemented"); }
     addTask(taskData) { throw new Error("Not implemented: addTask"); }
     deleteTask(taskId) { throw new Error("Not implemented: deleteTask"); }
+    getAllProperties() {throw new Error("Not implemented: getAllProperties");}
+    getPropertyById(propertyId) {throw new Error("Not implemented: getPropertyById");}
+    createProperty(propertyData) {throw new Error("Not implemented: createProperty");}
+    updateProperty(propertyId, propertyData) {throw new Error("Not implemented: updateProperty");}
+    deleteProperty(propertyId) {throw new Error("Not implemented: deleteProperty");}
 
 }
