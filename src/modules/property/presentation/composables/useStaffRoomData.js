@@ -112,6 +112,16 @@ export function useStaffRoomData() {
         return rooms;
     });
 
+    async function refreshRooms() {
+        await loadAllData();
+        toast.add({
+            severity: "info",
+            summary: "Datos actualizados",
+            detail: "Se recargó la lista de habitaciones",
+            life: 2000,
+        });
+    }
+
     // --- Retornar todo lo necesario ---
     return {
         // Datos crudos
@@ -131,6 +141,9 @@ export function useStaffRoomData() {
         // Servicios y utilidades
         propertySvc,
         toast,
-        confirm
+        confirm,
+
+        // Acciones
+        refreshRooms
     };
 }

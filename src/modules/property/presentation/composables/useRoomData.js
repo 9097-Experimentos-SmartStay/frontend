@@ -34,6 +34,14 @@ export function useRoomData() {
         await loadRooms();
     };
 
+    async function updateRoomStatus(id, newStatus) {
+        await fetch(`http://localhost:3000/rooms/${id}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ status: newStatus }),
+        });
+    }
+
     onMounted(loadRooms);
 
     return {
@@ -42,6 +50,7 @@ export function useRoomData() {
         error,
         loadRooms,
         markRoomAsCleaning,
-        markRoomAsAvailable
+        markRoomAsAvailable,
+        updateRoomStatus
     };
 }

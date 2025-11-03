@@ -6,7 +6,9 @@ export class RoomService {
     }
 
     async getRoomList() {
-        return await this.roomRepository.getAll();
+        const rooms = await this.roomRepository.getAll();
+        console.log(`Service: Retrieved ${rooms.length} rooms`);
+        return rooms;
     }
 
     async getRoomDetails(roomId) {
@@ -43,8 +45,20 @@ export class RoomService {
         return updatedRoom;
     }
 
+    async markAsDirty(roomId) {
+        const updatedRoom = await this.roomRepository.update(roomId, { status: 'dirty' });
+        console.log(`🚧 Room ${roomId} marked as dirty.`);
+        return updatedRoom;
+    }
+
+    async markAsMaintenance(roomId, notes = '') {
+        const updatedRoom = await this.roomRepository.update(roomId, { status: 'maintenance', maintenance_notes: notes });
+        console.log(`🔧 Room ${roomId} marked as maintenance. Notes: ${notes}`);
+        return updatedRoom;
+    }
+
     async getRoomsPendingCleaning() {
         const rooms = await this.roomRepository.getAll();
-        return rooms.filter(r => r.status === 'Por limpiar' || r.status === 'Revisión pendiente' || r.status === 'cleaning');
+        return rooms.filter(r => ['dirty', 'cleaning'].includes(r.status));
     }
 }

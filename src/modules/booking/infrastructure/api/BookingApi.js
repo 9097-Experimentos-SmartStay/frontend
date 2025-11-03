@@ -30,5 +30,5 @@ export const bookingApi = {
         const res = await axios.get(`${API_BASE_URL}${BOOKINGS_ENDPOINT}`);
         return res.data;
     }
-    // TODO: add call to put and patch is you needed to update appointments or reviews
+
 };
