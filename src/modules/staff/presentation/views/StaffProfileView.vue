@@ -5,6 +5,7 @@
         <div class="flex justify-between items-center">
           <h2 class="text-2xl font-bold text-primary">{{ t('staffProfile.title') }}</h2>
           <pv-button :label="t('common.back')" icon="pi pi-arrow-left" class="p-button-text" @click="goBack" />
+          <LanguageSwitcher />
         </div>
       </template>
 
@@ -59,6 +60,7 @@ import { UserService } from '../../../auth/application/UserService.js'
 import { UserAPIRepository } from '../../../auth/infrastructure/repositories/user_api_repository.js'
 import { ProfileApiRepository } from '../../../auth/infrastructure/repositories/ProfileApiRepository.js'
 import { PropertyApiRepository } from '../../../property/infrastructure/repositories/PropertyApiRepository.js'
+import LanguageSwitcher from "../../../../shared/presentation/components/language-switcher.vue";
 
 const { t } = useI18n()
 const router = useRouter()
