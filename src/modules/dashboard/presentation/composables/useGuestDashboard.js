@@ -1,6 +1,6 @@
 ﻿// useGuestDashboard.js
 // Lógica (servicios, transformación, acciones) separada del UI
-import { ref, computed } from "vue";
+import { ref, computed, onMounted, onActivated } from "vue";
 import { useRouter } from "vue-router";
 import { useToast } from "primevue/usetoast";
 
@@ -8,10 +8,14 @@ import { useToast } from "primevue/usetoast";
 import { BookingService } from "../../../booking/application/BookingService.js";
 import { guestService } from "../../../guest/application/guest_service.js";
 import { PropertyService } from "../../../property/application/PropertyService.js";
+import { useUserStore } from "../../../../shared/application/store/user_store.js";
+
+import { nextTick } from "vue";
 
 export function useGuestDashboard() {
 const router = useRouter();
 const toast = useToast();
+const userStore = useUserStore();
 
 // services (instanciación)
 const bookingSvc = new BookingService();
@@ -145,12 +149,21 @@ console.error("Request service error:", error);
 }
 }
 
-function logout() {
-localStorage.removeItem("user");
-localStorage.removeItem("user_token");
-localStorage.removeItem("user_role");
-router.push({ name: "login" });
-}
+    function logout() {
+        console.log("useGuestDashboard.js: Coordinating logout...");
+
+        // 1. Llama a la acción de Pinia para limpiar el estado
+        userStore.logout();
+
+        // 2. AHORA, navega.
+        // En este punto, userStore.isLoggedIn es 'false'.
+        // Cuando el auth_guard se dispare, leerá 'false' y permitirá
+        // el acceso a la ruta 'login'.
+        console.log("useGuestDashboard.js: State cleared. Navigating to login.");
+
+        // 'replace' es mejor que 'push' para que el usuario no pueda "volver"
+        router.replace({ name: "login" });
+    }
 
 function getRoomNumber(roomId) {
 // Intenta resolver room number desde properties list

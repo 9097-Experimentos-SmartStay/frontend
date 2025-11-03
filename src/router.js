@@ -47,6 +47,9 @@ const router = createRouter({
 // --- 5. Global Navigation Guard ---
 // (Mantenemos la guardia global robusta que incluye chequeo de roles)
 router.beforeEach((to, from, next) => {
+    console.log("--- AUTH_GUARD (INICIO) ---");
+    console.log("localStorage 'user_token' ES:", localStorage.getItem('user_token'));
+
     const isAuthenticated = !!localStorage.getItem('user_token');
     const userRole = localStorage.getItem('user_role');
     const requiresAuth = to.matched.some(record => record.meta.requiresAuth);

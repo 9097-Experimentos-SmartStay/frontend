@@ -5,6 +5,7 @@ import AdminDashboard from './views/AdminDashboard.vue';
 import StaffDashboard from './views/StaffDashboard.vue';
 import GuestDashboard from './views/GuestDashboard.vue';
 
+
 export default [
     // --- Ruta Central de Redirección ---
     {

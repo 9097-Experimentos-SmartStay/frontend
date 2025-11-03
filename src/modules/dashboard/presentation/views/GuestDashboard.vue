@@ -1,6 +1,6 @@
 <template>
   <div class="p-6 max-w-6xl mx-auto">
-    <!-- Header -->
+    <pv-toast position="bottom-right" />
     <div class="flex items-start justify-between gap-4 mb-6">
       <div>
         <h1 class="text-3xl font-bold text-primary mb-1">🛏️ {{ t('guestDashboard.title') }}</h1>
@@ -22,9 +22,10 @@
         />
         <pv-button icon="pi pi-sign-out" :label="t('dashboard.logoutButton')" class="p-button-danger" @click="logout" />
       </div>
+
+      <language-switcher></language-switcher>
     </div>
 
-    <!-- Quick stats -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
       <div class="rounded-lg border p-4 bg-white shadow-sm">
         <p class="text-xs text-gray-500">{{ t('guestDashboard.upcomingBookings') }}</p>
@@ -41,7 +42,6 @@
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <!-- Upcoming bookings -->
       <pv-card class="bg-white">
         <template #title>
           <div class="flex justify-between items-center">
@@ -77,7 +77,6 @@
         </template>
       </pv-card>
 
-      <!-- Recommendations & quick actions -->
       <pv-card class="bg-white">
         <template #title>
           <div class="flex justify-between items-center">
@@ -117,7 +116,6 @@
       </pv-card>
     </div>
 
-    <!-- Recent properties (carousel-like compact list) -->
     <div class="mt-6">
       <pv-card>
         <template #title>
@@ -149,10 +147,22 @@
 
 <script setup>
 import { useGuestDashboard } from "../../application/useGuestDashboard.js";
+import { onMounted, onActivated } from 'vue';
+import LanguageSwitcher from "../../../../shared/presentation/components/language-switcher.vue";
+import { useI18n } from "vue-i18n";
 
-// Extraemos las propiedades del composable
+// --- [NUEVO] Importa las "armas" directamente ---
+import { useRouter } from 'vue-router';
+import { useUserStore } from '../../../../shared/application/store/user_store.js';
+
+const {t,  locale } = useI18n();
+
+// --- [NUEVO] Instancia las "armas" ---
+const router = useRouter();
+const userStore = useUserStore();
+
+
 const {
-  t,
   loading,
   upcomingBookings,
   properties,
@@ -163,8 +173,29 @@ const {
   goToProperties,
   goToBookings,
   goToReview,
-  logout
+  requestService,
+  // 'logout' ya no se extrae de aquí
 } = useGuestDashboard();
+
+onMounted(loadDashboard);
+onActivated(loadDashboard);
+
+// --- [NUEVO] Táctica de Logout de Admin/Staff ---
+// Esta función SÍ funcionará porque es síncrona.
+function logout() {
+  console.log('GuestDashboard.vue: Ejecutando táctica de logout síncrona...');
+
+  // 1. (Opcional pero recomendado) Llama al store para limpiar Pinia
+  userStore.logout();
+
+  // 2. [LA CLAVE] Limpia localStorage INMEDIATAMENTE
+  localStorage.clear();
+
+  console.log('GuestDashboard.vue: Almacenamiento limpio. Navegando a login.');
+
+  // 3. Navega. El auth_guard ahora verá localStorage vacío.
+  router.push({ name: 'login' });
+}
 
 </script>
 
