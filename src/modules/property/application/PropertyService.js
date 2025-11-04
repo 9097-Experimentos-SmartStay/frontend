@@ -233,4 +233,14 @@
         // Filtra por los estados que definen una habitación como "pendiente" para el staff
         return allRooms.filter(room => room.status === 'Por limpiar' || room.status === 'Revisión pendiente' || room.status === 'cleaning');
     }
+
+    async getPropertyById(propertyId) {
+        try {
+            console.log(`Service: Getting details for property ${propertyId}`);
+            return await this.propertyRepository.getPropertyById(propertyId);
+        } catch (error) {
+            console.error(`Error getting property details:`, error);
+            throw error;
+        }
+    }
 }

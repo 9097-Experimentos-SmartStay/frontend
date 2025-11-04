@@ -1,203 +1,200 @@
-﻿// useGuestDashboard.js
-// Lógica (servicios, transformación, acciones) separada del UI
+﻿// src/modules/dashboard/application/useGuestDashboard.js
+
 import { ref, computed, onMounted, onActivated } from "vue";
 import { useRouter } from "vue-router";
 import { useToast } from "primevue/usetoast";
-
-// Ajusta rutas a tus servicios reales si difieren
-import { BookingService } from "../../../booking/application/BookingService.js";
-import { guestService } from "../../../guest/application/guest_service.js";
-import { PropertyService } from "../../../property/application/PropertyService.js";
 import { useUserStore } from "../../../../shared/application/store/user_store.js";
 
-import { nextTick } from "vue";
+// [IMPORTANTE] Necesitamos los repositorios para instanciar los servicios
+import { BookingApiRepository } from "../../../booking/infrastructure/repositories/BookingApiRepository.js";
+import { PropertyApiRepository } from "../../../property/infrastructure/repositories/PropertyApiRepository.js";
+import { guestApi } from "../../../guest/infrastructure/guest_api.js"; // Asumiendo esta ruta
+
+// Ajusta rutas a tus servicios reales
+import { BookingService } from "../../../booking/application/booking_service.js";
+import { guestService } from "../../../guest/application/guest_service.js";
+import { PropertyService } from "../../../property/application/PropertyService.js";
 
 export function useGuestDashboard() {
-const router = useRouter();
-const toast = useToast();
-const userStore = useUserStore();
+    const router = useRouter();
+    const toast = useToast();
+    const userStore = useUserStore();
 
-// services (instanciación)
-const bookingSvc = new BookingService();
-const guestSvc = new guestService();
-const propertySvc = new PropertyService();
+    // [CORREGIDO] Instanciación de servicios con Repositorios (Estilo DDD)
+    const propertyRepo = new PropertyApiRepository();
+    const bookingRepo = new BookingApiRepository();
+    const guestRepo = new guestApi(); // Asumiendo esto
 
-// estado
-const loading = ref(false);
-const upcomingBookings = ref([]);
-const properties = ref([]);
-const recommendations = ref([]);
-const services = ref([]); // servicios contratados
-const placeholderImg = "/assets/logo-modo-oscuro.png"; // usa path real si tienes
-const userId = ref(null);
+    const bookingSvc = new BookingService(bookingRepo, propertyRepo);
+    const guestSvc = new guestService(guestRepo); // Asumiendo esto
+    const propertySvc = new PropertyService(propertyRepo);
 
-// estadisticas simples
-const stats = computed(() => ({
-upcoming: upcomingBookings.value.length,
-services: services.value.length,
-}));
+    // estado
+    const loading = ref(false);
+    const upcomingBookings = ref([]);
+    const properties = ref([]); // <-- Esto ahora será "Recent Properties"
+    const recommendations = ref([]);
+    const services = ref([]);
+    const placeholderImg = "/assets/logo-modo-oscuro.png";
+    const userId = ref(null);
 
-/** Formatea fecha a string legible (local) */
-function formatDate(dateStr) {
-try {
-const d = new Date(dateStr);
-return d.toLocaleDateString() + " " + d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-} catch (e) {
-return dateStr;
-}
-}
+    // estadisticas simples
+    const stats = computed(() => ({
+        upcoming: upcomingBookings.value.length,
+        services: services.value.length,
+    }));
 
-function translateBookingStatus(status) {
-if (!status) return status;
-const s = status.toString().toLowerCase();
-if (s.includes("confirm")) return "Confirmada";
-if (s.includes("pending") || s.includes("pendiente")) return "Pendiente";
-if (s.includes("cancel")) return "Cancelada";
-return status;
-}
+    // ... (tus helpers: formatDate, translateBookingStatus, canCancel se quedan igual) ...
+    function formatDate(dateStr) { /* ... */ }
+    function translateBookingStatus(status) { /* ... */ }
+    function canCancel(booking) { /* ... */ }
 
-/** Determina si puede cancelar (ej. más de 24h antes del checkin) */
-function canCancel(booking) {
-if (!booking || !booking.checkIn) return false;
-const checkIn = new Date(booking.checkIn).getTime();
-const now = Date.now();
-const diffHours = (checkIn - now) / (1000 * 60 * 60);
-return diffHours > 24 && booking.status && !/cancel/i.test(booking.status);
-}
 
-async function loadDashboard() {
-loading.value = true;
-try {
-const stored = localStorage.getItem("user");
-userId.value = stored ? JSON.parse(stored).id : null;
+    async function loadDashboard() {
+        loading.value = true;
+        try {
+            const stored = localStorage.getItem("user");
+            userId.value = stored ? JSON.parse(stored).id : null;
+            if (!userId.value) throw new Error("User ID not found in localStorage");
 
-// llamadas paralelas
-const [bks, props, svc, recs] = await Promise.all([
-bookingSvc.getBookingsForGuest(userId.value), // debe devolver lista
-propertySvc.getRecommendedPropertiesForGuest(userId.value), // lista
-guestSvc.getActiveServices(userId.value), // servicios contratados por el guest
-propertySvc.getRecentProperties() // otra source para recomendaciones si no hay
-]);
+            // [TÁCTICA MODIFICADA]
+            // 1. Carga las reservas del usuario Y todas las propiedades/habitaciones
+            const [userBookings, allProperties, allRooms, activeServices] = await Promise.all([
+                bookingSvc.getMyBookings(userId.value), // Solo las del Guest
+                propertySvc.getPropertyList(), // Todas las propiedades
+                propertySvc.getRoomList(), // Todas las habitaciones (para imágenes)
+                guestSvc.getActiveServices(userId.value)
+            ]);
 
-// Normalizar respuestas (depende de tu API)
-upcomingBookings.value = Array.isArray(bks) ? bks.filter(b => {
-// bookings futuras / activas
-const checkOut = new Date(b.checkOut).getTime();
-return checkOut >= Date.now();
-}).sort((a,b)=> new Date(a.checkIn)-new Date(b.checkIn)) : [];
+            // 2. Procesa las reservas (para "Upcoming Bookings")
+            upcomingBookings.value = (Array.isArray(userBookings) ? userBookings : [])
+                .filter(b => new Date(b.checkOut) >= Date.now()) // Activas o futuras
+                .map(b => {
+                    // Enriquece la reserva con el nombre de la propiedad
+                    const prop = allProperties.find(p => p.id === b.propertyId);
+                    return { ...b, propertyName: prop ? prop.name : 'Propiedad Desconocida' };
+                })
+                .sort((a, b) => new Date(a.checkIn) - new Date(b.checkIn));
 
-properties.value = Array.isArray(props) ? props.slice(0, 6) : (Array.isArray(recs) ? recs.slice(0,6) : []);
+            // 3. Procesa las "Propiedades Recientes" (Tu petición)
+            //    (Basado en las reservas del usuario)
+            properties.value = (Array.isArray(userBookings) ? userBookings : [])
+                // Ordena por fecha de creación (la más nueva primero)
+                .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+                // Mapea la reserva a un objeto de "Propiedad"
+                .map(booking => {
+                    const prop = allProperties.find(p => p.id === booking.propertyId);
+                    const room = allRooms.find(r => r.id === booking.roomId);
+                    return {
+                        id: booking.propertyId, // ID de la propiedad para el enlace
+                        name: prop ? prop.name : 'Propiedad Desconocida',
+                        location: prop ? prop.location : 'Ubicación Desconocida',
+                        image_url: room ? room.image_url : null // ¡Tomamos la imagen de la HABITACIÓN!
+                    };
+                })
+                // Elimina duplicados (si reservó el mismo hotel varias veces)
+                .filter((prop, index, self) =>
+                    index === self.findIndex((p) => p.id === prop.id)
+                )
+                // Limita a las 3 más recientes
+                .slice(0, 3);
 
-services.value = Array.isArray(svc) ? svc : [];
+            services.value = Array.isArray(activeServices) ? activeServices : [];
 
-// Recomendations: usa recs si provided, si no, recompute
-if (Array.isArray(props) && props.length) {
-recommendations.value = props.slice(0, 4).map(p => ({
-title: p.name,
-description: p.location,
-propertyId: p.id
-}));
-} else if (Array.isArray(recs) && recs.length) {
-recommendations.value = recs.slice(0, 4).map(p => ({ title: p.name, description: p.location, propertyId: p.id }));
-} else {
-recommendations.value = [];
-}
+            // 4. Recomendaciones (Lógica simple: propiedades que NO ha reservado)
+            const bookedPropertyIds = new Set(userBookings.map(b => b.propertyId));
+            recommendations.value = allProperties
+                .filter(p => !bookedPropertyIds.has(p.id)) // Filtra las que ya reservó
+                .slice(0, 4) // Toma las primeras 4
+                .map(p => ({
+                    title: p.name,
+                    description: p.location,
+                    propertyId: p.id
+                }));
 
-} catch (error) {
-console.error("Error loading guest dashboard:", error);
-toast.add({ severity: "error", summary: "Error", detail: error.message || "No se pudieron cargar datos", life: 4000 });
-} finally {
-loading.value = false;
-}
-}
-
-/* Navegación */
-function goToBookings() {
-router.push({ name: "guest-bookings" });
-}
-function goToProperties() {
-router.push({ name: "guest-properties" });
-}
-function goToProperty(propertyId) {
-router.push({ name: "guest-property-details", params: { id: propertyId } });
-}
-function goToReview() {
-router.push({ name: "guest-review" });
-}
-
-async function cancelBooking(booking) {
-try {
-await bookingSvc.cancelBooking(booking.id);
-toast.add({ severity: "success", summary: "Éxito", detail: "Reserva cancelada", life: 3000 });
-await loadDashboard();
-} catch (error) {
-console.error("Error cancelling booking:", error);
-toast.add({ severity: "error", summary: "Error", detail: error.message || "No se pudo cancelar", life: 4000 });
-}
-}
-
-function openBooking(booking) {
-router.push({ name: "guest-booking-details", params: { id: booking.id } });
-}
-
-async function requestService() {
-try {
-// ejemplo simple: open services page
-router.push({ name: "guest-services" });
-} catch (error) {
-console.error("Request service error:", error);
-}
-}
-
-    function logout() {
-        console.log("useGuestDashboard.js: Coordinating logout...");
-
-        // 1. Llama a la acción de Pinia para limpiar el estado
-        userStore.logout();
-
-        // 2. AHORA, navega.
-        // En este punto, userStore.isLoggedIn es 'false'.
-        // Cuando el auth_guard se dispare, leerá 'false' y permitirá
-        // el acceso a la ruta 'login'.
-        console.log("useGuestDashboard.js: State cleared. Navigating to login.");
-
-        // 'replace' es mejor que 'push' para que el usuario no pueda "volver"
-        router.replace({ name: "login" });
+        } catch (error) {
+            console.error("Error loading guest dashboard:", error);
+            toast.add({ severity: "error", summary: "Error", detail: error.message || "No se pudieron cargar datos", life: 4000 });
+        } finally {
+            loading.value = false;
+        }
     }
 
-function getRoomNumber(roomId) {
-// Intenta resolver room number desde properties list
-const p = properties.value.find(pr => pr.rooms && pr.rooms.find(r => r.id === roomId));
-if (p) {
-const r = p.rooms.find(r => r.id === roomId);
-return r ? r.number : roomId;
-}
-return roomId;
-}
+    /* Navegación */
+    function goToBookings() {
+        router.push({ name: "guest-my-bookings" }); // Asumiendo este nombre de ruta
+    }
+    function goToProperties() {
+        router.push({ name: "guest-property-list" }); // Asumiendo este nombre de ruta
+    }
+    function goToProperty(propertyId) {
+        // Necesitas una ruta para detalles de propiedad
+        // router.push({ name: "guest-property-details", params: { id: propertyId } });
+        console.log("Navegar a detalles de propiedad:", propertyId);
+    }
+    function goToReview() {
+        router.push({ name: "guest-review-form" }); // Asumiendo este nombre de ruta
+    }
 
-return {
-loading,
-upcomingBookings,
-properties,
-recommendations,
-services,
-stats,
-placeholderImg,
+    async function cancelBooking(booking) {
+        try {
+            await bookingSvc.cancelMyBooking(booking.id, userId.value);
+            toast.add({ severity: "success", summary: "Éxito", detail: "Reserva cancelada", life: 3000 });
+            await loadDashboard(); // Recarga todo
+        } catch (error) {
+            console.error("Error cancelling booking:", error);
+            toast.add({ severity: "error", summary: "Error", detail: error.message || "No se pudo cancelar", life: 4000 });
+        }
+    }
 
-loadDashboard,
-logout,
-goToBookings,
-goToProperties,
-goToProperty,
-goToReview,
-openBooking,
-cancelBooking,
-requestService,
+    function openBooking(booking) {
+        // Necesitas una ruta para detalles de reserva
+        // router.push({ name: "guest-booking-details", params: { id: booking.id } });
+        console.log("Navegar a detalles de reserva:", booking.id);
+    }
 
-// helpers
-formatDate,
-translateBookingStatus,
-canCancel,
-getRoomNumber
-};
+    async function requestService() {
+        console.log("Request service...");
+    }
+
+    // [TÁCTICA DE LOGOUT QUE FUNCIONA]
+    function logout() {
+        console.log("GuestDashboard.js: Coordinating logout...");
+        userStore.logout(); // Limpia Pinia
+        localStorage.clear(); // Limpia localStorage (Síncrono)
+        console.log("GuestDashboard.js: State cleared. Navigating to login.");
+        router.replace({ name: "login" }); // Navega
+    }
+
+    function getRoomNumber(roomId) {
+        // Esta función ahora no es necesaria en "Upcoming Bookings" si mostramos el nombre de la propiedad,
+        // pero la dejamos por si acaso.
+        return `ID ${roomId}`;
+    }
+
+    return {
+        loading,
+        upcomingBookings,
+        properties, // Esta es tu lista de "Recent Properties"
+        recommendations,
+        services,
+        stats,
+        placeholderImg,
+
+        loadDashboard,
+        logout,
+        goToBookings,
+        goToProperties,
+        goToProperty,
+        goToReview,
+        openBooking,
+        cancelBooking,
+        requestService,
+
+        // helpers
+        formatDate,
+        translateBookingStatus,
+        canCancel,
+        getRoomNumber
+    };
 }

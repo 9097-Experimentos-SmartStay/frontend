@@ -1,3 +1,5 @@
+// src/modules/guest/domain/guest.js
+
 export class Guest {
     constructor(id, name, email, reservations = []) {
         this.id = id;

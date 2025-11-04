@@ -174,7 +174,15 @@ const {
   goToBookings,
   goToReview,
   requestService,
-  // 'logout' ya no se extrae de aquí
+
+  // --- [AÑADE ESTAS LÍNEAS QUE FALTABAN] ---
+  goToProperty,
+  formatDate,
+  translateBookingStatus,
+  canCancel,
+  cancelBooking,
+  openBooking,
+  getRoomNumber
 } = useGuestDashboard();
 
 onMounted(loadDashboard);

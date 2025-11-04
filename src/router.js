@@ -9,7 +9,7 @@ import dashboardRoutes from './modules/dashboard/presentation/routes.js'; // Con
 import propertyRoutes from './modules/property/presentation/routes.js'; // Contiene /admin/property/rooms, /guest/property/list, etc.
 import bookingRoutes from './modules/booking/presentation/routes.js'; // Contiene /guest/booking/my-list, /guest/booking/review
 import staffRoutes from './modules/staff/presentation/routes.js';
-// import billingRoutes from './modules/billing/router.js'; // Descomenta cuando existan
+import guestRoutes from './modules/guest/presentation/routes.js'; // Contiene /guest/dashboard, /guest/bookings, etc.
 
 
 // --- 2. Import Shared Views ---
@@ -24,6 +24,7 @@ const routes = [
     ...propertyRoutes,
     ...bookingRoutes,
     ...staffRoutes,
+    ...guestRoutes,
 
     {
         path: '/',
