@@ -1,31 +1,29 @@
-﻿// src/modules/guest/composables/useGuestProperties.js
+﻿// src/modules/guest/presentation/composables/useGuestProperties.js
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { PropertyService } from '../../../property/application/PropertyService.js'; // Ajusta la ruta
-import { PropertyApiRepository } from '../../../property/infrastructure/repositories/PropertyApiRepository.js'; // Ajusta la ruta
+// Importamos los servicios desde el módulo 'property'
+import { PropertyService } from '../../../property/application/PropertyService.js';
+import { PropertyApiRepository } from '../../../property/infrastructure/repositories/PropertyApiRepository.js';
 
 export function useGuestProperties() {
     const router = useRouter();
 
-    // --- Instanciación de Servicios ---
-    // Reutilizamos el servicio que ya existe
+    // Usamos los repositorios y servicios del módulo 'property'
     const propertyRepo = new PropertyApiRepository();
     const propertySvc = new PropertyService(propertyRepo);
 
-    // --- Estado ---
+    // --- Estado de Datos ---
     const allProperties = ref([]);
     const loading = ref(true);
-    const searchTerm = ref(''); // Para un futuro filtro de búsqueda
+
+    // --- Estado de Filtros ---
+    const searchTerm = ref('');
 
     // --- Carga de Datos ---
     async function loadProperties() {
         loading.value = true;
         try {
-            // Usamos el método que trae la lista de propiedades/hoteles
-            // Si quieres cuartos, usa getRoomList() y filtra por 'available'
-            // Si quieres hoteles, usa getPropertyList()
-
-            // Basado en tu GuestDashboard, parece que muestras "Properties" (Hoteles)
+            // Esta es el "arma" correcta: ¡trae la lista de hoteles!
             allProperties.value = await propertySvc.getPropertyList();
         } catch (err) {
             console.error("Error loading properties:", err);
@@ -34,22 +32,22 @@ export function useGuestProperties() {
         }
     }
 
-    // --- Datos Computados ---
-    // Aquí puedes filtrar las propiedades si es necesario
+    // --- "Fórmula" de Filtro ---
+    // ¡Esta es la variable que tu template estaba buscando!
     const filteredProperties = computed(() => {
-        if (!searchTerm.value) {
+        if (!searchTerm.value.trim()) {
             return allProperties.value;
         }
         const query = searchTerm.value.toLowerCase();
         return allProperties.value.filter(
-            p => p.name.toLowerCase().includes(query) ||
-                p.location.toLowerCase().includes(query)
+            p => (p.name && p.name.toLowerCase().includes(query)) ||
+                (p.location && p.location.toLowerCase().includes(query))
         );
     });
 
-    // --- Acciones del Guest ---
+    // --- Acciones ---
     function goToPropertyDetails(propertyId) {
-        // El "gol": navegar al detalle para reservar
+        // "Pase" a la página de detalles
         router.push({ name: 'guest-property-details', params: { id: propertyId } });
     }
 
@@ -57,15 +55,16 @@ export function useGuestProperties() {
         router.push({ name: 'guest-dashboard' });
     }
 
-    // --- Ciclo de Vida ---
+    // Cargar datos al montar
     onMounted(loadProperties);
 
+    // Devolvemos el "arsenal" correcto
     return {
         loading,
         searchTerm,
-        filteredProperties,
+        filteredProperties, // <-- ¡Aquí está!
         goToPropertyDetails,
         goBackToDashboard,
-        refreshProperties: loadProperties // Para un botón de refrescar
+        refreshProperties: loadProperties // Para el botón de refrescar
     };
 }

@@ -1,5 +1,5 @@
 import AdminManageRooms from './views/AdminManageRooms.vue';
-import GuestPropertyList from './views/GuestPropertyList.vue';
+import GuestRoomList from './views/GuestRoomList.vue';
 import StaffRoomCleaningList from './views/StaffRoomCleaningList.vue';
 import StaffTaskList from './views/StaffTaskList.vue';
 
@@ -13,7 +13,7 @@ export default [
     {
         path: '/guest/property/list', // Ruta para que huéspedes vean propiedades
         name: 'guest-property-list',
-        component: GuestPropertyList,
+        component: GuestRoomList,
         meta: { requiresAuth: true, roles: ['guest', 'admin'] } // Huéspedes y admin pueden ver
     },
     {
@@ -31,7 +31,7 @@ export default [
     {
         path: "/guest/rooms",
         name: "guest-rooms-list", // El nombre que usamos en goToRooms()
-        component: () => import("./views/GuestPropertyList.vue"), // El archivo que crearemos
+        component: () => import("./views/GuestRoomList.vue"), // El archivo que crearemos
         meta: { requiresAuth: true, roles: ['guest'] }
     },
     // ... otras rutas de property (ej: detalle de habitación '/property/room/:id')
