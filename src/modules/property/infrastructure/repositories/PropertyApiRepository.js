@@ -4,7 +4,7 @@ import { IPropertyRepository } from "../../domain/repositories/IPropertyReposito
 import { propertyApi } from "../api/PropertyApi.js";
 
 export class PropertyApiRepository extends IPropertyRepository {
-    async getRooms() { return await propertyApi.fetchRooms(); }
+    async getRooms(propertyId = null) { return await propertyApi.fetchRooms(propertyId); }
     async getRoomById(roomId) { return await propertyApi.fetchRoomById(roomId); }
     async addRoom(roomData) { return await propertyApi.postRoom(roomData); }
     async updateRoom(roomId, roomData) { return await propertyApi.patchRoom(roomId, roomData); }

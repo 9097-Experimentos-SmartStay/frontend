@@ -2,7 +2,7 @@
     constructor(propertyRepository) { this.propertyRepository = propertyRepository; }
 
     // --- Métodos de Room ---
-    async getRoomList() { return await this.propertyRepository.getRooms(); }
+    async getRoomList(propertyId = null) { return await this.propertyRepository.getRooms(propertyId); }
     async getRoomDetails(roomId) { return await this.propertyRepository.getRoomById(roomId); }
     async createRoom(roomData) {
         console.log("Service: Creating room", roomData);

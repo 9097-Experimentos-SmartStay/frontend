@@ -74,13 +74,9 @@
             Tipo: {{ property.type || 'Hotel' }}
           </p>
 
-          <p class="text-lg font-semibold text-primary mb-4">
-            Desde ${{ property.base_price || 'Consultar' }}
-          </p>
-
           <pv-button
               icon="pi pi-eye"
-              label="Ver Detalles"
+              label="Ver Hotel"
               class="p-button-info p-button-sm w-full"
               @click="goToPropertyDetails(property.id)"
           />

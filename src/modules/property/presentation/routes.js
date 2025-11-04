@@ -28,5 +28,11 @@ export default [
         component: StaffTaskList,
         meta: { requiresAuth: true, roles: ['staff', 'admin'] }
     },
+    {
+        path: "/guest/rooms",
+        name: "guest-rooms-list", // El nombre que usamos en goToRooms()
+        component: () => import("./views/GuestPropertyList.vue"), // El archivo que crearemos
+        meta: { requiresAuth: true, roles: ['guest'] }
+    },
     // ... otras rutas de property (ej: detalle de habitación '/property/room/:id')
 ];

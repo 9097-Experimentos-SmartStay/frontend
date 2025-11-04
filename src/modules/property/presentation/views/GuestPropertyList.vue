@@ -21,8 +21,8 @@ import { ref, onMounted } from 'vue';
 import { PropertyService } from '../../application/PropertyService.js';
 import { PropertyApiRepository } from '../../infrastructure/repositories/PropertyApiRepository.js';
 //TODO: Importar BookingService cuando esté creado
-//import { BookingService } from '../../../booking/application/BookingService.js';
-//import { BookingApiRepository } from '../../../booking/infrastructure/repositories/booking_api_repository.js';
+import { BookingService } from '../../../booking/application/BookingService.js';
+import { BookingApiRepository } from '../../../booking/infrastructure/repositories/BookingApiRepository.js';
 
 // Instances of services and repositories
 const propertyRepository = new PropertyApiRepository();

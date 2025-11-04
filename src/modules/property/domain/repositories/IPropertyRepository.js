@@ -1,7 +1,7 @@
 ﻿// src/modules/property/domain/IPropertyRepository.js
 
 export class IPropertyRepository {
-    getRooms() { throw new Error("Not implemented"); }
+    getRooms(propertyId = null) { throw new Error("Not implemented"); } // This line was modified with propertyId parameter as optional if the function don't do anything, erase it.
     getRoomById(roomId) { throw new Error("Not implemented: getRoomById"); } // NUEVO
     addRoom(roomData) { throw new Error("Not implemented: addRoom"); }       // NUEVO
     updateRoom(roomId, roomData) { throw new Error("Not implemented: updateRoom"); } // NUEVO

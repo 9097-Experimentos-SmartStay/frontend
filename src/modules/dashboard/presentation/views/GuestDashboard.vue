@@ -20,6 +20,12 @@
             class="p-button-secondary"
             @click="goToBookings"
         />
+        <pv-button
+            icon="pi pi-key"
+            label="Ver Habitaciones"
+            class="p-button-info p-button-outlined"
+            @click="goToRooms"
+        />
         <pv-button icon="pi pi-sign-out" :label="t('dashboard.logoutButton')" class="p-button-danger" @click="logout" />
       </div>
 
@@ -160,6 +166,11 @@ const {t,  locale } = useI18n();
 // --- [NUEVO] Instancia las "armas" ---
 const router = useRouter();
 const userStore = useUserStore();
+
+function goToRooms() {
+  // 'guest-rooms-list' es el 'name' de la nueva ruta que crearemos.
+  router.push({ name: 'guest-rooms-list' });
+}
 
 
 const {
