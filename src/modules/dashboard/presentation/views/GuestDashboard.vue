@@ -123,37 +123,65 @@
     </div>
 
     <div class="mt-6">
-      <pv-card>
+      <pv-card :pt="{ content: { class: 'p-0' } }">
+
         <template #title>
           <div class="flex justify-between items-center">
             <span class="font-semibold">{{ t('guestDashboard.recentProperties') }}</span>
-            <pv-button class="p-button-text" :label="t('guestDashboard.viewAll')" @click="goToProperties" />
+            <pv-button
+                class="p-button-text"
+                :label="t('guestDashboard.viewAll')"
+                @click="goToProperties"
+            />
           </div>
         </template>
 
         <template #content>
-          <div v-if="properties.length === 0" class="text-gray-500 italic">{{ t('guestDashboard.noProperties') }}</div>
-          <div v-else class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div v-for="p in properties" :key="p.id" class="p-2 border rounded-md flex flex-col">
-              <img :src="p.image_url || placeholderImg" class="w-full h-28 object-cover rounded" alt="prop-img" />
-              <div class="mt-2">
-                <div class="font-medium">{{ p.name }}</div>
-                <div class="text-xs text-gray-600">{{ p.location }}</div>
-              </div>
-              <div class="mt-2 self-end">
-                <pv-button size="small" class="p-button-sm p-button-outlined" icon="pi pi-eye" @click="goToProperty(p.id)" />
-              </div>
-            </div>
+          <div v-if="loading || !properties.length" class="text-gray-500 italic p-4"> {{ loading ? 'Cargando...' : t('guestDashboard.noProperties') }}
           </div>
+
+          <pv-carousel
+              v-else
+              :value="properties"
+              :numVisible="3" :numScroll="1"
+              :circular="true"
+              :autoplayInterval="4000"
+              :responsiveOptions="responsiveOptions"
+              class="pb-2">
+            <template #item="slotProps">
+              <div
+                  class="border rounded-lg shadow-sm overflow-hidden bg-white m-2 cursor-pointer hover:shadow-md transition-all duration-200"
+                  @click="goToProperty(slotProps.data.id)"
+              >
+                <img
+                    :src="slotProps.data.image_url || placeholderImg"
+                    alt="property image"
+                    class="carousel-img"
+                />
+
+                <div class="p-3">
+                  <div class="font-medium text-sm truncate" :title="slotProps.data.name">
+                    {{ slotProps.data.name }}
+                  </div>
+                  <div class="text-xs text-gray-600 truncate">
+                    {{ slotProps.data.location }}
+                  </div>
+                </div>
+              </div>
+            </template>
+          </pv-carousel>
+
         </template>
       </pv-card>
     </div>
+
+
   </div>
 </template>
 
 <script setup>
 import { useGuestDashboard } from "../../application/useGuestDashboard.js";
-import { onMounted, onActivated } from 'vue';
+import { ref, onMounted, onActivated } from 'vue';
 import LanguageSwitcher from "../../../../shared/presentation/components/language-switcher.vue";
 import { useI18n } from "vue-i18n";
 
@@ -161,11 +189,30 @@ import { useI18n } from "vue-i18n";
 import { useRouter } from 'vue-router';
 import { useUserStore } from '../../../../shared/application/store/user_store.js';
 
+
 const {t,  locale } = useI18n();
 
 // --- [NUEVO] Instancia las "armas" ---
 const router = useRouter();
 const userStore = useUserStore();
+
+const responsiveOptions = ref([
+  {
+    breakpoint: '1024px',
+    numVisible: 3,
+    numScroll: 3
+  },
+  {
+    breakpoint: '768px',
+    numVisible: 2,
+    numScroll: 2
+  },
+  {
+    breakpoint: '560px',
+    numVisible: 1,
+    numScroll: 1
+  }
+]);
 
 function goToRooms() {
   // 'guest-rooms-list' es el 'name' de la nueva ruta que crearemos.
@@ -221,5 +268,23 @@ function logout() {
 <style scoped>
 .text-primary {
   color: var(--primary-color);
+}
+
+/* Imagen del carrusel */
+.carousel-img {
+  width: 100%;
+  max-height: 12rem; /* altura máxima, mantiene buena proporción */
+  height: auto; /* adapta la altura al ancho */
+  object-fit: contain; /* muestra toda la imagen sin recortarla */
+  border-bottom: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  transition: transform 0.2s ease-in-out;
+}
+
+:deep(.carousel-img) {
+  width: 100%;
+  height: 7rem; /* (Equivale a h-28) ¡Tu "disparo" de 3cm! */
+  object-fit: cover; /* ¡Esta es el "arma" que arregla el "hueco"! */
+  border-bottom: 1px solid #e5e7eb;
 }
 </style>

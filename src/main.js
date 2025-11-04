@@ -8,6 +8,7 @@ import 'primeflex/primeflex.css';
 import 'primeicons/primeicons.css';
 import router from "./router.js";
 import pinia from "./pinia.js";
+import Carousel from 'primevue/carousel';
 
 // --- Importaciones Individuales de PrimeVue ---
 import ConfirmationService from 'primevue/confirmationservice';
@@ -79,6 +80,7 @@ createApp(App)
     .component('pv-password', Password)
     .component('pv-badge', Badge)
     .component('pv-chart', Chart)
+    .component('pv-carousel', Carousel)
     .directive('tooltip', Tooltip)
     .use(router)
     .use(pinia)

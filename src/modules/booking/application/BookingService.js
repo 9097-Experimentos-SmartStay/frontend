@@ -14,26 +14,53 @@ export class BookingService {
     async getMyBookings(guestId) {
         if (!guestId) throw new Error("Guest ID is required to fetch bookings.");
         console.log(`BookingService: Getting bookings for guest ${guestId}`);
-        const rawBookings = await this.bookingRepository.getBookings(guestId);
-        // return rawBookings.map(b => new Booking(b.id, b.propertyId, b.guestId, b.checkIn, b.checkOut, b.status, b.createdAt));
-        return rawBookings;
+
+        // --- 1. "VISIÓN ESPACIAL" (Cargar todas las "piezas") ---
+        // Usamos el 'propertyRepository' que el servicio YA tiene.
+        const [rawBookings, allProperties, allRooms] = await Promise.all([
+            this.bookingRepository.getBookings(guestId),
+            this.propertyRepository.getProperties(), // Asumo que esto trae los hoteles
+            this.propertyRepository.getRooms(null)   // Asumo que getRooms(null) trae todas las habitaciones
+        ]);
+
+        if (!rawBookings || !rawBookings.length) return [];
+
+        // --- 2. EL "PASE QUÍMICO" (Combinar los datos) ---
+        const enrichedBookings = rawBookings.map(booking => {
+            const property = allProperties.find(p => p.id === booking.propertyId);
+            const room = allRooms.find(r => r.id === booking.roomId); // ¡Usamos el roomId de la reserva!
+
+            return {
+                ...booking, // La reserva original
+                propertyName: property?.name || 'Propiedad Desconocida',
+                propertyLocation: property?.location || '',
+                roomNumber: room?.number || '??',
+                roomType: room?.type || 'Habitación'
+            };
+        });
+
+        return enrichedBookings;
     }
 
-    async bookProperty(propertyId, guestId, checkInDate, checkOutDate) {
-        if (!propertyId || !guestId || !checkInDate || !checkOutDate) {
-            throw new Error("Property ID, Guest ID, and dates are required for booking.");
+    async bookProperty(bookingDetails) {
+        // --- "JUGADA" MEJORADA ---
+        const { propertyId, roomId, guestId, checkInDate, checkOutDate, totalPrice } = bookingDetails;
+
+        if (!propertyId || !roomId || !guestId || !checkInDate || !checkOutDate || !totalPrice) {
+            throw new Error("Todos los detalles (property, room, guest, dates, price) son requeridos.");
         }
         if (new Date(checkOutDate) <= new Date(checkInDate)) {
             throw new Error("Check-out date must be after check-in date.");
         }
-        console.log(`BookingService: Property ${propertyId} availability check passed (simulated).`);
+        console.log(`BookingService: Room ${roomId} availability check passed (simulated).`);
 
-        //  -- Use the static method of the model to create the data object ---
         const bookingData = Booking.create({
             propertyId: propertyId,
+            roomId: roomId,
             guestId: guestId,
             checkIn: checkInDate,
             checkOut: checkOutDate,
+            totalPrice: totalPrice,
             status: 'Confirmada',
         });
 

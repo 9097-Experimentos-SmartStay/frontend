@@ -74,13 +74,67 @@
       "id": 101,
       "hostId": 1,
       "name": "Hotel Paraíso Costero",
-      "location": "Miraflores, Lima"
+      "location": "Miraflores, Lima",
+      "image_url": "https://placehold.co/600x400/3498DB/FFFFFF?text=Hotel+Costero",
+      "description": "El Hotel Paraíso Costero ofrece vistas impresionantes al océano Pacífico y acceso directo al malecón de Miraflores. Disfrute de nuestra piscina en la azotea.",
+      "base_price": 140,
+      "type": "Hotel",
+      "amenities": ["piscina", "wifi", "gimnasio", "restaurante"]
     },
     {
       "id": 102,
       "hostId": 1,
       "name": "Posada Andina Tradicional",
-      "location": "San Blas, Cusco"
+      "location": "San Blas, Cusco",
+      "image_url": "https://placehold.co/600x400/E67E22/FFFFFF?text=Posada+Andina",
+      "description": "Sumérjase en la historia en nuestra posada colonial restaurada. Ubicada en el corazón del barrio de artistas de San Blas, con desayuno andino incluido.",
+      "base_price": 95,
+      "type": "Posada",
+      "amenities": ["wifi", "desayuno", "patio"]
+    },
+    {
+      "id": 103,
+      "hostId": 2,
+      "name": "Retiro Selvático Amazónico",
+      "location": "Iquitos, Loreto",
+      "image_url": "https://placehold.co/600x400/2ECC71/FFFFFF?text=Amazon+Lodge",
+      "description": "Escápese al corazón de la selva. Cabañas de lujo con tours guiados por el río Amazonas y observación de vida silvestre.",
+      "base_price": 180,
+      "type": "Lodge",
+      "amenities": ["wifi", "excursiones", "restaurante", "piscina"]
+    },
+    {
+      "id": 104,
+      "hostId": 2,
+      "name": "Hotel Moderno El Olivar",
+      "location": "San Isidro, Lima",
+      "image_url": "https://placehold.co/600x400/9B59B6/FFFFFF?text=Hotel+Olivar",
+      "description": "Lujo moderno frente al histórico bosque El Olivar. Ideal para viajeros de negocios, con centro de convenciones y spa.",
+      "base_price": 165,
+      "type": "Hotel",
+      "amenities": ["wifi", "gimnasio", "spa", "business center"]
+    },
+    {
+      "id": 105,
+      "hostId": 1,
+      "name": "Hostal El Viajero Errante",
+      "location": "Barranco, Lima",
+      "image_url": "https://placehold.co/600x400/E74C3C/FFFFFF?text=Hostal+Errante",
+      "description": "El punto de encuentro bohemio en el corazón de Barranco. Habitaciones privadas y compartidas, bar en la azotea y ambiente vibrante.",
+      "base_price": 45,
+      "type": "Hostal",
+      "amenities": ["wifi", "bar", "cocina compartida", "patio"]
+    },
+    {
+      "id": 106,
+      "hostId": 3,
+      "name": "Cabañas del Colca",
+      "location": "Valle del Colca, Arequipa",
+      "image_url": "https://placehold.co/600x400/1ABC9C/FFFFFF?text=Colca+Cabañas",
+      "description": "Despierte con vistas al cañón. Cabañas rústicas de piedra con aguas termales privadas y vistas al vuelo del cóndor.",
+      "base_price": 110,
+      "type": "Cabaña",
+      "amenities": ["aguas termales", "desayuno", "vistas"]
     }
   ],
   "rooms": [
