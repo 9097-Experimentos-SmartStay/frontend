@@ -15,27 +15,26 @@ export class BookingService {
         if (!guestId) throw new Error("Guest ID is required to fetch bookings.");
         console.log(`BookingService: Getting bookings for guest ${guestId}`);
 
-        // --- 1. "VISIÓN ESPACIAL" (Cargar todas las "piezas") ---
-        // Usamos el 'propertyRepository' que el servicio YA tiene.
         const [rawBookings, allProperties, allRooms] = await Promise.all([
             this.bookingRepository.getBookings(guestId),
-            this.propertyRepository.getProperties(), // Asumo que esto trae los hoteles
-            this.propertyRepository.getRooms(null)   // Asumo que getRooms(null) trae todas las habitaciones
+            this.propertyRepository.getProperties(),
+            this.propertyRepository.getRooms(null)
         ]);
 
         if (!rawBookings || !rawBookings.length) return [];
 
-        // --- 2. EL "PASE QUÍMICO" (Combinar los datos) ---
         const enrichedBookings = rawBookings.map(booking => {
             const property = allProperties.find(p => p.id === booking.propertyId);
-            const room = allRooms.find(r => r.id === booking.roomId); // ¡Usamos el roomId de la reserva!
+            const room = allRooms.find(r => r.id === booking.roomId);
 
             return {
-                ...booking, // La reserva original
+                ...booking,
                 propertyName: property?.name || 'Propiedad Desconocida',
                 propertyLocation: property?.location || '',
+                propertyImage: property?.image_url || null, // <-- ¡"ARMA" (IMAGEN) AÑADIDA!
                 roomNumber: room?.number || '??',
-                roomType: room?.type || 'Habitación'
+                roomType: room?.type || 'Habitación',
+                roomImage: room?.image_url || null
             };
         });
 

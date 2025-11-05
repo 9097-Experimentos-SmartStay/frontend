@@ -61,11 +61,12 @@ export function useGuestPropertyDetails() {
         }
     }
 
-    // --- NUEVA "ARMA" (Computed) ---
-    // Filtramos las habitaciones para mostrar solo las disponibles
-    // ¡El "Ego" del Guest solo ve oportunidades de gol (disponibles)!
+
     const availableRooms = computed(() => {
-        return rooms.value.filter(room => room.status === 'available');
+        const currentPropertyId = Number(route.params.id);
+        return rooms.value
+            .filter(room => room.propertyId === currentPropertyId) // <-- Filtro 1
+            .filter(room => room.status === 'available');        // <-- Filtro 2
     });
 
     // --- Acciones ---

@@ -1,3 +1,5 @@
+// src/modules/property/presentation/routes.js
+
 import AdminManageRooms from './views/AdminManageRooms.vue';
 import GuestRoomList from './views/GuestRoomList.vue';
 import StaffRoomCleaningList from './views/StaffRoomCleaningList.vue';
