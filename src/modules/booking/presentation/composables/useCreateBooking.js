@@ -1,5 +1,4 @@
-﻿// src/modules/booking/presentation/composables/useCreateBooking.js
-import { ref, computed, onMounted } from 'vue';
+﻿import { ref, computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useToast } from 'primevue/usetoast';
 import { PropertyService } from '../../../property/application/PropertyService.js';
@@ -33,6 +32,7 @@ export function useCreateBooking() {
     const isBooking = ref(false); // Para el loader del botón
     const error = ref(null);
 
+    // ¡La "Visión Espacial" del Ego! Lee los parámetros de la URL
     const { propertyId, roomId } = route.params;
 
     // --- "Visión Espacial" (Cargar Datos) ---

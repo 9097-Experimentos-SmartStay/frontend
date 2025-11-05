@@ -30,4 +30,11 @@ export default [
 
         meta: { requiresAuth: true, roles: ['guest'] }
     },
+    {
+        // La ruta acepta el ID del hotel y el ID de la habitación
+        path: "/guest/book/:propertyId/:roomId",
+        name: "guest-create-booking", // El nombre que usamos en bookRoom()
+        component: () => import("../../booking/presentation/views/GuestCreateBooking.vue"),
+        meta: { requiresAuth: true, roles: ['guest'] }
+    }
 ];

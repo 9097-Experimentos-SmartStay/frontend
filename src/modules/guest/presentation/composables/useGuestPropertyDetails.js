@@ -1,5 +1,4 @@
-﻿// src/modules/property/presentation/composables/useGuestPropertyDetails.js
-import { ref, onMounted, computed } from 'vue'; // <-- Añade 'computed'
+﻿import { ref, onMounted, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { PropertyService } from '../../../property/application/PropertyService.js';
 import { PropertyApiRepository } from '../../../property/infrastructure/repositories/PropertyApiRepository.js';
@@ -13,14 +12,12 @@ export function useGuestPropertyDetails() {
 
     // --- Estado ---
     const property = ref(null);
-    const loading = ref(true); // Loading para la propiedad
+    const loading = ref(true);
     const error = ref(null);
-
-    // --- NUEVO ESTADO PARA HABITACIONES ---
     const rooms = ref([]);
-    const roomsLoading = ref(true); // Loading separado para las habitaciones
+    const roomsLoading = ref(true);
 
-    // --- Lógica de Carga ---
+    // ... (la función loadPropertyDetails se mantiene igual) ...
     async function loadPropertyDetails() {
         loading.value = true;
         roomsLoading.value = true;
@@ -30,25 +27,20 @@ export function useGuestPropertyDetails() {
             const propertyId = route.params.id;
             if (!propertyId) throw new Error("No se encontró ID de propiedad");
 
-            // Optimizamos: Cargamos propiedad y habitaciones al mismo tiempo
-            // Usamos Promise.allSettled para que si uno falla, el otro no
             const [propertyResult, roomsResult] = await Promise.allSettled([
                 propertySvc.getPropertyById(propertyId),
-                propertySvc.getRoomList(propertyId) // <-- Usamos nuestra "arma" nueva
+                propertySvc.getRoomList(propertyId)
             ]);
 
-            // Chequeamos resultado de Propiedad
             if (propertyResult.status === 'fulfilled') {
                 property.value = propertyResult.value;
             } else {
                 throw new Error(`Fallo al cargar propiedad: ${propertyResult.reason}`);
             }
 
-            // Chequeamos resultado de Habitaciones
             if (roomsResult.status === 'fulfilled') {
                 rooms.value = roomsResult.value;
             } else {
-                // No es un error fatal, solo lo mostramos en consola
                 console.error("No se pudieron cargar las habitaciones:", roomsResult.reason);
             }
 
@@ -65,8 +57,8 @@ export function useGuestPropertyDetails() {
     const availableRooms = computed(() => {
         const currentPropertyId = Number(route.params.id);
         return rooms.value
-            .filter(room => room.propertyId === currentPropertyId) // <-- Filtro 1
-            .filter(room => room.status === 'available');        // <-- Filtro 2
+            .filter(room => room.propertyId === currentPropertyId)
+            .filter(room => room.status === 'available');
     });
 
     // --- Acciones ---
@@ -74,17 +66,19 @@ export function useGuestPropertyDetails() {
         router.push({ name: 'guest-properties' });
     }
 
-    // --- MODIFICADO: El "Tiro a Gol" ahora es por HABITACIÓN ---
+    // --- ¡CAMBIO AQUÍ! ---
+    // Descomentamos la navegación para que se active el "Tiro a Gol"
     function bookRoom(room) {
         const propertyId = property.value.id;
         const roomId = room.id;
 
         console.log(`Iniciando flujo de reserva para Propiedad ${propertyId}, Habitación ${roomId}`);
-        // Navegarías a la página de confirmación de reserva
-        // router.push({
-        //   name: 'guest-create-booking',
-        //   params: { propertyId: propertyId, roomId: roomId }
-        // });
+
+        // ¡Navegamos a la nueva vista de formulario!
+        router.push({
+            name: 'guest-create-booking', // Este nombre debe coincidir con el de las rutas
+            params: { propertyId: propertyId, roomId: roomId }
+        });
     }
 
     onMounted(loadPropertyDetails);
@@ -93,14 +87,11 @@ export function useGuestPropertyDetails() {
         property,
         loading,
         error,
-
-        // --- NUEVOS RETORNOS ---
         rooms,
         roomsLoading,
         availableRooms,
-
         goBackToList,
-        bookRoom, // <-- Renombrado de bookNow
+        bookRoom, // ¡Ahora esta función navega!
         loadPropertyDetails
     };
 }

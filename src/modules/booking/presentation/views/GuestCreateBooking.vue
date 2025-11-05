@@ -92,8 +92,9 @@ import PvToast from 'primevue/toast';
 import PvProgressSpinner from 'primevue/progressspinner';
 import PvCalendar from 'primevue/calendar';
 
-// Importamos el "Ego"
+// Importamos el "Ego" (Este es el archivo que me diste en el segundo bloque)
 import { useCreateBooking } from '../composables/useCreateBooking.js';
+import {createWebHistory as $router} from "vue-router";
 
 const {
   property,

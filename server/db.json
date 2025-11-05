@@ -79,7 +79,12 @@
       "description": "El Hotel Paraíso Costero ofrece vistas impresionantes al océano Pacífico y acceso directo al malecón de Miraflores. Disfrute de nuestra piscina en la azotea.",
       "base_price": 140,
       "type": "Hotel",
-      "amenities": ["piscina", "wifi", "gimnasio", "restaurante"]
+      "amenities": [
+        "piscina",
+        "wifi",
+        "gimnasio",
+        "restaurante"
+      ]
     },
     {
       "id": 102,
@@ -90,7 +95,11 @@
       "description": "Sumérjase en la historia en nuestra posada colonial restaurada. Ubicada en el corazón del barrio de artistas de San Blas, con desayuno andino incluido.",
       "base_price": 95,
       "type": "Posada",
-      "amenities": ["wifi", "desayuno", "patio"]
+      "amenities": [
+        "wifi",
+        "desayuno",
+        "patio"
+      ]
     },
     {
       "id": 103,
@@ -101,7 +110,12 @@
       "description": "Escápese al corazón de la selva. Cabañas de lujo con tours guiados por el río Amazonas y observación de vida silvestre.",
       "base_price": 180,
       "type": "Lodge",
-      "amenities": ["wifi", "excursiones", "restaurante", "piscina"]
+      "amenities": [
+        "wifi",
+        "excursiones",
+        "restaurante",
+        "piscina"
+      ]
     },
     {
       "id": 104,
@@ -112,7 +126,12 @@
       "description": "Lujo moderno frente al histórico bosque El Olivar. Ideal para viajeros de negocios, con centro de convenciones y spa.",
       "base_price": 165,
       "type": "Hotel",
-      "amenities": ["wifi", "gimnasio", "spa", "business center"]
+      "amenities": [
+        "wifi",
+        "gimnasio",
+        "spa",
+        "business center"
+      ]
     },
     {
       "id": 105,
@@ -123,7 +142,12 @@
       "description": "El punto de encuentro bohemio en el corazón de Barranco. Habitaciones privadas y compartidas, bar en la azotea y ambiente vibrante.",
       "base_price": 45,
       "type": "Hostal",
-      "amenities": ["wifi", "bar", "cocina compartida", "patio"]
+      "amenities": [
+        "wifi",
+        "bar",
+        "cocina compartida",
+        "patio"
+      ]
     },
     {
       "id": 106,
@@ -134,7 +158,11 @@
       "description": "Despierte con vistas al cañón. Cabañas rústicas de piedra con aguas termales privadas y vistas al vuelo del cóndor.",
       "base_price": 110,
       "type": "Cabaña",
-      "amenities": ["aguas termales", "desayuno", "vistas"]
+      "amenities": [
+        "aguas termales",
+        "desayuno",
+        "vistas"
+      ]
     }
   ],
   "rooms": [
@@ -251,6 +279,17 @@
       "status": "Pendiente",
       "totalPrice": 240,
       "createdAt": "2025-10-28T14:30:00Z"
+    },
+    {
+      "propertyId": 101,
+      "roomId": 201,
+      "guestId": 3,
+      "checkIn": "2025-11-05T18:57:17.980Z",
+      "checkOut": "2025-11-14T05:00:00.000Z",
+      "totalPrice": 1350,
+      "status": "Confirmada",
+      "createdAt": "2025-11-05T18:57:36.903Z",
+      "id": 503
     }
   ],
   "reviews": [
