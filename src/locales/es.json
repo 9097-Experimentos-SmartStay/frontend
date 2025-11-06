@@ -105,7 +105,7 @@
     "nameLabel": "Nombre Completo",
     "namePlaceholder": "Ingresa el nombre completo",
     "emailLabel": "Correo Electrónico",
-    "emailPlaceholder": "usuario'@'ejemplo.com",
+    "emailPlaceholder": "usuario.ejemplo.com",
     "passwordLabel": "Contraseña",
     "passwordPlaceholder": "Ingresa la contraseña inicial",
     "roleLabel": "Rol",

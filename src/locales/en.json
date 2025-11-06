@@ -105,7 +105,7 @@
     "nameLabel": "Full Name",
     "namePlaceholder": "Enter full name",
     "emailLabel": "Email",
-    "emailPlaceholder": "user@example.com",
+    "emailPlaceholder": "user.example.com",
     "passwordLabel": "Password",
     "passwordPlaceholder": "Enter initial password",
     "roleLabel": "Role",
