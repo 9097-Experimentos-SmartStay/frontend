@@ -20,4 +20,12 @@ export class UserAPIRepository extends IUserRepository {
     async deleteUser(userId) {
         await authApi.removeUser(userId);
     }
+
+    async getUserById(userId) {
+        return await authApi.fetchUserById(userId);
+    }
+
+    async updateUser(userId, userData) {
+        return await authApi.patchUser(userId, userData);
+    }
 }

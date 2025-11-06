@@ -15,5 +15,7 @@ export class ProfileApiRepository extends IProfileRepository {
     async createProfile(profileData) {
         return await profileApi.postProfile(profileData);
     }
-
+    async updateProfile(profileId, profileData) {
+        return await profileApi.patchProfile(profileId, profileData);
+    }
 }

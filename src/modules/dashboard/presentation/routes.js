@@ -4,6 +4,7 @@
 import AdminDashboard from './views/AdminDashboard.vue';
 import StaffDashboard from './views/StaffDashboard.vue';
 import GuestDashboard from './views/GuestDashboard.vue';
+import AdminProfile from "../../Profiile/presentation/views/AdminProfile.vue";
 
 
 export default [
@@ -67,5 +68,11 @@ export default [
         name: 'guest-dashboard', // Nombre único
         component: GuestDashboard,
         meta: { requiresAuth: true, roles: ['guest', 'admin'] } // Protegida para 'guest' (y admin)
+    },
+    {
+        path: '/admin/profile', // La URL
+        name: 'admin-profile',  // El "arma" que usaremos
+        component: AdminProfile,
+        meta: { requiresAuth: true, roles: ['admin'] } // Solo el admin
     },
 ];

@@ -37,5 +37,10 @@ export const profileApi = {
         }
         const res = await axios.post(`${API_BASE_URL}${PROFILES_ENDPOINT}`, profileData);
         return res.data; // Devuelve el perfil creado con su ID
+    },
+    async patchProfile(profileId, profileData) {
+        console.log(`API: Actualizando (PATCH) profile ID: ${profileId}`, profileData);
+        const res = await axios.patch(`${API_BASE_URL}${PROFILES_ENDPOINT}/${profileId}`, profileData);
+        return res.data; // Devuelve el perfil actualizado
     }
 };

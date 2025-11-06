@@ -207,7 +207,7 @@ const userMenuItems = ref([
     label: t('menu.profile'), // <-- De 'Perfil' a t('menu.profile')
     icon: 'pi pi-user-edit',
     command: () => {
-      toast.add({ severity: 'info', summary: 'Info', detail: 'Función de perfil no implementada', life: 3000 });
+      router.push({ name: 'admin-profile' });
     }
   },
   {

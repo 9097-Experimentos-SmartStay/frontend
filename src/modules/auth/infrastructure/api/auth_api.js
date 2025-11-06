@@ -23,5 +23,15 @@ export const authApi = {
     async removeUser(userId) { // <-- AÑADIR
         console.log(`API: Deleting user ID: ${userId}`);
         await axios.delete(`${FULL_USERS_API_URL}/${userId}`);
+    },
+    async fetchUserById(userId) {
+        console.log(`API: Obteniendo user ID: ${userId}`);
+        const res = await axios.get(`${API_BASE_URL}${USERS_ENDPOINT}/${userId}`);
+        return res.data;
+    },
+    async patchUser(userId, userData) {
+        console.log(`API: Actualizando (PATCH) user ID: ${userId}`, userData);
+        const res = await axios.patch(`${API_BASE_URL}${USERS_ENDPOINT}/${userId}`, userData);
+        return res.data;
     }
 };
