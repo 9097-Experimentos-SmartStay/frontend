@@ -25,21 +25,33 @@ export function useRoomData() {
     };
 
     const markRoomAsCleaning = async (roomId) => {
-        await service.markAsCleaning(roomId);
-        await loadRooms();
+        try {
+            await service.markAsCleaning(roomId);
+            await loadRooms();
+        } catch (err) {
+            error.value = err.message;
+            console.error(`Error marking room ${roomId} as cleaning:`, err);
+        }
     };
 
     const markRoomAsAvailable = async (roomId) => {
-        await service.markAsAvailable(roomId);
-        await loadRooms();
+        try {
+            await service.markAsAvailable(roomId);
+            await loadRooms();
+        } catch (err) {
+            error.value = err.message;
+            console.error(`Error marking room ${roomId} as available:`, err);
+        }
     };
 
     async function updateRoomStatus(id, newStatus) {
-        await fetch(`http://localhost:3000/rooms/${id}`, {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ status: newStatus }),
-        });
+        try {
+            await service.updateRoom(id, { status: newStatus });
+            await loadRooms();
+        } catch (err) {
+            error.value = err.message;
+            console.error(`Error updating room ${id} status:`, err);
+        }
     }
 
     onMounted(loadRooms);
