@@ -42,6 +42,11 @@
 </template>
 
 <script setup>
+import PvButton from 'primevue/button';
+import PvInputText from 'primevue/inputtext';
+import PvPassword from 'primevue/password';
+import PvSelect from 'primevue/select';
+
 // Import computed for dynamic role translation
 import { ref, defineProps, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router'; // useRouter is still needed for programmatic navigation after login/register
