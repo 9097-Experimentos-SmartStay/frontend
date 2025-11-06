@@ -48,7 +48,6 @@
       <h1 class="text-3xl font-bold text-gray-800 mb-2">
         {{ t('dashboard.welcomeMessage', { name: userName }) }} 👋
       </h1>
-      <p class="text-lg text-gray-600 mb-6">Esta es tu "metavisión" del hotel.</p>
 
 
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
