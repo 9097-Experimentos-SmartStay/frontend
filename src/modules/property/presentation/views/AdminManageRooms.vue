@@ -118,33 +118,56 @@
       ></pv-paginator>
 
     </div>
+
     <pv-dialog v-model:visible="displayDialog" :header="dialogHeader" :modal="true" class="p-fluid w-full max-w-lg">
+
       <div class="field text-center mb-4">
         <img :src="imagePreview || selectedRoom.image_url || defaultImage" :alt="selectedRoom.type || 'Room Image'" class="w-full max-w-xs border-round shadow-md mx-auto dialog-image-preview" />
         <pv-file-upload mode="basic" name="roomImage[]" accept="image/*" :maxFileSize="1000000"
                         @select="handleImageUpload" chooseLabel="Subir Imagen" class="mt-2" auto/>
         <small>{{ t('adminManageRooms.imageUploadHint') }}</small>
       </div>
+
       <div class="field">
         <label for="number">{{ t('adminManageRooms.formNumber') }}</label>
         <pv-input-text id="number" v-model.trim="selectedRoom.number" required autofocus :invalid="submitted && !selectedRoom.number" />
         <small class="p-error" v-if="submitted && !selectedRoom.number">{{ t('adminManageRooms.validationNumber') }}</small>
       </div>
+
       <div class="field">
         <label for="type">{{ t('adminManageRooms.formType') }}</label>
         <pv-input-text id="type" v-model.trim="selectedRoom.type" required :invalid="submitted && !selectedRoom.type" />
         <small class="p-error" v-if="submitted && !selectedRoom.type">{{ t('adminManageRooms.validationType') }}</small>
       </div>
+
+      <div class="field">
+        <label for="property">Hotel</label>
+        <pv-select
+            id="property"
+            v-model="selectedRoom.propertyId"
+            :options="allProperties"
+            optionLabel="name"
+            optionValue="id"
+            placeholder="Selecciona un hotel"
+            required
+            :invalid="submitted && !selectedRoom.propertyId"
+            class="w-full"
+        />
+        <small class="p-error" v-if="submitted && !selectedRoom.propertyId">El hotel es requerido.</small>
+      </div>
+
       <div class="field">
         <label for="price">{{ t('adminManageRooms.formPrice') }}</label>
         <pv-input-number id="price" v-model="selectedRoom.price" mode="currency" currency="USD" locale="en-US" required :invalid="submitted && selectedRoom.price == null"/>
         <small class="p-error" v-if="submitted && selectedRoom.price == null">{{ t('adminManageRooms.validationPrice') }}</small>
       </div>
+
       <div class="field">
         <label for="status">{{ t('adminManageRooms.formStatus') }}</label>
         <pv-select id="status" v-model="selectedRoom.status" :options="roomStatusOptions" optionLabel="label" optionValue="value" required :invalid="submitted && !selectedRoom.status"/>
         <small class="p-error" v-if="submitted && !selectedRoom.status">{{ t('adminManageRooms.validationStatus') }}</small>
       </div>
+
       <div class="field">
         <label>{{ t('adminManageRooms.formAmenities') }}</label>
         <div class="flex flex-wrap gap-3 mt-2">
@@ -162,10 +185,12 @@
           </div>
         </div>
       </div>
+
       <div class="field">
         <label for="promotion">{{ t('adminManageRooms.formPromotion') }}</label>
         <pv-textarea id="promotion" v-model="selectedRoom.promotion" rows="3" cols="20" />
       </div>
+
       <template #footer>
         <pv-button :label="t('common.cancel')" icon="pi pi-times" text @click="hideDialog"/>
         <pv-button :label="t('common.save')" icon="pi pi-check" @click="saveRoom" :loading="saving"/>
@@ -206,6 +231,7 @@ import LanguageSwitcher from '../../../../shared/presentation/components/languag
 // --- Importa Servicios y Repositorios ---
 import { PropertyService } from '../../application/PropertyService.js';
 import { PropertyApiRepository } from '../../infrastructure/repositories/PropertyApiRepository.js';
+import axios from 'axios';
 
 // --- Inicializa hooks ---
 const { t } = useI18n();
@@ -233,6 +259,8 @@ const layoutOptions = ref([
   { icon: 'pi pi-bars', value: 'list' },
 ]);
 const defaultImage = 'https://placehold.co/300x200/cccccc/ffffff?text=No+Image';
+const newImageFile = ref(null);
+const allProperties = ref([]);
 
 // --- ESTADO PARA PAGINACIÓN MANUAL ---
 const first = ref(0); // El índice del primer item
@@ -266,7 +294,10 @@ const dialogHeader = computed(() => {
   return isNewRoom.value ? t('adminManageRooms.dialogNewHeader') : t('adminManageRooms.dialogEditHeader');
 });
 
-onMounted(() => { loadRooms(); });
+onMounted(() => {
+  loadRooms();
+  loadProperties();
+});
 
 async function loadRooms() {
   loading.value = true;
@@ -281,6 +312,20 @@ async function loadRooms() {
     loading.value = false;
   }
 }
+
+async function loadProperties() {
+  console.log('AdminManageRooms: Fetching properties...');
+  try {
+    // Usamos el mismo service que ya tienes
+    allProperties.value = await propertyService.getPropertyList();
+    console.log('AdminManageRooms: Properties fetched:', allProperties.value.length);
+  } catch (error) {
+    console.error("Error fetching properties:", error);
+    toast.add({ severity: 'warn', summary: 'Error de Carga', detail: 'No se pudo cargar la lista de hoteles.', life: 3000 });
+  }
+}
+
+
 function openNew() {
   selectedRoom.value = { amenities: { has_tv: false, has_room_service: false, has_wifi: false } };
   imagePreview.value = null; isNewRoom.value = true; submitted.value = false; displayDialog.value = true;
@@ -294,33 +339,61 @@ function hideDialog() {
 }
 async function saveRoom() {
   submitted.value = true;
-  if (!selectedRoom.value.number?.trim() || !selectedRoom.value.type?.trim() || selectedRoom.value.price == null || !selectedRoom.value.status) {
-    toast.add({ severity: 'warn', summary: t('errors.validationError'), detail: t('adminManageRooms.validationAllFields'), life: 3000 }); return;
-  }
-  saving.value = true; const roomDataToSave = { ...selectedRoom.value };
-  if (imagePreview.value && selectedRoom.value.image_url.startsWith('data:image')) {
-    roomDataToSave.image_url = `https://placehold.co/300x200/28a745/ffffff?text=${roomDataToSave.number}`;
-    console.log("Room image changed (Base64 detected): Saving placeholder URL.");
-  } else if (isNewRoom.value && !roomDataToSave.image_url) {
-    roomDataToSave.image_url = defaultImage;
-  } else if (!isNewRoom.value && !imagePreview.value) {
-    delete roomDataToSave.image_url;
+  if (!selectedRoom.value.number?.trim() ||
+      !selectedRoom.value.type?.trim() ||
+      selectedRoom.value.price == null ||
+      !selectedRoom.value.status ||
+      !selectedRoom.value.propertyId) {
+    toast.add({ severity: 'warn', summary: t('errors.validationError'), detail: t('adminManageRooms.validationAllFields'), life: 3000 });
+    return;
   }
 
+  saving.value = true;
+  const roomDataToSave = { ...selectedRoom.value };
+
   try {
+    if (newImageFile.value) {
+      console.log('Detectado nuevo archivo de imagen. Disparando a Cloudinary...');
+
+      const formData = new FormData();
+      formData.append('file', newImageFile.value);
+      formData.append('upload_preset', import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET);
+
+      const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+      const uploadUrl = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
+
+      // El "disparo"
+      const response = await axios.post(uploadUrl, formData);
+
+      // ¡"GOL"! Tenemos la URL segura.
+      const imageUrl = response.data.secure_url;
+      roomDataToSave.image_url = imageUrl;
+
+      console.log('¡GOL! Imagen subida. URL:', imageUrl);
+
+    } else if (isNewRoom.value && !roomDataToSave.image_url) {
+      roomDataToSave.image_url = defaultImage;
+    }
     if (isNewRoom.value) {
-      roomDataToSave.propertyId = roomDataToSave.propertyId || 101;
       await propertyService.createRoom(roomDataToSave);
       toast.add({ severity: 'success', summary: t('common.success'), detail: t('adminManageRooms.createSuccess'), life: 3000 });
     } else {
+      // La edición ya funcionaba, porque el 'room' ya traía el 'propertyId'
       await propertyService.updateRoomDetails(selectedRoom.value.id, roomDataToSave);
       toast.add({ severity: 'success', summary: t('common.success'), detail: t('adminManageRooms.updateSuccess'), life: 3000 });
     }
-    hideDialog(); await loadRooms();
+
+    hideDialog();
+    await loadRooms();
+
   } catch (error) {
-    console.error("Error saving room:", error);
+    console.error("Error en la 'jugada' (Cloudinary o API):", error);
     toast.add({ severity: 'error', summary: t('errors.saveError'), detail: error.message || t('errors.tryAgain'), life: 4000 });
-  } finally { saving.value = false; }
+  } finally {
+    saving.value = false;
+    newImageFile.value = null;
+    imagePreview.value = null;
+  }
 }
 function confirmDeleteRoom(room) {
   confirm.require({
@@ -370,14 +443,17 @@ async function deleteSelectedRooms() {
 function handleImageUpload(event) {
   const file = event.files[0];
   if (file) {
+    newImageFile.value = file;
     const reader = new FileReader();
     reader.onload = (e) => {
       imagePreview.value = e.target.result;
-      selectedRoom.value.image_url = e.target.result;
-      toast.add({ severity: 'info', summary: t('common.success'), detail: t('adminManageRooms.imageUploaded'), life: 3000 });
     };
-    reader.onerror = (e) => { console.error("FileReader error:", e); toast.add({ severity: 'error', summary: t('errors.uploadError'), detail: t('adminManageRooms.imageUploadError'), life: 3000 }); };
+    reader.onerror = (e) => {
+      console.error("FileReader error:", e);
+      toast.add({ severity: 'error', summary: t('errors.uploadError'), detail: t('adminManageRooms.imageUploadError'), life: 3000 });
+    };
     reader.readAsDataURL(file);
+    toast.add({ severity: 'info', summary: t('common.success'), detail: t('adminManageRooms.imageUploaded'), life: 3000 });
   }
 }
 function getStatusSeverity(status) {
