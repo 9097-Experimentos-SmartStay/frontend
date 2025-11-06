@@ -62,7 +62,13 @@
     "defaultUser": "User",
     "manageStaffButton": "Manage Staff",
     "manageRoomsButton": "Manage Rooms",
-    "logoutButton": "Logout"
+    "logoutButton": "Logout",
+    "kpiBookingsToday": "Bookings (Today)",
+    "kpiOccupancyRate": "Occupancy Rate",
+    "actionGoToStaff": "Go to Staff",
+    "actionGoToRooms": "Go to Rooms",
+    "actionDescStaff": "Add, edit, or remove staff members. Assign tasks and review their shifts.",
+    "actionDescRooms": "Create new rooms, update prices, status (cleaning, maintenance), and upload images."
   },
   "staffStatus": {
     "available": "Available",

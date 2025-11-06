@@ -62,7 +62,13 @@
     "defaultUser": "Usuario",
     "manageStaffButton": "Gestionar Staff",
     "manageRoomsButton": "Gestionar Habitaciones",
-    "logoutButton": "Cerrar Sesión"
+    "logoutButton": "Cerrar Sesión",
+    "kpiBookingsToday": "Reservas (Hoy)",
+    "kpiOccupancyRate": "Tasa de Ocupación",
+    "actionGoToStaff": "Ir a Staff",
+    "actionGoToRooms": "Ir a Habitaciones",
+    "actionDescStaff": "Añade, edita o elimina miembros del personal. Asigna tareas y revisa sus turnos.",
+    "actionDescRooms": "Crea nuevas habitaciones, actualiza precios, estado (limpieza, mantenimiento) y sube imágenes."
   },
   "staffStatus": {
     "available": "Disponible",

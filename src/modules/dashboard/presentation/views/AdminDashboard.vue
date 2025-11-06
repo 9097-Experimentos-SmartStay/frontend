@@ -2,10 +2,8 @@
   <div class="admin-dashboard-container">
     <pv-toast position="bottom-right" />
 
-    <!-- 1. BARRA DE HERRAMIENTAS PROFESIONAL -->
     <pv-toolbar class="shadow-sm border-b border-gray-200 px-4 py-3">
       <template #start>
-        <!-- Logo y Nombre de la Startup -->
         <div class="flex items-center gap-3">
           <svg class="h-8 w-8 text-primary" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M10 20V14H14V20H19V12H22L12 3L2 12H5V20H10Z" fill="currentColor"/>
@@ -15,7 +13,6 @@
       </template>
 
       <template #center>
-        <!-- Opciones de Navegación -->
         <div class="hidden md:flex gap-2">
           <pv-button
               :label="t('dashboard.manageStaffButton')"
@@ -33,7 +30,6 @@
       </template>
 
       <template #end>
-        <!-- Controles de Usuario y Idioma -->
         <div class="flex items-center gap-3">
           <LanguageSwitcher />
           <pv-button
@@ -43,21 +39,20 @@
               aria-haspopup="true"
               aria-controls="overlay_menu"
           />
-          <!-- Menú de Usuario Desplegable -->
           <pv-menu ref="userMenu" :model="userMenuItems" :popup="true" />
         </div>
       </template>
     </pv-toolbar>
 
-    <!-- 2. CONTENIDO DEL DASHBOARD -->
     <div class="p-4 lg:p-6 bg-gray-50 min-h-screen">
-      <!-- Mensaje de Bienvenida -->
       <h1 class="text-3xl font-bold text-gray-800 mb-2">
         {{ t('dashboard.welcomeMessage', { name: userName }) }} 👋
       </h1>
+      <p class="text-lg text-gray-600 mb-6">Esta es tu "metavisión" del hotel.</p>
 
-      <!-- 3. TARJETAS DE ESTADÍSTICAS (KPIs) -->
+
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+
         <pv-card class="shadow-sm">
           <template #title>
             <div class="flex items-center justify-between">
@@ -87,31 +82,30 @@
         <pv-card class="shadow-sm">
           <template #title>
             <div class="flex items-center justify-between">
-              <span class="text-base font-medium">Reservas (Hoy)</span>
+              <span class="text-base font-medium">{{ t('dashboard.kpiBookingsToday') }}</span>
               <i class="pi pi-calendar-plus text-gray-400"></i>
             </div>
           </template>
           <template #content>
-            <p class="text-3xl font-bold text-primary">0</p>
-            <small class="text-gray-500">(Datos de ejemplo)</small>
+            <p v-if="loading" class="text-3xl font-bold"><i class="pi pi-spin pi-spinner"></i></p>
+            <p v-else class="text-3xl font-bold text-primary">{{ stats.bookingsToday }}</p>
           </template>
         </pv-card>
 
         <pv-card class="shadow-sm">
           <template #title>
             <div class="flex items-center justify-between">
-              <span class="text-base font-medium">Tasa Ocupación</span>
+              <span class="text-base font-medium">{{ t('dashboard.kpiOccupancyRate') }}</span>
               <i class="pi pi-chart-pie text-gray-400"></i>
             </div>
           </template>
           <template #content>
-            <p class="text-3xl font-bold text-primary">0%</p>
-            <small class="text-gray-500">(Datos de ejemplo)</small>
+            <p v-if="loading" class="text-3xl font-bold"><i class="pi pi-spin pi-spinner"></i></p>
+            <p v-else class="text-3xl font-bold text-primary">{{ stats.occupancyRate }}%</p>
           </template>
         </pv-card>
       </div>
 
-      <!-- 4. TARJETAS DE ACCIÓN RÁPIDA -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <pv-card class="shadow-sm hover:shadow-md transition-shadow">
           <template #title>
@@ -119,10 +113,10 @@
           </template>
           <template #content>
             <p class="text-gray-600 mb-4">
-              Añade, edita o elimina miembros del personal. Asigna tareas y revisa sus turnos.
+              {{ t('dashboard.actionDescStaff') }}
             </p>
             <pv-button
-                label="Ir a Staff"
+                :label="t('dashboard.actionGoToStaff')"
                 icon="pi pi-arrow-right"
                 iconPos="right"
                 class="p-button-outlined"
@@ -137,10 +131,10 @@
           </template>
           <template #content>
             <p class="text-gray-600 mb-4">
-              Crea nuevas habitaciones, actualiza precios, estado (limpieza, mantenimiento) y sube imágenes.
+              {{ t('dashboard.actionDescRooms') }}
             </p>
             <pv-button
-                label="Ir a Habitaciones"
+                :label="t('dashboard.actionGoToRooms')"
                 icon="pi pi-arrow-right"
                 iconPos="right"
                 class="p-button-outlined"
@@ -159,47 +153,59 @@ import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 import { useToast } from 'primevue/usetoast';
 
-// Importa los componentes de PrimeVue necesarios
+// --- Importa componentes PrimeVue ---
 import PvToolbar from 'primevue/toolbar';
 import PvButton from 'primevue/button';
 import PvMenu from 'primevue/menu';
 import PvCard from 'primevue/card';
 import PvToast from 'primevue/toast';
 
-// Importa el LanguageSwitcher
+// --- Importa Componentes Compartidos ---
 import LanguageSwitcher from '../../../../shared/presentation/components/language-switcher.vue';
 
-// --- Importa los "servicios" para cargar datos ---
+// --- Importa Servicios y Repositorios ---
 import { PropertyService } from '../../../property/application/PropertyService.js';
 import { PropertyApiRepository } from '../../../property/infrastructure/repositories/PropertyApiRepository.js';
-// (Usaremos ProfileApiRepository para contar al staff)
+import { UserService } from '../../../auth/application/UserService.js';
 import { ProfileApiRepository } from '../../../auth/infrastructure/repositories/ProfileApiRepository.js';
+import { UserAPIRepository } from "../../../auth/infrastructure/repositories/user_api_repository.js";
+import { BookingService } from '../../../booking/application/BookingService.js';
+import { BookingApiRepository } from '../../../booking/infrastructure/repositories/BookingApiRepository.js';
 
 
 // --- Inicializa "Armas" ---
-const { t } = useI18n();
+const { t } = useI18n(); // Asegúrate que t() esté disponible globalmente
 const router = useRouter();
 const toast = useToast();
 const userName = ref('');
 const loading = ref(true);
 
-// --- "Armas" para Estadísticas ---
+// --- "Armas" para Estadísticas (¡"EVOLUCIONADAS"!) ---
 const stats = ref({
   rooms: 0,
   staff: 0,
-  // puedes añadir más KPIs aquí
+  bookingsToday: 0,
+  occupancyRate: 0
 });
 
-// Instancia los servicios
+// --- Instancia Servicios ---
 const propertyRepo = new PropertyApiRepository();
 const propertySvc = new PropertyService(propertyRepo);
+
 const profileRepo = new ProfileApiRepository();
+const userRepo = new UserAPIRepository();
+const userSvc = new UserService(userRepo, profileRepo, propertyRepo);
+
+const bookingRepo = new BookingApiRepository();
+const bookingSvc = new BookingService(bookingRepo, propertyRepo);
 
 // --- "Armas" para el Menú de Usuario ---
 const userMenu = ref();
+// --- ¡"TÁCTICA" 5 EVOLUCIONADA! ---
+// (Ahora el label "Perfil" también usa i18n)
 const userMenuItems = ref([
   {
-    label: 'Perfil',
+    label: t('menu.profile'), // <-- De 'Perfil' a t('menu.profile')
     icon: 'pi pi-user-edit',
     command: () => {
       toast.add({ severity: 'info', summary: 'Info', detail: 'Función de perfil no implementada', life: 3000 });
@@ -211,7 +217,7 @@ const userMenuItems = ref([
   {
     label: t('dashboard.logoutButton'),
     icon: 'pi pi-sign-out',
-    command: logout // Llama a tu función de logout
+    command: logout
   }
 ]);
 
@@ -220,28 +226,41 @@ onMounted(() => {
   const storedUser = localStorage.getItem('user');
   userName.value = storedUser ? JSON.parse(storedUser).name : t('dashboard.defaultUser');
   console.log('AdminDashboard mounted. User:', userName.value);
-
-  // Carga las estadísticas del dashboard
   loadDashboardStats();
 });
 
 // --- "Tácticas" (Funciones) ---
-
 async function loadDashboardStats() {
   console.log("Cargando estadísticas del dashboard...");
   loading.value = true;
   try {
-    // "Disparos" en paralelo para más velocidad
-    const [roomsData, profilesData] = await Promise.all([
+    const [roomsData, profilesData, bookingsData] = await Promise.all([
       propertySvc.getRoomList(),
-      profileRepo.getProfiles()
+      userSvc.getGuestProfileList(),
+      bookingSvc.getAllBookings()
     ]);
 
-    // Contamos los "goles"
+    // 1. Total Rooms
     stats.value.rooms = roomsData.length;
 
-    // Asumimos que "staff" es cualquier perfil con un "cargo" (position)
+    // 2. Total Staff
     stats.value.staff = profilesData.filter(p => p.position).length;
+
+    // 3. Reservas (Hoy)
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+    stats.value.bookingsToday = bookingsData.filter(b => {
+      const bookingDate = new Date(b.createdAt);
+      return bookingDate >= todayStart;
+    }).length;
+
+    // 4. Tasa Ocupación
+    if (stats.value.rooms > 0) {
+      const occupiedRooms = roomsData.filter(r => r.status === 'occupied').length;
+      stats.value.occupancyRate = Math.round((occupiedRooms / stats.value.rooms) * 100);
+    } else {
+      stats.value.occupancyRate = 0;
+    }
 
     console.log("Estadísticas cargadas:", stats.value);
 
