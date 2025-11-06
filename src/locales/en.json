@@ -20,7 +20,7 @@
     "signInTitle": "Sign In",
     "registerTitle": "Register",
     "emailLabel": "Email",
-    "emailPlaceholder": "example@email.com",
+    "emailPlaceholder": "example.email.com",
     "nameLabel": "Name",
     "namePlaceholder": "Your full name",
     "passwordLabel": "Password",
