@@ -29,6 +29,18 @@
       "password": "okami123",
       "role": "staff",
       "id": 5
+    },
+    {
+      "email": "jorge@gmail.com",
+      "password": "jor123",
+      "role": "admin",
+      "id": 6
+    },
+    {
+      "email": "mari@gmail.com",
+      "password": "mmari123",
+      "role": "staff",
+      "id": 7
     }
   ],
   "profiles": [
@@ -67,6 +79,19 @@
       "shift_end": "16:00",
       "user_id": 5,
       "id": 5
+    },
+    {
+      "user_id": 6,
+      "full_name": "jor",
+      "id": 6
+    },
+    {
+      "full_name": "Maria dolores",
+      "position": "Housekeeping",
+      "shift_start": "10",
+      "shift_end": "11",
+      "user_id": 7,
+      "id": 7
     }
   ],
   "properties": [
@@ -254,6 +279,20 @@
       "status": "available",
       "propertyId": 101,
       "id": 303
+    },
+    {
+      "amenities": {
+        "has_tv": true,
+        "has_room_service": true,
+        "has_wifi": false
+      },
+      "number": "113",
+      "type": "suite",
+      "propertyId": 105,
+      "price": 14,
+      "status": "available",
+      "image_url": "https://res.cloudinary.com/dgs2hswlw/image/upload/v1763130839/aij8gauoqkfsmxfiyx0y.avif",
+      "id": 304
     }
   ],
   "activity_logs": [],
