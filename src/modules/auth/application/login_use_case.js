@@ -1,3 +1,5 @@
+// src/modules/auth/application/LoginUseCase.js
+
 export class LoginUseCase {
     constructor(authService) {
         this.authService = authService;

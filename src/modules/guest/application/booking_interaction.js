@@ -1,3 +1,4 @@
+// src/modules/guest/application/booking_interaction.js
 export const bookingInteraction = {
     bookProperty(propertyId) {
         console.log(`🛏 Reserva creada para propiedad ${propertyId}`);

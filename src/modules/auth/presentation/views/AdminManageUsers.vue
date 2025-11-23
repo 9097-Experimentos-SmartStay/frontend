@@ -150,44 +150,40 @@ function getStatusSeverity(status) {
   }
 }
 function getShiftSeverity(shiftStatusKey) { // *** CORREGIDO ***
-  return shiftStatusKey === 'onShift' ? 'success' : 'secondary'; // Compara con la clave correcta
+  return shiftStatusKey === 'onShift' ? 'success' : 'secondary';
 }
 
-// --- Acciones ---
 function editStaff(staffId) {
   console.log('Navegando a editar staff con ID:', staffId);
   router.push({
-    name: 'admin-edit-user', // Asegúrate que este nombre de ruta existe
+    name: 'admin-edit-user',
     params: { userId: staffId }
   });
 }
 
-// Confirmación antes de borrar
 function confirmDeleteStaff(staffId, staffName) {
   confirm.require({
-    message: t('adminManageUsers.confirmDeleteMessage', { name: staffName }), // Nueva clave i18n con placeholder
-    header: t('adminManageUsers.confirmDeleteHeader'),                       // Nueva clave i18n
+    message: t('adminManageUsers.confirmDeleteMessage', { name: staffName }),
+    header: t('adminManageUsers.confirmDeleteHeader'),
     icon: 'pi pi-info-circle',
-    rejectLabel: t('common.cancel'),    // Nueva clave i18n
-    acceptLabel: t('common.delete'),    // Nueva clave i18n
+    rejectLabel: t('common.cancel'),
+    acceptLabel: t('common.delete'),
     rejectClass: 'p-button-secondary p-button-outlined',
     acceptClass: 'p-button-danger',
     accept: async () => {
-      await deleteStaff(staffId); // Llama a la función de borrado si se acepta
+      await deleteStaff(staffId);
     },
     reject: () => {
-      toast.add({ severity: 'info', summary: t('common.cancelled'), detail: t('adminManageUsers.deleteCancelled'), life: 3000 }); // Nuevas claves i18n
+      toast.add({ severity: 'info', summary: t('common.cancelled'), detail: t('adminManageUsers.deleteCancelled'), life: 3000 });
     }
   });
 }
 
-// Lógica de borrado (requiere método en UserService)
+
 async function deleteStaff(staffId) { // Ahora es async
   console.log('Eliminar staff con ID:', staffId);
   try {
-    // *** LLAMA AL MÉTODO DEL SERVICIO ***
     await userService.deleteUserAndProfile(staffId);
-    // *** FIN LLAMADA ***
 
     toast.add({ severity: 'success', summary: t('common.success'), detail: t('adminManageUsers.deleteSuccess'), life: 3000 });
     await loadStaffDetails(); // Recarga la lista

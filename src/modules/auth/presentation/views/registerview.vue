@@ -22,7 +22,7 @@
 
 <script setup>
 import { useI18n } from 'vue-i18n';
-import PvButton from 'primevue/button'; // Import PvButton
+import PvButton from 'primevue/button';
 
 // --- Import Shared Components ---
 import LanguageSwitcher from '../../../../shared/presentation/components/language-switcher.vue';

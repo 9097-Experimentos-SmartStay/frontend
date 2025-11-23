@@ -1,3 +1,5 @@
+// src/modules/auth/services/repositories/IProfileRepository.js
+
 export class AuthService {
     constructor(userRepository) {
         this.userRepository = userRepository;
