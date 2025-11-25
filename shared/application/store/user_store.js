@@ -11,7 +11,6 @@ export const useUserStore = defineStore('user', {
 
     getters: {
         isLoggedIn: (state) => !!state.token,
-        isAdmin: (state) => state.role === 'admin',
         isStaff: (state) => state.role === 'staff',
         isGuest: (state) => state.role === 'guest',
     },
