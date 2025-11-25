@@ -1,15 +1,21 @@
-// src/router.js (Asumiendo que este es tu archivo principal de router)
 
 import { createRouter, createWebHistory } from "vue-router";
 
 // --- 1. Import Module Route Definitions ---
-// Ajusta las rutas si son diferentes a tu estructura actual
-import authRoutes from './modules/auth/presentation/routes.js'; // Contiene /login, /register, /admin/auth/users
-import dashboardRoutes from './modules/dashboard/presentation/routes.js'; // Contiene /dashboard (redirector) y /admin/dashboard, etc.
-import propertyRoutes from './modules/property/presentation/routes.js'; // Contiene /admin/property/rooms, /guest/property/list, etc.
-import bookingRoutes from './modules/booking/presentation/routes.js'; // Contiene /guest/booking/my-list, /guest/booking/review
+// Rutas de autenticación (IAM)
+import authRoutes from './modules/auth/presentation/routes.js';
+// Rutas de dashboard
+import dashboardRoutes from './modules/dashboard/presentation/routes.js';
+// Rutas de staff -
 import staffRoutes from './modules/staff/presentation/routes.js';
-import guestRoutes from './modules/guest/presentation/routes.js'; // Contiene /guest/dashboard, /guest/bookings, etc.
+// Rutas de guest
+import guestRoutes from './modules/guest/presentation/routes.js';
+// Bounded Contexts DDD
+import accommodationsRoutes from './accommodations/presentation/routes.js';
+import bookingsRoutes from './bookings/presentation/routes.js';
+import paymentsRoutes from './payments/presentation/routes.js';
+// MÓDULOS OBSOLETOS (mantener solo redirecciones legacy):
+import propertyRoutes from './modules/property/presentation/routes.js'; // Solo redirecciones y rutas legacy de staff
 
 
 // --- 2. Import Shared Views ---
@@ -18,18 +24,18 @@ const PageNotFound = () => import('./shared/presentation/views/page-not-found.vu
 
 // --- 3. Combine All Route Definitions ---
 const routes = [
-    // Spread routes imported from feature modules first.
-    ...authRoutes,
-    ...dashboardRoutes,
-    ...propertyRoutes,
-    ...bookingRoutes,
-    ...staffRoutes,
-    ...guestRoutes,
+    ...authRoutes,              // IAM
+    ...dashboardRoutes,         // Dashboards por rol
+    ...staffRoutes,              // Funcionalidades  de staff
+    ...guestRoutes,              // Funcionalidades  de guest
+    ...propertyRoutes,           // Redirecciones legacy y rutas de staff
+    ...accommodationsRoutes,     // Accommodations (rooms, room-types)
+    ...bookingsRoutes,           // Bookings
+    ...paymentsRoutes,           // Payments
 
     {
         path: '/',
-        // Redirige a login o a dashboard según si está autenticado (la guardia global lo maneja)
-        redirect: '/login' // Puede redirigir a login, la guardia se encargará si ya está logueado
+        redirect: '/login'
     },
     {
         path: '/:pathMatch(.*)*', // Catch-all 404
@@ -39,14 +45,11 @@ const routes = [
     }
 ];
 
-// --- 4. Create Router Instance ---
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
     routes,
 });
 
-// --- 5. Global Navigation Guard ---
-// (Mantenemos la guardia global robusta que incluye chequeo de roles)
 router.beforeEach((to, from, next) => {
     console.log("--- AUTH_GUARD (INICIO) ---");
     console.log("localStorage 'user_token' ES:", localStorage.getItem('user_token'));
@@ -60,17 +63,20 @@ router.beforeEach((to, from, next) => {
     console.log(`[Global Guard] Navigating to: ${String(to.name) || to.path}, Auth: ${isAuthenticated}, Role: ${userRole}, RequiresAuth: ${requiresAuth}, RequiredRoles: ${requiredRoles}, PublicOnly: ${publicOnly}`);
 
     if (requiresAuth && !isAuthenticated) {
-        // 1. Necesita login, no está logueado -> va a login
         console.log('[Global Guard] Auth required, redirecting to login.');
         next({ name: 'login' });
     } else if (publicOnly && isAuthenticated) {
-        // 2. Ruta solo pública (login/reg), pero está logueado -> va a dashboard (que redirige)
         console.log('[Global Guard] PublicOnly route accessed while logged in, redirecting to dashboard.');
         next({ name: 'dashboard' });
     } else if (requiresAuth && requiredRoles && !requiredRoles.includes(userRole)) {
         // 3. Necesita rol específico, no lo tiene -> va a su propio dashboard (o a 'No Autorizado')
         console.log(`[Global Guard] Role mismatch. Required: ${requiredRoles}, User has: ${userRole}. Redirecting to dashboard.`);
-        next({ name: 'dashboard' }); // Redirige a su dashboard correcto
+        // Solo redirige si el usuario tiene un rol válido (guest o staff)
+        if (userRole === 'guest' || userRole === 'staff') {
+            next({ name: 'dashboard' }); // Redirige a su dashboard correcto
+        } else {
+            next({ name: 'login' }); // Si no tiene rol válido, va a login
+        }
     } else {
         // 4. Permitido (ruta pública, o logueado con rol correcto)
         console.log('[Global Guard] Allowing navigation.');
