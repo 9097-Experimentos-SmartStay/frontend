@@ -1,35 +1,22 @@
 
+
 import { createRouter, createWebHistory } from "vue-router";
 
-// --- 1. Import Module Route Definitions ---
-// Rutas de autenticación (IAM)
-import authRoutes from './modules/auth/presentation/routes.js';
-// Rutas de dashboard
-import dashboardRoutes from './modules/dashboard/presentation/routes.js';
-// Rutas de staff -
-import staffRoutes from './modules/staff/presentation/routes.js';
-// Rutas de guest
-import guestRoutes from './modules/guest/presentation/routes.js';
-// Bounded Contexts DDD
+// --- 1. Import Route Definitions ---
+import authRoutes from './shared/presentation/routes/auth-routes.js';
+import dashboardRoutes from './shared/presentation/routes/dashboard-routes.js';
 import accommodationsRoutes from './accommodations/presentation/routes.js';
 import bookingsRoutes from './bookings/presentation/routes.js';
 import paymentsRoutes from './payments/presentation/routes.js';
-// MÓDULOS OBSOLETOS (mantener solo redirecciones legacy):
-import propertyRoutes from './modules/property/presentation/routes.js'; // Solo redirecciones y rutas legacy de staff
-
 
 // --- 2. Import Shared Views ---
 const PageNotFound = () => import('./shared/presentation/views/page-not-found.vue');
 
-
 // --- 3. Combine All Route Definitions ---
 const routes = [
-    ...authRoutes,              // IAM
-    ...dashboardRoutes,         // Dashboards por rol
-    ...staffRoutes,              // Funcionalidades  de staff
-    ...guestRoutes,              // Funcionalidades  de guest
-    ...propertyRoutes,           // Redirecciones legacy y rutas de staff
-    ...accommodationsRoutes,     // Accommodations (rooms, room-types)
+    ...authRoutes,              // IAM  - login, register
+    ...dashboardRoutes,         // Dashboards por rol (guest, staff)
+    ...accommodationsRoutes,     //  Accommodations (rooms, room-types)
     ...bookingsRoutes,           // Bookings
     ...paymentsRoutes,           // Payments
 
@@ -54,7 +41,8 @@ router.beforeEach((to, from, next) => {
     console.log("--- AUTH_GUARD (INICIO) ---");
     console.log("localStorage 'user_token' ES:", localStorage.getItem('user_token'));
 
-    const isAuthenticated = !!localStorage.getItem('user_token');
+    // Compatibilidad: buscar token en ambos lugares
+    const isAuthenticated = !!(localStorage.getItem('user_token') || localStorage.getItem('token'));
     const userRole = localStorage.getItem('user_role');
     const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
     const requiredRoles = to.meta.roles; // Roles específicos requeridos por la ruta
@@ -83,7 +71,6 @@ router.beforeEach((to, from, next) => {
         next();
     }
 });
-// --- Fin Guardia Global ---
 
 // --- 6. Export Router Instance ---
 export default router;
