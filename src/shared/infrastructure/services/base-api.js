@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const platformApi = import.meta.env.VITE_BLUE_LOCK_API_URL;
+const platformApi = import.meta.env.VITE_SMARTSTAY_API_URL;
 
 export class BaseApi {
     #http;
