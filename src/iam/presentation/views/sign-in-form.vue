@@ -14,7 +14,7 @@
       </div>
 
       <div class="logo-section">
-        <img src="../../../../assets/logo-modo-oscuro.png" :alt="t('login.logoAlt')" class="logo-image" />
+        <img src="../../../assets/logo-modo-oscuro.png" :alt="t('login.logoAlt')" class="logo-image" />
       </div>
     </div>
   </div>

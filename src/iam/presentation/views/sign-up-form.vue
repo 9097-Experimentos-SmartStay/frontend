@@ -12,7 +12,7 @@
         <AuthForm :start-in-login-mode="false" />
       </div>
       <div class="logo-section">
-        <img src="../../../../assets/logo-modo-oscuro.png" :alt="t('register.logoAlt')" class="logo-image" />
+        <img src="../../../assets/logo-modo-oscuro.png" :alt="t('register.logoAlt')" class="logo-image" />
       </div>
     </div>
   </div>
