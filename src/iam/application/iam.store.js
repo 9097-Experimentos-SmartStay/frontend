@@ -45,29 +45,16 @@ const useIamStore = defineStore('iam', () => {
                     let currentUser = UserAssembler.toEntityFromResource(signInResource);
                     currentUsername.value = currentUser.username;
                     currentUserId.value = currentUser.id;
-                    // Establecer token y rol en localStorage para compatibilidad con router guard
                     localStorage.setItem('token', signInResource.token);
-                    localStorage.setItem('user_token', signInResource.token); // Compatibilidad
-                    // Establecer rol - intentar obtenerlo de la respuesta o del usuario
-                    const userRole = signInResource.role || currentUser.role || response.data?.role || 'guest';
-                    localStorage.setItem('user_role', userRole);
-                    // Guardar usuario completo para compatibilidad
-                    localStorage.setItem('user', JSON.stringify({
-                        id: currentUser.id,
-                        username: currentUser.username,
-                        email: signInResource.email || currentUser.email || currentUser.username,
-                        name: currentUser.name || currentUser.username,
-                        role: userRole
-                    }));
                     isSignedIn.value = true;
-                    console.log(`User signed in: ${currentUsername.value} with role: ${userRole}`);
+                    console.log(`User signed in: ${currentUsername.value}`);
                     errors.value = [];
-                    router.push({name: 'dashboard'}); // Redirigir a dashboard en lugar de home
+                    router.push({name: 'home'});
                 } else {
                     isSignedIn.value = false;
                     console.log('Sign-in failed');
                     errors.value.push(new Error('Sign-in failed'));
-                    router.push({name: 'login'}); // Usar nombre de ruta correcto
+                    router.push({name: 'iam-sign-in'});
                 }
 
             })
@@ -76,7 +63,7 @@ const useIamStore = defineStore('iam', () => {
                 currentUsername.value = error.name;
                 console.log(error);
                 errors.value.push(error);
-                router.push({name: 'login'}); // Usar nombre de ruta correcto
+                router.push({name: 'iam-sign-in'});
             });
     }
 
@@ -94,17 +81,17 @@ const useIamStore = defineStore('iam', () => {
                 if (signUpResource) {
                     console.log(signUpResource.message);
                     errors.value = [];
-                    router.push({name: 'login'}); // Usar nombre de ruta correcto
+                    router.push({name: 'iam-sign-in'});
                 } else {
                     console.log('Sign-up failed');
                     errors.value.push(new Error('Sign-up failed'));
-                    router.push({name: 'register'}); // Usar nombre de ruta correcto
+                    router.push({name: 'iam-sign-up'});
                 }
             })
             .catch(error => {
                 console.log(error);
                 errors.value.push(error);
-                router.push({name: 'register'}); // Usar nombre de ruta correcto
+                router.push({name: 'iam-sign-up'});
             });
     }
 
@@ -115,13 +102,10 @@ const useIamStore = defineStore('iam', () => {
         currentUsername.value = null;
         currentUserId.value = 0;
         localStorage.removeItem('token');
-        localStorage.removeItem('user_token');
-        localStorage.removeItem('user_role');
-        localStorage.removeItem('user');
         isSignedIn.value = false;
         console.log('User signed out');
         errors.value = [];
-        router.push({name: 'login'}); // Usar nombre de ruta correcto
+        router.push({name: 'iam-sign-in'});
     }
 
     /**

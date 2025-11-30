@@ -14,8 +14,10 @@ export class SignUpAssembler {
      * @returns {SignUpResource|null} The assembled SignUpResource or null if error.
      */
     static toResourceFromResponse(response) {
-        if (response.status !== 200) {
+        // Aceptar tanto 200 (OK) como 201 (Created)
+        if (response.status !== 200 && response.status !== 201) {
             console.error(`${response.status}, ${response.statusText}`);
+            console.error('Response data:', response.data);
             return null;
         }
         return new SignUpResource(response.data);

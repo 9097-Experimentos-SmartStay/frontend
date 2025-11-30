@@ -1,84 +1,77 @@
 <template>
-  <div class="auth-form-container">
-    <pv-card class="auth-card">
-      <template #content>
-        <form @submit.prevent="handleSubmit" class="auth-form">
-          <div v-if="!isLoginMode" class="form-group">
-            <pv-float-label>
-              <pv-input-text 
-                id="name" 
-                v-model="form.name" 
-                :class="{'p-invalid': errors.name}"
-                class="w-full"
-              />
-              <label for="name">{{ t('auth.nameLabel') }}</label>
-            </pv-float-label>
-            <small v-if="errors.name" class="p-error">{{ errors.name }}</small>
-          </div>
+  <div class="p-card p-4 max-w-md mx-auto">
+    <h2 class="text-center mb-4">{{ isLoginMode ? t('auth.signInTitle') : t('auth.registerTitle') }}</h2>
 
-          <div class="form-group">
-            <pv-float-label>
-              <pv-input-text 
-                id="username" 
-                v-model="form.username" 
-                :class="{'p-invalid': errors.username}"
-                class="w-full"
-              />
-              <label for="username">{{ t('auth.emailLabel') }}</label>
-            </pv-float-label>
-            <small v-if="errors.username" class="p-error">{{ errors.username }}</small>
-          </div>
+    <div class="p-fluid">
+      <div class="field">
+        <label>{{ t('auth.emailLabel') }}</label>
+        <pv-input-text 
+          v-model="form.username" 
+          :placeholder="t('auth.emailPlaceholder')"
+          :class="{'p-invalid': errors.username}"
+        />
+        <small v-if="errors.username" class="p-error">{{ errors.username }}</small>
+      </div>
 
-          <div class="form-group">
-            <pv-float-label>
-              <pv-password 
-                id="password" 
-                v-model="form.password" 
-                :class="{'p-invalid': errors.password}"
-                :feedback="!isLoginMode"
-                toggleMask
-                class="w-full"
-              />
-              <label for="password">{{ t('auth.passwordLabel') }}</label>
-            </pv-float-label>
-            <small v-if="errors.password" class="p-error">{{ errors.password }}</small>
-          </div>
+      <div class="field" v-if="!isLoginMode">
+        <label>{{ t('auth.nameLabel') }}</label>
+        <pv-input-text 
+          v-model="form.name" 
+          :placeholder="t('auth.namePlaceholder')"
+          :class="{'p-invalid': errors.name}"
+        />
+        <small v-if="errors.name" class="p-error">{{ errors.name }}</small>
+      </div>
 
-          <div class="form-group">
-            <pv-select
-              id="role"
-              v-model="form.role"
-              :options="roleOptions"
-              optionLabel="label"
-              optionValue="value"
-              :placeholder="t('auth.rolePlaceholder')"
-              :class="{'p-invalid': errors.role}"
-              class="w-full"
-            />
-            <label for="role" class="select-label">{{ t('auth.roleLabel') }}</label>
-            <small v-if="errors.role" class="p-error">{{ errors.role }}</small>
-          </div>
+      <div class="field">
+        <label>{{ t('auth.passwordLabel') }}</label>
+        <pv-password 
+          v-model="form.password" 
+          toggleMask 
+          :feedback="false" 
+          :placeholder="t('auth.passwordPlaceholder')"
+          :class="{'p-invalid': errors.password}"
+        />
+        <small v-if="errors.password" class="p-error">{{ errors.password }}</small>
+      </div>
 
-          <div v-if="errorMessage" class="error-message">
-            <i class="pi pi-exclamation-triangle"></i>
-            {{ errorMessage }}
-          </div>
+      <div class="field">
+        <label>{{ t('auth.roleLabel') }}</label>
+        <pv-select
+          v-model="form.role"
+          :options="roleOptions"
+          optionLabel="label"
+          optionValue="value"
+          :placeholder="t('auth.rolePlaceholder')"
+          :class="{'p-invalid': errors.role}"
+          class="w-full"
+        />
+        <small v-if="errors.role" class="p-error">{{ errors.role }}</small>
+      </div>
 
-          <div v-if="successMessage" class="success-message">
-            <i class="pi pi-check-circle"></i>
-            {{ successMessage }}
-          </div>
+      <div v-if="errorMessage" class="error-message">
+        <i class="pi pi-exclamation-triangle"></i>
+        {{ errorMessage }}
+      </div>
 
-          <pv-button 
-            type="submit" 
-            :label="isLoginMode ? t('auth.signInButton') : t('auth.registerButton')" 
-            :icon="isLoginMode ? 'pi pi-sign-in' : 'pi pi-user-plus'"
-            class="w-full auth-button"
-            :loading="loading"
-          />
-        </form>
-      </template>
-    </pv-card>
+      <div v-if="successMessage" class="success-message">
+        <i class="pi pi-check-circle"></i>
+        {{ successMessage }}
+      </div>
+
+      <pv-button 
+        :label="isLoginMode ? t('auth.signInButton') : t('auth.registerButton')" 
+        class="mt-3 w-full" 
+        @click="handleSubmit" 
+        :loading="loading" 
+      />
+    </div>
+
+    <p class="text-center mt-3">
+      <router-link :to="isLoginMode ? '/register' : '/login'" class="text-blue-600 hover:text-blue-800">
+        {{ isLoginMode ? t('auth.registerLink') : t('auth.signInLink') }}
+      </router-link>
+    </p>
   </div>
 </template>
 
@@ -171,7 +164,7 @@ function validateForm() {
   return true;
 }
 
-function handleSubmit() {
+async function handleSubmit() {
   if (!validateForm()) {
     return;
   }
@@ -180,72 +173,98 @@ function handleSubmit() {
   errorMessage.value = '';
   successMessage.value = '';
 
-  if (isLoginMode.value) {
-    const signInCommand = new SignInCommand({
-      username: form.username,
-      password: form.password
-    });
-    signIn(signInCommand, router);
-    
-    setTimeout(() => {
+  try {
+    if (isLoginMode.value) {
+      const signInCommand = new SignInCommand({
+        username: form.username,
+        password: form.password
+      });
+      
+      await signIn(signInCommand, router);
+      // Si llegamos aquí, el login fue exitoso y el router ya redirigió
       loading.value = false;
-      if (store.errors && store.errors.length > 0) {
-        errorMessage.value = t('auth.authFailedGeneric');
-      }
-    }, 1000);
-  } else {
-    const signUpCommand = new SignUpCommand({
-      username: form.username,
-      password: form.password
-    });
-    signUp(signUpCommand, router);
-    
-    setTimeout(() => {
+    } else {
+      const signUpCommand = new SignUpCommand({
+        username: form.username,
+        password: form.password,
+        role: form.role,
+        name: form.name
+      });
+      
+      await signUp(signUpCommand, router);
       loading.value = false;
-      if (store.errors && store.errors.length > 0) {
-        errorMessage.value = t('auth.authFailedGeneric');
-      } else {
-        successMessage.value = t('auth.registerSuccess');
-        setTimeout(() => {
-          router.push('/login');
-        }, 2000);
-      }
-    }, 1000);
+      successMessage.value = t('auth.registerSuccess');
+      setTimeout(() => {
+        router.push('/login');
+      }, 2000);
+    }
+  } catch (error) {
+    loading.value = false;
+    errorMessage.value = t('auth.authFailedGeneric');
+    console.error('Auth error:', error);
   }
 }
 </script>
 
 <style scoped>
-.auth-form-container {
-  width: 100%;
+.p-card {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  background-color: transparent;
+  border-radius: 8px;
 }
 
-.auth-card {
-  width: 100%;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+.p-4 {
+  padding: 24px;
 }
 
-.auth-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
+.max-w-md {
+  width: 382.92px;
+  max-width: 382.92px;
 }
 
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+.mx-auto {
+  margin-left: 57.135px;
+  margin-right: 57.135px;
 }
 
-.select-label {
-  display: block;
-  margin-bottom: 0.5rem;
-  color: #666;
-  font-weight: 500;
-  font-size: 0.875rem;
+.text-center {
+  text-align: center;
+}
+
+.mb-4 {
+  margin-bottom: 1rem;
+}
+
+.mt-3 {
+  margin-top: 0.75rem;
 }
 
 .w-full {
+  width: 100%;
+}
+
+.text-blue-600 {
+  color: #2563eb;
+}
+
+.hover\:text-blue-800:hover {
+  color: #1e40af;
+}
+
+.p-fluid .field {
+  margin-bottom: 1rem;
+}
+
+.p-fluid .field label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+:deep(.p-inputtext),
+:deep(.p-password),
+:deep(.p-select),
+:deep(.p-button) {
   width: 100%;
 }
 
@@ -258,6 +277,7 @@ function handleSubmit() {
   align-items: center;
   gap: 0.5rem;
   font-size: 0.875rem;
+  margin-top: 0.5rem;
 }
 
 .success-message {
@@ -269,18 +289,14 @@ function handleSubmit() {
   align-items: center;
   gap: 0.5rem;
   font-size: 0.875rem;
-}
-
-.auth-button {
   margin-top: 0.5rem;
-  padding: 0.75rem;
-  font-size: 1rem;
-  font-weight: 600;
 }
 
 .p-error {
   color: #c33;
   font-size: 0.875rem;
+  display: block;
+  margin-top: 0.25rem;
 }
 </style>
 

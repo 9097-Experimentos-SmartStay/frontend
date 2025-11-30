@@ -14,7 +14,7 @@
       </div>
 
       <div class="logo-section">
-        <img src="../../../assets/logo-modo-oscuro.png" :alt="t('login.logoAlt')" class="logo-image" />
+        <img :src="logoImage" :alt="t('login.logoAlt')" class="logo-image" />
       </div>
     </div>
   </div>
@@ -23,6 +23,7 @@
 <script setup>
 import { useI18n } from 'vue-i18n';
 import PvButton from 'primevue/button';
+import logoImage from '../../../assets/logo-modo-oscuro.png';
 
 // --- Import Shared Components ---
 import LanguageSwitcher from '../../../shared/presentation/components/language-switcher.vue';

@@ -37,7 +37,22 @@ export class IamApi extends BaseApi {
      * @returns {Promise} A promise that resolves with the sign-up response.
      */
     signUp(signUpRequest) {
-        return this.#signUpEndpoint.create(signUpRequest);
+        // Mapear username a email para compatibilidad con el backend
+        const requestData = {
+            email: signUpRequest.username || signUpRequest.email,
+            password: signUpRequest.password,
+            role: signUpRequest.role
+        };
+        
+        // Incluir name si está disponible
+        if (signUpRequest.name) {
+            requestData.name = signUpRequest.name;
+        }
+        
+        console.log('Sign-up request data:', requestData);
+        console.log('Sign-up endpoint:', signUpEndpointPath);
+        
+        return this.#signUpEndpoint.create(requestData);
     }
 
     /**
