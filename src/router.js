@@ -50,6 +50,12 @@ router.beforeEach((to, from, next) => {
 
     console.log(`[Global Guard] Navigating to: ${String(to.name) || to.path}, Auth: ${isAuthenticated}, Role: ${userRole}, RequiresAuth: ${requiresAuth}, RequiredRoles: ${requiredRoles}, PublicOnly: ${publicOnly}`);
 
+    if (isAuthenticated && !userRole) {
+        console.log('[Global Guard] Token found but No Role. Clearing session to avoid loop.');
+        localStorage.clear();
+        next({ name: 'login' });
+        return;
+    }
     if (requiresAuth && !isAuthenticated) {
         console.log('[Global Guard] Auth required, redirecting to login.');
         next({ name: 'login' });

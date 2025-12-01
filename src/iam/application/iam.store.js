@@ -46,15 +46,21 @@ const useIamStore = defineStore('iam', () => {
                     currentUsername.value = currentUser.username;
                     currentUserId.value = currentUser.id;
                     localStorage.setItem('token', signInResource.token);
+                    localStorage.setItem('user_token', signInResource.token);
+
+                    const role = currentUser.roles ? currentUser.roles[0] : 'guest';
+                    localStorage.setItem('user_role', role);
+
                     isSignedIn.value = true;
-                    console.log(`User signed in: ${currentUsername.value}`);
+                    console.log(`User signed in: ${currentUsername.value} with role: ${role}`);
                     errors.value = [];
-                    router.push({name: 'home'});
+
+                    router.push({name: 'dashboard'});
                 } else {
                     isSignedIn.value = false;
                     console.log('Sign-in failed');
                     errors.value.push(new Error('Sign-in failed'));
-                    router.push({name: 'iam-sign-in'});
+                    router.push({name: 'login'});
                 }
 
             })
@@ -63,7 +69,7 @@ const useIamStore = defineStore('iam', () => {
                 currentUsername.value = error.name;
                 console.log(error);
                 errors.value.push(error);
-                router.push({name: 'iam-sign-in'});
+                router.push({name: 'login'});
             });
     }
 
@@ -81,17 +87,17 @@ const useIamStore = defineStore('iam', () => {
                 if (signUpResource) {
                     console.log(signUpResource.message);
                     errors.value = [];
-                    router.push({name: 'iam-sign-in'});
+                    router.push({name: 'login'});
                 } else {
                     console.log('Sign-up failed');
                     errors.value.push(new Error('Sign-up failed'));
-                    router.push({name: 'iam-sign-up'});
+                    router.push({name: 'register'});
                 }
             })
             .catch(error => {
                 console.log(error);
                 errors.value.push(error);
-                router.push({name: 'iam-sign-up'});
+                router.push({name: 'register'});
             });
     }
 
@@ -105,7 +111,7 @@ const useIamStore = defineStore('iam', () => {
         isSignedIn.value = false;
         console.log('User signed out');
         errors.value = [];
-        router.push({name: 'iam-sign-in'});
+        router.push({name: 'login'});
     }
 
     /**
