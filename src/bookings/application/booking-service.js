@@ -1,6 +1,6 @@
 // src/bounded-contexts/bookings/application/booking-service.js
 import { BookingRepository } from '../infrastructure/repositories/booking-repository.js';
-import { RoomService } from '../../accommodations/application/room-service.js';
+import { RoomService } from '@/accommodations/application/room-service.js';
 
 export class BookingService {
     constructor() {

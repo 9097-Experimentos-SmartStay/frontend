@@ -1,37 +1,46 @@
-// src/bounded-contexts/accommodations/infrastructure/api/room-type-api.js
-import axios from 'axios';
+import { BaseApi } from "@/shared/infrastructure/services/base-api.js";
+import { BaseEndpoint } from "@/shared/infrastructure/services/base-endpoint.js";
 
-const API_BASE_URL = import.meta.env.VITE_SMARTSTAY_API_URL || 'http://localhost:3000';
-const BASE_PATH = '/api/v1/roomTypes';
+// Swagger Path: /api/v1/room-types
+const roomTypesEndpointPath = import.meta.env.VITE_ROOM_TYPES_ENDPOINT_PATH;
 
-export const roomTypeApi = {
-    /**
-     * Obtener todos los tipos de habitación
-     * @returns {Promise<Array>}
-     */
-    async getAll() {
-        const res = await axios.get(`${API_BASE_URL}${BASE_PATH}`);
-        return res.data;
-    },
+/**
+ * RoomTypeApi class.
+ * Handles API communication for RoomType Resources.
+ * Extends BaseApi to ensure Token injection and centralized configuration.
+ */
+export class RoomTypeApi extends BaseApi {
+    #endpoint;
 
-    /**
-     * Obtener tipo de habitación por ID
-     * @param {number} roomTypeId
-     * @returns {Promise<Object>}
-     */
-    async getById(roomTypeId) {
-        const res = await axios.get(`${API_BASE_URL}${BASE_PATH}/${roomTypeId}`);
-        return res.data;
-    },
-
-    /**
-     * Crear nuevo tipo de habitación
-     * @param {Object} data - CreateRoomTypeResource
-     * @returns {Promise<Object>}
-     */
-    async create(data) {
-        const res = await axios.post(`${API_BASE_URL}${BASE_PATH}`, data);
-        return res.data;
+    constructor() {
+        super();
+        // BaseEndpoint provides standard CRUD: getAll, getById, create, update, delete
+        this.#endpoint = new BaseEndpoint(this, roomTypesEndpointPath);
     }
-};
 
+    /**
+     * Retrieves all room type resources.
+     * @returns {Promise<Object>} The axios response containing the list of resources.
+     */
+    getAll() {
+        return this.#endpoint.getAll();
+    }
+
+    /**
+     * Retrieves a specific room type resource by ID.
+     * @param {number} id - The room type ID.
+     * @returns {Promise<Object>} The axios response containing the resource.
+     */
+    getById(id) {
+        return this.#endpoint.getById(id);
+    }
+
+    /**
+     * Creates a new room type resource.
+     * @param {Object} resource - The room type data (CreateRoomTypeResource).
+     * @returns {Promise<Object>} The axios response containing the created resource.
+     */
+    create(resource) {
+        return this.#endpoint.create(resource);
+    }
+}

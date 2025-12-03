@@ -1,36 +1,44 @@
-// src/bounded-contexts/bookings/infrastructure/repositories/booking-repository.js
-import { bookingApi } from '../api/booking-api.js';
 import { Booking } from '../../domain/model/booking.entity.js';
+import { BookingApi } from '../api/booking-api.js';
 
 export class BookingRepository {
+    constructor() {
+        this.api = new BookingApi();
+    }
+
     async getAll() {
-        const resources = await bookingApi.getAll();
+        const response = await this.api.getAllBookings();
+        const resources = response.data;
         return resources.map(resource => Booking.fromResource(resource));
     }
 
     async getById(id) {
-        const resource = await bookingApi.getById(id);
+        const response = await this.api.getBookingById(id);
+        const resource = response.data;
         return Booking.fromResource(resource);
     }
 
     async getByRoomId(roomId) {
-        const resources = await bookingApi.getByRoomId(roomId);
+        const response = await this.api.getBookingsByRoomId(roomId);
+        const resources = response.data;
         return resources.map(resource => Booking.fromResource(resource));
     }
 
     async create(data) {
-        const resource = await bookingApi.create(data);
+        const response = await this.api.createBooking(data);
+        const resource = response.data;
         return Booking.fromResource(resource);
     }
 
     async confirm(id) {
-        const resource = await bookingApi.confirm(id);
+        const response = await this.api.confirmBooking(id);
+        const resource = response.data;
         return Booking.fromResource(resource);
     }
 
     async cancel(id) {
-        const resource = await bookingApi.cancel(id);
+        const response = await this.api.cancelBooking(id);
+        const resource = response.data;
         return Booking.fromResource(resource);
     }
 }
-

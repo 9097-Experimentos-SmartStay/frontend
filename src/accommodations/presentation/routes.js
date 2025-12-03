@@ -21,6 +21,12 @@ export default [
         name: 'staff-rooms',
         component: () => import('./views/StaffRooms.vue'),
         meta: { requiresAuth: true, roles: ['staff'] }
-    }
+    },
+    {
+        path: '/guest/hotels',
+        name: 'guest-hotels',
+        component: () => import('./views/GuestHotels.vue'),
+        meta: { requiresAuth: true, roles: ['guest'] }
+    },
 ];
 
