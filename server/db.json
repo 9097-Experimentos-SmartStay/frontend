@@ -20,13 +20,7 @@
     },
     {
       "email": "okami@gmail.com",
-      "password": "okami123",
-      "role": "staff",
-      "id": "5"
-    },
-    {
-      "email": "mari@gmail.com",
-      "password": "mmari123",
+      "password": "oka123",
       "role": "staff",
       "id": "7"
     }
@@ -60,14 +54,6 @@
       "position": "Housekeeping",
       "shift_start": "08:00",
       "shift_end": "16:00",
-      "user_id": 5,
-      "id": "5"
-    },
-    {
-      "full_name": "Maria dolores",
-      "position": "Housekeeping",
-      "shift_start": "10",
-      "shift_end": "11",
       "user_id": 7,
       "id": "7"
     }
@@ -203,14 +189,6 @@
       "status": "Completada",
       "assignedTo": 2,
       "createdAt": "2025-10-28T16:00:00Z"
-    },
-    {
-      "status": "Completada",
-      "createdAt": "2025-10-30T16:43:17.871Z",
-      "description": "limpiar cuarto b1",
-      "roomId": "505",
-      "assignedTo": 2,
-      "id": "902"
     },
     {
       "status": "Completada",
