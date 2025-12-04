@@ -236,9 +236,9 @@ const createMenuItems = ref([
   {
     label: 'Alojamiento',
     items: [
-      { label: 'Nuevo Hotel', icon: 'pi pi-building', command: () => { navigateTo('create-hotel'); } },
-      { label: 'Nueva Habitación', icon: 'pi pi-key', command: () => { navigateTo('create-room'); } },
-      { label: 'Tipo de Habitación', icon: 'pi pi-tags', command: () => { navigateTo('create-room-type'); } }
+      { label: 'Nuevo Hotel', icon: 'pi pi-building', command: () => { navigateTo('staff-hotels'); } },
+      { label: 'Nueva Habitación', icon: 'pi pi-key', command: () => { navigateTo('staff-rooms'); } },
+      { label: 'Tipo de Habitación', icon: 'pi pi-tags', command: () => { navigateTo('staff-rooms'); } }
     ]
   },
   {
@@ -346,9 +346,7 @@ const updateCharts = () => {
 // --- ACTIONS ---
 
 const navigateTo = (routeName) => {
-  // Check if route exists before pushing (Mock check)
-  // router.push({ name: routeName });
-  toast.add({ severity: 'info', summary: 'Navegación', detail: `Ir a: ${routeName} (Implementar ruta)`, life: 2000 });
+  router.push({ name: routeName });
 };
 
 const refreshData = async () => {

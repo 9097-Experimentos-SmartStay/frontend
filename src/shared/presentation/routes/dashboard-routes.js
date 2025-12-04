@@ -50,5 +50,23 @@ export default [
         component: () => import('../views/GuestDashboard.vue'),
         meta: { requiresAuth: true, roles: ['guest'] }
     },
+    {
+        path: '/staff/hotels',
+        name: 'staff-hotels',
+        component: () => import('../../../accommodations/presentation/views/StaffHotels.vue'), // Crearemos este archivo
+        meta: { requiresAuth: true, roles: ['staff'] }
+    },
+    {
+        path: '/staff/rooms',
+        name: 'staff-rooms',
+        component: () => import('../../../accommodations/presentation/views/StaffRooms.vue'), // Crearemos este archivo
+        meta: { requiresAuth: true, roles: ['staff'] }
+    },
+    {
+        path: '/staff/bookings',
+        name: 'staff-bookings',
+        component: () => import('../../../bookings/presentation/views/StaffBookings.vue'), // Crearemos este archivo
+        meta: { requiresAuth: true, roles: ['staff'] }
+    }
 ];
 
