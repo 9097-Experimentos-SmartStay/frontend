@@ -3,10 +3,11 @@
 export default [
     // Rutas para huéspedes
     {
-        path: '/guest/payments',
-        name: 'guest-payments',
+        path: '/guest/bookings/:bookingId/payment',
+        name: 'guest-payment',
         component: () => import('./views/GuestPayments.vue'),
-        meta: { requiresAuth: true, roles: ['guest'] }
+        meta: { requiresAuth: true, roles: ['guest'] },
+        props: true
     },
     {
         path: '/guest/payments/booking/:bookingId',
