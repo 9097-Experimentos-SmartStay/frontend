@@ -11,6 +11,7 @@ import paymentsRoutes from './payments/presentation/routes.js';
 
 // --- 2. Import Shared Views ---
 const PageNotFound = () => import('./shared/presentation/views/page-not-found.vue');
+const ProfileDetail = () => import('./profile/presentation/views/ProfileDetail.vue');
 
 // --- 3. Combine All Route Definitions ---
 const routes = [
@@ -20,6 +21,12 @@ const routes = [
     ...bookingsRoutes,           // Bookings
     ...paymentsRoutes,           // Payments
 
+    {
+        path: '/perfil/:id',
+        name: 'profile-detail',
+        component: ProfileDetail,
+        meta: { requiresAuth: true, roles: ['guest', 'staff'] }
+    },
     {
         path: '/',
         redirect: '/login'

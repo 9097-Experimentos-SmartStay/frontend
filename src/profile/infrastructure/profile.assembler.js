@@ -1,4 +1,4 @@
-import { Profile } from '../../domain/model/profile.entity.js';
+import { Profile } from '../domain/model/profile.entity.js';
 import { ProfileResource } from './profile.resource.js';
 
 /**
