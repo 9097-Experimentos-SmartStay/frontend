@@ -7,29 +7,32 @@ export default [
         path: '/dashboard',
         name: 'dashboard',
         beforeEnter: (to, from, next) => {
-            const userRole = localStorage.getItem('user_role');
-            console.log('[Router Guard /dashboard] Role:', userRole);
+            let userRole = localStorage.getItem('user_role');
+
+            // Normalización defensiva
+            if (userRole) userRole = userRole.toLowerCase().trim();
+
+            console.log(`[Router Guard /dashboard] Detected Role: '${userRole}'`);
 
             if (!userRole) {
-                console.log('[Router Guard /dashboard] No role, redirecting to login.');
+                console.warn('[Router Guard /dashboard] No role found. Redirecting to login.');
                 next({ name: 'login' });
                 return;
             }
 
             // Redirige al dashboard específico según el rol
-            switch (userRole) {
-                case 'staff':
-                    console.log('[Router Guard /dashboard] Redirecting to staff-dashboard.');
-                    next({ name: 'staff-dashboard' });
-                    break;
-                case 'guest':
-                    console.log('[Router Guard /dashboard] Redirecting to guest-dashboard.');
-                    next({ name: 'guest-dashboard' });
-                    break;
-                default:
-                    console.warn('[Router Guard /dashboard] Unknown role:', userRole, 'Redirecting to login.');
-                    localStorage.clear();
-                    next({ name: 'login' });
+            if (userRole === 'staff' || userRole.includes('admin')) {
+                console.log('[Router Guard] -> Staff Dashboard');
+                next({ name: 'staff-dashboard' });
+            }
+            else if (userRole === 'guest' || userRole === 'user') {
+                console.log('[Router Guard] -> Guest Dashboard');
+                next({ name: 'guest-dashboard' });
+            }
+            else {
+                console.error(`[Router Guard] Unknown role '${userRole}'. Redirecting to login for safety.`);
+                // Opcional: No borrar todo el localStorage, solo redirigir
+                next({ name: 'login' });
             }
         },
         meta: { requiresAuth: true }

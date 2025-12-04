@@ -13,7 +13,7 @@ const iamApi = new IamApi();
  * Pinia store for managing Identity and Access Management (IAM) state.
  * Handles user authentication, registration, and user data fetching within the DDD architecture.
  * Uses the Resource pattern for data transfer and Entities for domain logic.
- * * @returns {Object} The store object with reactive state and actions.
+ * @returns {Object} The store object with reactive state and actions.
  */
 const useIamStore = defineStore('iam', () => {
 
@@ -47,7 +47,7 @@ const useIamStore = defineStore('iam', () => {
     /**
      * Signs in a user with the provided credentials.
      * Transforming the Infrastructure Response into a Domain Entity via Assemblers.
-     * * @param {SignInCommand} signInCommand - The command containing credentials.
+     * @param {SignInCommand} signInCommand - The command containing credentials.
      * @param {Object} router - The Vue Router instance for navigation.
      */
     function signIn(signInCommand, router) {
@@ -62,26 +62,36 @@ const useIamStore = defineStore('iam', () => {
                     // Transform Resource to Domain Entity
                     let currentUser = UserAssembler.toEntityFromResource(signInResource);
 
-                    // Update Reactive State
+                    // --- ROBUST ROLE EXTRACTION LOGIC ---
+                    // Handles scenarios where roles come as an array (ASP.NET default) or a single string.
+                    let role = 'guest'; // Default fallback
+
+                    if (currentUser.roles && Array.isArray(currentUser.roles) && currentUser.roles.length > 0) {
+                        role = currentUser.roles[0]; // Take the first role if array
+                    } else if (currentUser.role) {
+                        role = currentUser.role; // Take direct property
+                    }
+
+                    // Normalize to lowercase/trim to match Router Guard ('staff', 'guest')
+                    role = String(role).toLowerCase().trim();
+
+                    // --- UPDATE STATE ---
                     currentUsername.value = currentUser.username;
                     currentUserId.value = currentUser.id;
                     isSignedIn.value = true;
 
                     // --- PERSISTENCE LAYER (LOCAL STORAGE) ---
-                    // Vital for session recovery on page reload
+                    // Vital for session recovery on page reload and Router Guards
                     localStorage.setItem('token', signInResource.token);
                     localStorage.setItem('user_token', signInResource.token); // Compatibility
-                    localStorage.setItem('user_id', currentUser.id); // <--- ¡AQUÍ ESTABA LA CLAVE!
+                    localStorage.setItem('user_id', currentUser.id);
                     localStorage.setItem('user_username', currentUser.username);
-
-                    // Determine Role (Defaulting to 'guest' if not provided by backend resource)
-                    const role = currentUser.roles ? currentUser.roles[0] : 'guest';
                     localStorage.setItem('user_role', role);
 
                     console.log(`User signed in successfully: ID ${currentUser.id}, Role: ${role}`);
                     errors.value = [];
 
-                    // Navigate to Dashboard
+                    // Navigate to Dashboard (Router Guard will handle specific redirection based on role)
                     router.push({name: 'dashboard'});
                 } else {
                     handleSignInError(new Error('Sign-in resource is null'), router);
@@ -106,7 +116,7 @@ const useIamStore = defineStore('iam', () => {
 
     /**
      * Signs up a new user.
-     * * @param {SignUpCommand} signUpCommand - The command containing registration details.
+     * @param {SignUpCommand} signUpCommand - The command containing registration details.
      * @param {Object} router - The Vue Router instance.
      */
     function signUp(signUpCommand, router) {
@@ -141,11 +151,11 @@ const useIamStore = defineStore('iam', () => {
         currentUserId.value = 0;
         isSignedIn.value = false;
 
-        // Clear Persistence
+        // Clear Persistence (All keys related to session)
         localStorage.removeItem('token');
         localStorage.removeItem('user_token');
         localStorage.removeItem('user_role');
-        localStorage.removeItem('user_id'); // <--- Limpieza completa
+        localStorage.removeItem('user_id');
         localStorage.removeItem('user_username');
 
         console.log('User session terminated');
