@@ -1,381 +1,273 @@
 <template>
-  <div class="profile-detail-container">
+  <div class="all-profiles">
+    <h1>All Profiles</h1>
+
     <!-- Loading State -->
-    <div v-if="loading" class="loading-container">
-      <div class="spinner"></div>
-      <p>Cargando perfil...</p>
+    <div v-if="loading" class="loading">
+      <p>Loading profiles...</p>
     </div>
 
     <!-- Error State -->
-    <div v-else-if="error" class="error-container">
-      <div class="error-card">
-        <h2>Error</h2>
-        <p>{{ error }}</p>
-        <button @click="handleRetry" class="btn btn-primary">
-          Reintentar
-        </button>
-      </div>
+    <div v-if="error" class="error">
+      <p>{{ error }}</p>
+      <button @click="loadProfiles">Retry</button>
     </div>
 
-    <!-- Profile Detail -->
-    <div v-else-if="profile" class="profile-card">
-      <!-- Header -->
-      <div class="profile-header">
-        <div class="profile-avatar">
-          {{ profile.firstName.charAt(0) }}{{ profile.lastName.charAt(0) }}
-        </div>
-        <div class="profile-header-info">
-          <h1 class="profile-name">{{ profile.fullName }}</h1>
-          <p class="profile-email">{{ profile.email }}</p>
-        </div>
+    <!-- Profiles List -->
+    <div v-if="!loading && !error" class="profiles-container">
+      <div v-if="profiles.length === 0" class="empty-state">
+        <p>No profiles found</p>
+        <router-link to="/profiles/create" class="btn btn-primary">
+          Create First Profile
+        </router-link>
       </div>
 
-      <!-- Profile Information -->
-      <div class="profile-content">
-        <!-- Personal Information Section -->
-        <div class="info-section">
-          <h2 class="section-title">
-            <span class="icon">👤</span>
-            Información Personal
-          </h2>
-          <div class="info-grid">
-            <div class="info-item">
-              <span class="info-label">Nombre:</span>
-              <span class="info-value">{{ profile.firstName }}</span>
+      <div v-else class="profiles-grid">
+        <div
+            v-for="profile in profiles"
+            :key="profile.id"
+            class="profile-card"
+            @click="goToProfile(profile.id)"
+        >
+          <div class="profile-card-header">
+            <div class="profile-avatar">
+              {{ getInitials(profile.fullName) }}
             </div>
-            <div class="info-item">
-              <span class="info-label">Apellido:</span>
-              <span class="info-value">{{ profile.lastName }}</span>
+            <h3>{{ profile.fullName }}</h3>
+          </div>
+
+          <div class="profile-card-body">
+            <div class="profile-info">
+              <span class="label">Email:</span>
+              <span class="value">{{ profile.email }}</span>
             </div>
-            <div class="info-item">
-              <span class="info-label">Correo Electrónico:</span>
-              <span class="info-value">{{ profile.email }}</span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">ID:</span>
-              <span class="info-value">#{{ profile.id }}</span>
+            <div class="profile-info">
+              <span class="label">Address:</span>
+              <span class="value">{{ profile.streetAddress }}</span>
             </div>
           </div>
-        </div>
 
-        <!-- Address Section -->
-        <div class="info-section">
-          <h2 class="section-title">
-            <span class="icon">📍</span>
-            Dirección
-          </h2>
-          <div class="info-grid">
-            <div class="info-item">
-              <span class="info-label">Calle:</span>
-              <span class="info-value">{{ profile.street }}</span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">Número:</span>
-              <span class="info-value">{{ profile.number }}</span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">Ciudad:</span>
-              <span class="info-value">{{ profile.city }}</span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">Código Postal:</span>
-              <span class="info-value">{{ profile.postalCode }}</span>
-            </div>
-            <div class="info-item full-width">
-              <span class="info-label">País:</span>
-              <span class="info-value">{{ profile.country }}</span>
-            </div>
-            <div class="info-item full-width address-full">
-              <span class="info-label">Dirección Completa:</span>
-              <span class="info-value">{{ profile.fullAddress }}</span>
-            </div>
+          <div class="profile-card-footer">
+            <button class="btn btn-sm btn-primary">View Details</button>
           </div>
         </div>
       </div>
-
-      <!-- Actions -->
-      <div class="profile-actions">
-        <button @click="handleBack" class="btn btn-secondary">
-          Volver
-        </button>
-      </div>
     </div>
 
-    <!-- Not Found State -->
-    <div v-else class="not-found-container">
-      <div class="not-found-card">
-        <h2>Perfil no encontrado</h2>
-        <p>El perfil que buscas no existe.</p>
-        <button @click="handleBack" class="btn btn-primary">
-          Volver a la lista
-        </button>
-      </div>
-    </div>
+    <!-- Floating Action Button -->
+    <router-link to="/profiles/create" class="fab">
+      <span>+</span>
+    </router-link>
   </div>
 </template>
 
 <script>
-import { ref, computed, onMounted } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-import { useProfileStore } from '../../application/profile.store.js';
+import { profileStore } from '../../application/profile.store';
 
 export default {
-  name: 'ProfileDetail',
+  name: 'AllProfiles',
 
-  setup() {
-    const route = useRoute();
-    const router = useRouter();
-    const profileStore = useProfileStore();
-
-    const profileId = ref(parseInt(route.params.id));
-
-    const profile = computed(() => profileStore.getCurrentProfile);
-    const loading = computed(() => profileStore.isLoading);
-    const error = computed(() => profileStore.getError);
-
-    const loadProfile = async () => {
-      try {
-        await profileStore.fetchProfileById(profileId.value);
-      } catch (err) {
-        console.error('Error loading profile:', err);
-      }
-    };
-
-    const handleRetry = () => {
-      loadProfile();
-    };
-
-    const handleBack = () => {
-      router.push('/profiles');
-    };
-
-    onMounted(() => {
-      loadProfile();
-    });
-
+  data() {
     return {
-      profile,
-      loading,
-      error,
-      handleRetry,
-      handleBack
+      loading: false,
+      error: null
     };
+  },
+
+  computed: {
+    profiles() {
+      return profileStore.state.profiles;
+    }
+  },
+
+  methods: {
+    async loadProfiles() {
+      this.loading = true;
+      this.error = null;
+
+      try {
+        await profileStore.fetchAllProfiles();
+      } catch (err) {
+        this.error = err.message || 'Failed to load profiles';
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    goToProfile(profileId) {
+      this.$router.push(`/profiles/${profileId}`);
+    },
+
+    getInitials(fullName) {
+      return fullName
+          .split(' ')
+          .map(name => name.charAt(0))
+          .join('')
+          .toUpperCase()
+          .substring(0, 2);
+    }
+  },
+
+  mounted() {
+    this.loadProfiles();
   }
 };
 </script>
 
 <style scoped>
-.profile-detail-container {
-  max-width: 900px;
-  margin: 2rem auto;
-  padding: 0 1rem;
-}
-
-/* Loading State */
-.loading-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 4rem;
-  color: #666;
-}
-
-.spinner {
-  width: 50px;
-  height: 50px;
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #4CAF50;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-/* Error State */
-.error-container,
-.not-found-container {
-  display: flex;
-  justify-content: center;
+.all-profiles {
   padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
-.error-card,
-.not-found-card {
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  padding: 2rem;
+h1 {
+  margin-bottom: 2rem;
+  color: #333;
+}
+
+.loading, .error {
   text-align: center;
-  max-width: 500px;
+  padding: 2rem;
 }
 
-.error-card h2,
-.not-found-card h2 {
-  color: #c62828;
-  margin-bottom: 1rem;
+.error {
+  color: #dc3545;
 }
 
-/* Profile Card */
+.error button {
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+  background: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem;
+}
+
+.profiles-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
 .profile-card {
   background: white;
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
 }
 
-.profile-header {
-  background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
-  padding: 2rem;
+.profile-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.profile-card-header {
   display: flex;
   align-items: center;
-  gap: 1.5rem;
-  color: white;
+  gap: 1rem;
+  margin-bottom: 1rem;
 }
 
 .profile-avatar {
-  width: 80px;
-  height: 80px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.2);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 2rem;
   font-weight: bold;
-  border: 3px solid white;
+  font-size: 1.2rem;
 }
 
-.profile-header-info {
-  flex: 1;
-}
-
-.profile-name {
-  font-size: 2rem;
+.profile-card-header h3 {
   margin: 0;
-  font-weight: bold;
-}
-
-.profile-email {
-  margin: 0.5rem 0 0;
-  font-size: 1.1rem;
-  opacity: 0.9;
-}
-
-.profile-content {
-  padding: 2rem;
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-}
-
-.info-section {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.section-title {
-  font-size: 1.25rem;
-  font-weight: 600;
+  font-size: 1.2rem;
   color: #333;
+}
+
+.profile-card-body {
+  margin-bottom: 1rem;
+}
+
+.profile-info {
   display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  border-bottom: 2px solid #e0e0e0;
-  padding-bottom: 0.5rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
 }
 
-.icon {
-  font-size: 1.5rem;
-}
-
-.info-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1rem;
-}
-
-.info-item {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.info-item.full-width {
-  grid-column: 1 / -1;
-}
-
-.info-item.address-full {
-  background: #f5f5f5;
-  padding: 1rem;
-  border-radius: 4px;
-}
-
-.info-label {
-  font-size: 0.875rem;
+.profile-info .label {
   font-weight: 600;
   color: #666;
-  text-transform: uppercase;
+  min-width: 70px;
 }
 
-.info-value {
-  font-size: 1rem;
+.profile-info .value {
   color: #333;
+  word-break: break-word;
 }
 
-.profile-actions {
-  padding: 1.5rem 2rem;
-  background: #f9f9f9;
-  border-top: 1px solid #e0e0e0;
-  display: flex;
-  justify-content: flex-start;
+.profile-card-footer {
+  border-top: 1px solid #eee;
+  padding-top: 1rem;
+  text-align: right;
 }
 
 .btn {
-  padding: 0.75rem 2rem;
+  padding: 0.5rem 1rem;
   border: none;
   border-radius: 4px;
-  font-size: 1rem;
-  font-weight: 500;
   cursor: pointer;
-  transition: all 0.3s;
+  font-size: 0.9rem;
+  text-decoration: none;
+  display: inline-block;
 }
 
 .btn-primary {
-  background-color: #4CAF50;
+  background: #007bff;
   color: white;
 }
 
 .btn-primary:hover {
-  background-color: #45a049;
+  background: #0056b3;
 }
 
-.btn-secondary {
-  background-color: #f5f5f5;
-  color: #333;
-  border: 1px solid #ddd;
+.btn-sm {
+  padding: 0.4rem 0.8rem;
+  font-size: 0.85rem;
 }
 
-.btn-secondary:hover {
-  background-color: #e0e0e0;
+.fab {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: #007bff;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform 0.2s;
 }
 
-@media (max-width: 768px) {
-  .profile-header {
-    flex-direction: column;
-    text-align: center;
-  }
-
-  .profile-name {
-    font-size: 1.5rem;
-  }
-
-  .info-grid {
-    grid-template-columns: 1fr;
-  }
+.fab:hover {
+  transform: scale(1.1);
+  background: #0056b3;
 }
 </style>

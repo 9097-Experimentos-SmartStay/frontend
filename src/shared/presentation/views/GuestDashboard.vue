@@ -18,15 +18,58 @@
 
           <div class="w-1px h-2rem bg-300 mx-2 hidden md:block"></div>
 
-          <div class="flex align-items-center gap-2">
-            <pv-avatar
-                :label="userInitials"
-                shape="circle"
-                class="bg-primary text-white font-bold"
-                style="width: 2.5rem; height: 2.5rem"
-            />
-            <span class="font-medium hidden lg:block user-name">{{ currentUser?.username || 'Guest' }}</span>
-            <pv-button icon="pi pi-sign-out" class="p-button-rounded p-button-danger p-button-text ml-1" @click="logout" v-tooltip.bottom="'Cerrar Sesión'" />
+          <!-- Profile Menu Dropdown -->
+          <div class="profile-menu-wrapper relative">
+            <button
+                type="button"
+                class="profile-avatar-btn flex align-items-center gap-2 cursor-pointer border-none bg-transparent p-2 border-round hover:bg-gray-100 transition-duration-200"
+                @click.stop="toggleProfileMenu"
+            >
+              <pv-avatar
+                  :label="userInitials"
+                  shape="circle"
+                  class="bg-primary text-white font-bold"
+                  style="width: 2.5rem; height: 2.5rem"
+              />
+              <span class="font-medium hidden lg:block user-name">{{ currentUser?.username || 'Guest' }}</span>
+              <i :class="['pi', isProfileMenuOpen ? 'pi-chevron-up' : 'pi-chevron-down', 'text-600']"></i>
+            </button>
+
+            <!-- Dropdown Menu -->
+            <transition name="dropdown-fade">
+              <div
+                  v-if="isProfileMenuOpen"
+                  class="profile-dropdown absolute right-0 bg-white border-round-lg shadow-4 mt-2 overflow-hidden"
+                  style="min-width: 220px; z-index: 1000;"
+              >
+                <div class="p-3 border-bottom-1 surface-border">
+                  <div class="font-semibold text-900">{{ getUserName() }}</div>
+                  <div class="text-sm text-600">{{ currentUser?.username }}</div>
+                </div>
+
+                <div class="py-2">
+                  <button
+                      type="button"
+                      class="profile-menu-item w-full text-left px-3 py-2 flex align-items-center gap-3 cursor-pointer border-none bg-transparent hover:bg-gray-100 transition-duration-200"
+                      @click="goToProfile"
+                  >
+                    <i class="pi pi-user text-primary"></i>
+                    <span class="text-900">Mi Perfil</span>
+                  </button>
+                </div>
+
+                <div class="border-top-1 surface-border">
+                  <button
+                      type="button"
+                      class="profile-menu-item w-full text-left px-3 py-2 flex align-items-center gap-3 cursor-pointer border-none bg-transparent hover:bg-red-50 transition-duration-200"
+                      @click="handleLogout"
+                  >
+                    <i class="pi pi-sign-out text-red-500"></i>
+                    <span class="text-red-500 font-medium">Cerrar Sesión</span>
+                  </button>
+                </div>
+              </div>
+            </transition>
           </div>
         </div>
       </template>
@@ -195,7 +238,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, onBeforeUnmount } from 'vue';
 import { useRouter } from 'vue-router';
 import { useToast } from 'primevue/usetoast';
 import { useI18n } from 'vue-i18n';
@@ -203,7 +246,7 @@ import { useI18n } from 'vue-i18n';
 // --- STORES (ARQUITECTURA LIMPIA) ---
 import useIamStore from '@/iam/application/iam.store.js';
 import { useRoomStore } from '@/accommodations/application/room.store.js';
-import { useBookingStore } from '@/bookings/application/booking.store.js'; // <--- NUEVO STORE
+import { useBookingStore } from '@/bookings/application/booking.store.js';
 
 const router = useRouter();
 const toast = useToast();
@@ -212,7 +255,7 @@ const { t } = useI18n();
 // Instancias de Stores
 const iamStore = useIamStore();
 const roomStore = useRoomStore();
-const bookingStore = useBookingStore(); // <--- Usamos el store
+const bookingStore = useBookingStore();
 
 // State
 const loading = ref(true);
@@ -220,6 +263,7 @@ const upcomingBookings = ref([]);
 const recommendations = ref([]);
 const stats = ref({ upcoming: 0, nights: 0 });
 const currentUser = ref(null);
+const isProfileMenuOpen = ref(false);
 
 const responsiveOptions = [
   { breakpoint: '1024px', numVisible: 2, numScroll: 1 },
@@ -234,6 +278,49 @@ const userInitials = computed(() => {
 function getUserName() {
   if (currentUser.value?.name) return currentUser.value.name;
   return currentUser.value?.username?.split('@')[0] || 'Huésped';
+}
+
+// Profile Menu Functions
+function toggleProfileMenu() {
+  isProfileMenuOpen.value = !isProfileMenuOpen.value;
+}
+
+function closeProfileMenu() {
+  isProfileMenuOpen.value = false;
+}
+
+function handleClickOutside(event) {
+  if (isProfileMenuOpen.value) {
+    const wrapper = event.target.closest('.profile-menu-wrapper');
+    if (!wrapper) {
+      closeProfileMenu();
+    }
+  }
+}
+
+function goToProfile() {
+  closeProfileMenu();
+  const userId = currentUser.value?.id || iamStore.currentUserId || 1;
+  router.push({ name: 'profile-detail', params: { id: userId } });
+}
+
+function goToMyBookings() {
+  closeProfileMenu();
+  goToBookings();
+}
+
+function goToSettings() {
+  closeProfileMenu();
+  toast.add({
+    severity: 'info',
+    summary: 'Configuración',
+    detail: 'Función en desarrollo'
+  });
+}
+
+function handleLogout() {
+  closeProfileMenu();
+  logout();
 }
 
 async function loadDashboard() {
@@ -264,12 +351,12 @@ async function loadDashboard() {
 
     // 2. Cargar Datos usando STORES (Paralelo)
     await Promise.all([
-      bookingStore.fetchAllBookings(), // <--- Store Action
-      roomStore.fetchAllRooms()        // <--- Store Action
+      bookingStore.fetchAllBookings(),
+      roomStore.fetchAllRooms()
     ]);
 
-    const allBookings = bookingStore.bookings; // <--- State access
-    const allRooms = roomStore.rooms;          // <--- State access
+    const allBookings = bookingStore.bookings;
+    const allRooms = roomStore.rooms;
 
     // 3. Filtrar Reservas del Usuario
     const userBookings = allBookings.filter(b => {
@@ -343,10 +430,8 @@ function canCancel(booking) {
 
 async function cancelBooking(booking) {
   try {
-    // Usamos el Store para cancelar
     await bookingStore.cancelBooking(booking.id);
     toast.add({ severity: 'success', summary: 'Cancelada', detail: 'Reserva cancelada correctamente' });
-    // No necesitamos recargar todo, el store ya actualizó el estado localmente
     loadDashboard();
   } catch (e) {
     toast.add({ severity: 'error', summary: 'Error', detail: 'No se pudo cancelar' });
@@ -368,6 +453,11 @@ function contactSupport() {
 
 onMounted(() => {
   loadDashboard();
+  document.addEventListener('click', handleClickOutside);
+});
+
+onBeforeUnmount(() => {
+  document.removeEventListener('click', handleClickOutside);
 });
 </script>
 
@@ -384,6 +474,57 @@ onMounted(() => {
 .nav-btn:hover { background-color: #f3f4f6 !important; }
 .user-name { color: #374151; }
 
+/* Profile Menu Styles */
+.profile-menu-wrapper {
+  position: relative;
+}
+
+.profile-avatar-btn {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+.profile-avatar-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--primary-color);
+}
+
+.profile-dropdown {
+  animation: dropdownSlide 0.2s ease-out;
+}
+
+.profile-menu-item {
+  font-family: inherit;
+  font-size: 0.95rem;
+}
+
+.profile-menu-item:focus {
+  outline: none;
+}
+
+/* Dropdown Animation */
+.dropdown-fade-enter-active,
+.dropdown-fade-leave-active {
+  transition: all 0.2s ease;
+}
+
+.dropdown-fade-enter-from,
+.dropdown-fade-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+@keyframes dropdownSlide {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @media (prefers-color-scheme: dark) {
   .adaptive-toolbar {
     background-color: #18181b;
@@ -393,6 +534,14 @@ onMounted(() => {
   .nav-btn { color: #a1a1aa !important; }
   .nav-btn:hover { background-color: rgba(255, 255, 255, 0.05) !important; }
   .user-name { color: #e4e4e7; }
+
+  .profile-dropdown {
+    background-color: #27272a;
+  }
+
+  .profile-menu-item:hover {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+  }
 }
 
 .transition-duration-300 { transition-duration: 300ms; }

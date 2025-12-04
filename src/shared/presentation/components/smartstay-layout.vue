@@ -2,7 +2,7 @@
   <div class="smartstay-layout">
     <pv-toast position="top-right" />
     <pv-confirm-dialog />
-    
+
     <!-- Navbar -->
     <nav class="navbar">
       <div class="navbar-container">
