@@ -67,6 +67,18 @@ export default [
         name: 'staff-bookings',
         component: () => import('../../../bookings/presentation/views/StaffBookings.vue'), // Crearemos este archivo
         meta: { requiresAuth: true, roles: ['staff'] }
-    }
+    },
+    {
+        path: '/staff/hotels/new',
+        name: 'create-hotel',
+        component: () => import('../../../accommodations/presentation/views/StaffCreateHotel.vue'),
+        meta: { requiresAuth: true, roles: ['staff'] }
+    },
+    {
+        path: '/staff/rooms/new',
+        name: 'create-room',
+        component: () => import('../../../accommodations/presentation/views/StaffCreateRoom.vue'),
+        meta: { requiresAuth: true, roles: ['staff'] }
+    },
 ];
 

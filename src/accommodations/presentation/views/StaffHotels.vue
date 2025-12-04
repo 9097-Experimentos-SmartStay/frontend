@@ -10,7 +10,7 @@
           <p class="text-color-secondary m-0">Administra las propiedades de la cadena.</p>
         </div>
       </div>
-      <pv-button label="Nuevo Hotel" icon="pi pi-plus" class="p-button-primary" @click="openNewHotelDialog" />
+      <pv-button label="Nuevo Hotel" icon="pi pi-plus" class="p-button-primary" @click="goToCreateHotel" />
     </div>
 
     <div class="surface-card p-4 shadow-2 border-round">
@@ -29,8 +29,8 @@
         <pv-column header="Propiedad" sortable field="name">
           <template #body="{ data }">
             <div class="flex align-items-center gap-3">
-              <div class="w-3rem h-3rem border-circle overflow-hidden bg-gray-200">
-                <img :src="data.photoUrl || 'https://placehold.co/100'" class="w-full h-full object-cover" alt="Hotel" />
+              <div class="w-3rem h-3rem border-circle overflow-hidden surface-ground border-1 surface-border">
+                <img :src="data.photoUrl || 'https://placehold.co/100'" class="w-full h-full object-cover" alt="Hotel" @error="onImageError" />
               </div>
               <div class="flex flex-column">
                 <span class="font-bold text-color">{{ data.name }}</span>
@@ -42,14 +42,16 @@
 
         <pv-column field="location" header="Ubicación" sortable>
           <template #body="{ data }">
-            <i class="pi pi-map-marker text-primary mr-1"></i>
-            {{ data.location || data.city }}
+            <div class="flex align-items-center gap-2">
+              <i class="pi pi-map-marker text-primary"></i>
+              <span class="text-color">{{ data.location || data.city }}</span>
+            </div>
           </template>
         </pv-column>
 
         <pv-column field="basePrice" header="Precio Base" sortable>
           <template #body="{ data }">
-            <span class="font-medium">${{ data.basePrice }}</span>
+            <span class="font-medium text-color">${{ data.basePrice }}</span>
           </template>
         </pv-column>
 
@@ -88,7 +90,11 @@ onMounted(async () => {
 
 const goBack = () => router.push({ name: 'staff-dashboard' });
 
-const openNewHotelDialog = () => {
-  toast.add({ severity: 'info', summary: 'Próximamente', detail: 'Formulario de creación en construcción.' });
+const goToCreateHotel = () => {
+  router.push({ name: 'create-hotel' });
+};
+
+const onImageError = (event) => {
+  event.target.src = 'https://placehold.co/100?text=No+Image';
 };
 </script>

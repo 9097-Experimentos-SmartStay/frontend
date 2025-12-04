@@ -10,7 +10,7 @@
           <p class="text-color-secondary m-0">Estado y mantenimiento de cuartos.</p>
         </div>
       </div>
-      <pv-button label="Nueva Habitación" icon="pi pi-plus" class="p-button-success" />
+      <pv-button label="Nueva Habitación" icon="pi pi-plus" class="p-button-success" @click="goToCreateRoom" />
     </div>
 
     <div class="surface-card p-4 shadow-2 border-round">
@@ -27,7 +27,7 @@
 
         <pv-column field="id" header="N° Habitación" sortable style="width: 120px">
           <template #body="{ data }">
-            <span class="font-bold text-lg">#{{ data.id }}</span>
+            <span class="font-bold text-lg text-primary">#{{ data.id }}</span>
           </template>
         </pv-column>
 
@@ -46,10 +46,10 @@
         <pv-column header="Amenidades">
           <template #body="{ data }">
             <div class="flex gap-1 flex-wrap">
-               <span v-for="am in (data.amenities || []).slice(0, 2)" :key="am" class="surface-200 text-600 text-xs px-2 py-1 border-round">
+               <span v-for="am in (data.amenities || []).slice(0, 2)" :key="am" class="surface-ground text-color text-xs px-2 py-1 border-round border-1 surface-border">
                  {{ am }}
                </span>
-              <span v-if="data.amenities?.length > 2" class="text-xs text-500">+{{ data.amenities.length - 2 }}</span>
+              <span v-if="data.amenities?.length > 2" class="text-xs text-color-secondary">+{{ data.amenities.length - 2 }}</span>
             </div>
           </template>
         </pv-column>
@@ -64,7 +64,7 @@
           <template #body>
             <div class="flex gap-2">
               <pv-button icon="pi pi-cog" class="p-button-rounded p-button-text p-button-secondary" v-tooltip="'Mantenimiento'" />
-              <pv-button icon="pi pi-pencil" class="p-button-rounded p-button-text p-button-info" />
+              <pv-button icon="pi pi-pencil" class="p-button-rounded p-button-text p-button-info" v-tooltip="'Editar'" />
             </div>
           </template>
         </pv-column>
@@ -86,6 +86,10 @@ onMounted(async () => {
 });
 
 const goBack = () => router.push({ name: 'staff-dashboard' });
+
+const goToCreateRoom = () => {
+  router.push({ name: 'create-room' });
+};
 
 const truncate = (text, length) => {
   if(!text) return '';
