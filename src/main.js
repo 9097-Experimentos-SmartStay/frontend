@@ -42,6 +42,7 @@ import Password from "primevue/password";
 import Badge from "primevue/badge";
 import Chart from 'primevue/chart';
 import ProgressSpinner from 'primevue/progressspinner';
+import InputMask from 'primevue/inputmask';
 
 // noinspection JSCheckFunctionSignatures
 createApp(App)
@@ -81,6 +82,7 @@ createApp(App)
     .component('pv-chart', Chart)
     .component('pv-carousel', Carousel)
     .component('pv-progress-spinner', ProgressSpinner)
+    .component('pv-input-mask', InputMask)
     .directive('tooltip', Tooltip)
     .use(router)
     .use(pinia)

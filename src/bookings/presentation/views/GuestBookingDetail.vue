@@ -54,7 +54,13 @@
 
             <div class="col-12 flex gap-2 mt-4 pt-4 border-top-1 surface-border">
               <pv-button v-if="booking.status === 'Pending'" label="Cancelar Reserva" icon="pi pi-times" class="p-button-danger p-button-outlined w-auto" @click="cancelBooking" />
-              <pv-button label="Ver Factura" icon="pi pi-file" class="p-button-secondary p-button-outlined w-auto ml-auto" />
+              <pv-button
+                  v-if="booking.status === 'Pending'"
+                  label="Pagar Ahora"
+                  icon="pi pi-credit-card"
+                  class="p-button-success p-button-outlined"
+                  @click="goToPayment"
+              />
             </div>
           </div>
         </template>
@@ -93,6 +99,9 @@ onMounted(async () => {
 });
 
 const goBack = () => router.push({ name: 'guest-bookings' });
+const goToPayment = () => {
+  router.push({ name: 'guest-payment', params: { bookingId: props.bookingId } });
+};
 
 const cancelBooking = async () => {
   try {

@@ -108,31 +108,53 @@
 </template>
 
 <script setup>
+/**
+ * @file GuestPayment.vue
+ * @description View component for handling guest payments within the Booking Context.
+ * Orchestrates the interaction between Payment, Booking, and Accommodation contexts.
+ */
+
 import { ref, onMounted, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useToast } from 'primevue/usetoast';
 
-// Stores
+// --- Domain Stores (Application Layer) ---
 import { usePaymentStore } from '../../application/payment.store.js';
 import { useBookingStore } from '@/bookings/application/booking.store.js';
 import { useRoomStore } from '@/accommodations/application/room.store.js';
-import { useHotelStore } from '@/accommodations/application/hotel.store.js';
+// import { useHotelStore } from '@/accommodations/application/hotel.store.js'; // Future integration for dynamic pricing
 
+// --- Composables & Routing ---
 const router = useRouter();
 const route = useRoute();
 const toast = useToast();
 
+// --- Store Instantiation ---
 const paymentStore = usePaymentStore();
 const bookingStore = useBookingStore();
 const roomStore = useRoomStore();
-const hotelStore = useHotelStore();
+// const hotelStore = useHotelStore();
 
-const bookingId = route.params.bookingId;
+// --- Local State ---
+/** @type {number} Unique identifier for the booking derived from route parameters. */
+const bookingId = Number(route.params.bookingId);
+
+/** @type {import('vue').Ref<boolean>} Flag indicating if initial data is being loaded. */
 const loadingData = ref(true);
-const booking = ref(null);
-const room = ref(null);
-const roomPrice = ref(100); // Precio base default si no se encuentra
 
+/** @type {import('vue').Ref<Object|null>} The booking domain entity. */
+const booking = ref(null);
+
+/** @type {import('vue').Ref<Object|null>} The room domain entity associated with the booking. */
+const room = ref(null);
+
+/** @type {import('vue').Ref<number>} Base price per night (Mocked pending Hotel Context integration). */
+const roomPrice = ref(100);
+
+/**
+ * Reactive state for the credit card form data.
+ * This structure maps to the payment processing command requirements.
+ */
 const paymentForm = ref({
   cardHolderName: '',
   cardNumber: '',
@@ -140,66 +162,104 @@ const paymentForm = ref({
   cvv: ''
 });
 
-// --- Cálculos ---
+// --- Computed Properties ---
+
+/**
+ * Calculates the total number of nights for the booking.
+ * Derived from CheckInDate and CheckOutDate.
+ * @returns {number} The total nights (minimum 1).
+ */
 const nightsCount = computed(() => {
   if (!booking.value) return 0;
   const start = new Date(booking.value.checkInDate);
   const end = new Date(booking.value.checkOutDate);
+  // Calculate difference in milliseconds and convert to days
   const diff = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
   return diff > 0 ? diff : 1;
 });
 
+/**
+ * Calculates the total amount to be charged.
+ * @returns {string} The total amount formatted to 2 decimal places.
+ */
 const totalAmount = computed(() => {
   return (nightsCount.value * roomPrice.value).toFixed(2);
 });
 
-// --- Lifecycle ---
+// --- Lifecycle Hooks ---
+
+/**
+ * Initializes the component by fetching necessary aggregates.
+ * 1. Checks if payment already exists.
+ * 2. Retrieves the Booking aggregate.
+ * 3. Retrieves the Room aggregate.
+ */
 onMounted(async () => {
   try {
-    // 1. Verificar si ya se pagó
+    // 1. Check payment status via Payment Context
     await paymentStore.fetchPaymentByBooking(bookingId);
+
+    // If the Payment Aggregate exists and is completed, redirect to detail view
     if (paymentStore.currentPayment && paymentStore.currentPayment.status === 'Completed') {
-      toast.add({ severity: 'info', summary: 'Pagado', detail: 'Esta reserva ya está pagada.' });
+      toast.add({ severity: 'info', summary: 'Payment Completed', detail: 'This booking has already been paid.' });
       router.push({ name: 'guest-booking-detail', params: { bookingId } });
       return;
     }
 
-    // 2. Cargar Reserva
-    if (bookingStore.bookings.length === 0) await bookingStore.fetchAllBookings();
+    // 2. Load Booking Aggregate via Booking Context
+    // If the local store is empty (page reload), force a fetch from the Infrastructure
+    if (bookingStore.bookings.length === 0) {
+      await bookingStore.fetchAllBookings();
+    }
+
+    // Find the specific booking entity in the state
     booking.value = bookingStore.bookings.find(b => String(b.id) === String(bookingId));
 
-    if (!booking.value) throw new Error("Reserva no encontrada");
+    if (!booking.value) {
+      throw new Error("Booking entity not found in current state.");
+    }
 
-    // 3. Cargar Habitación (para saber el tipo)
+    // 3. Load Room Aggregate via Accommodation Context
+    // Required to display room type and details in the summary
     await roomStore.fetchRoomById(booking.value.roomId);
     room.value = roomStore.currentRoom;
 
-    // 4. (Opcional) Obtener precio real del Hotel
-    // Como en tu modelo Room no tiene precio, asumimos un precio base por ahora
-    // O buscamos el Hotel si tuvieramos la relación.
-    // roomPrice.value = 150; // Mock price
+    // 4. (Future) Load Hotel Aggregate for dynamic pricing logic
+    // roomPrice.value = hotelStore.getRateForRoom(room.value.roomTypeId);
 
   } catch (err) {
-    toast.add({ severity: 'error', summary: 'Error', detail: 'No se pudieron cargar los detalles del pago.' });
+    console.error('Error initializing payment view:', err);
+    toast.add({ severity: 'error', summary: 'Error', detail: 'Could not load payment details.' });
     goBack();
   } finally {
     loadingData.value = false;
   }
 });
 
+// --- Actions ---
+
+/**
+ * Navigates back to the booking detail view.
+ */
 const goBack = () => router.push({ name: 'guest-booking-detail', params: { bookingId } });
 
+/**
+ * Handles the payment submission process.
+ * Validates inputs, creates the payment command, and orchestrates state updates.
+ */
 const submitPayment = async () => {
-  // Validaciones simples
+  // Domain Validation (Simple Client-Side Check)
   if (!paymentForm.value.cardNumber || !paymentForm.value.cardHolderName || !paymentForm.value.cvv) {
-    toast.add({ severity: 'warn', summary: 'Faltan datos', detail: 'Por favor complete el formulario.', life: 3000 });
+    toast.add({ severity: 'warn', summary: 'Validation Error', detail: 'Please complete all payment fields.', life: 3000 });
     return;
   }
 
   try {
-    // Limpiar máscara del número de tarjeta para enviar solo dígitos
+    // Sanitize Input: Remove formatting characters from card number
     const cleanCardNumber = paymentForm.value.cardNumber.replace(/-/g, '');
 
+    // Construct the Command Payload
+    // This matches the ProcessPaymentResource expected by the API
     const payload = {
       bookingId: Number(bookingId),
       amount: Number(totalAmount.value),
@@ -210,20 +270,31 @@ const submitPayment = async () => {
       cvv: paymentForm.value.cvv
     };
 
+    // Execute Application Service (Store Action)
     await paymentStore.processPayment(payload);
 
-    toast.add({ severity: 'success', summary: '¡Pago Exitoso!', detail: 'Tu reserva ha sido confirmada.', life: 3000 });
+    toast.add({ severity: 'success', summary: 'Payment Successful', detail: 'Your booking has been confirmed.', life: 3000 });
 
-    // Actualizar estado de la reserva visualmente
-    if (booking.value) booking.value.status = 'Confirmed';
+    // --- STATE SYNCHRONIZATION STRATEGY ---
 
-    // Redirigir tras breve pausa
+    // 1. Optimistic UI Update: Update local state for immediate feedback if needed
+    if (booking.value) {
+      booking.value.status = 'Confirmed';
+    }
+
+    // 2. Cache Invalidation: Force a refresh of the Booking Store.
+    // This ensures that when the user navigates back to the list or detail view,
+    // they see the updated status ('Confirmed') directly from the Source of Truth (Backend).
+    await bookingStore.fetchAllBookings();
+
+    // 3. Navigation
     setTimeout(() => {
       router.push({ name: 'guest-booking-detail', params: { bookingId } });
     }, 1500);
 
   } catch (err) {
-    toast.add({ severity: 'error', summary: 'Pago Rechazado', detail: 'Verifica los fondos o datos de la tarjeta.', life: 4000 });
+    console.error('Payment processing failed:', err);
+    toast.add({ severity: 'error', summary: 'Payment Declined', detail: 'Please check your card details or balance.', life: 4000 });
   }
 };
 </script>

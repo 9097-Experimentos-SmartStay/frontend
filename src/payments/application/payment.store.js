@@ -36,8 +36,14 @@ export const usePaymentStore = defineStore('payment', () => {
             currentPayment.value = PaymentAssembler.toEntityFromResponse(response);
             return currentPayment.value;
         } catch (err) {
-            // Es normal que falle si aun no se ha pagado (404)
-            currentPayment.value = null;
+            if (err.response && err.response.status === 404) {
+                console.log(`No payment found for booking ${bookingId}. User needs to pay.`);
+                currentPayment.value = null; // Estado limpio
+                return null;
+            }
+            console.error('Error fetching payment:', err);
+            error.value = err;
+            throw err;
         } finally {
             loading.value = false;
         }
