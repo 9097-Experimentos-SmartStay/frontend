@@ -11,15 +11,16 @@ export class HotelAssembler {
      */
     static toEntityFromResource(resource) {
         if (!resource) return null;
+        const randomRating = (Math.random() * (5.0 - 4.0) + 4.0).toFixed(1);
         return new Hotel({
             id: resource.id,
             name: resource.name,
             description: resource.description,
-            address: resource.address,
-            city: resource.city,
-            country: resource.country,
-            rating: resource.rating,
-            photoUrl: resource.photoUrl
+            location: resource.location,
+            rating: randomRating,
+            photoUrl: resource.imageUrl,
+            basePrice: resource.basePrice,
+            amenities: resource.amenities
         });
     }
 

@@ -3,14 +3,14 @@
  * Represents the business object for a Hotel property.
  */
 export class Hotel {
-    constructor({ id, name, description, address, city, country, rating, photoUrl }) {
+    constructor({ id, name, description, location, rating, photoUrl, basePrice, amenities }) {
         this.id = id;
         this.name = name;
         this.description = description;
-        this.address = address;
-        this.city = city;
-        this.country = country;
+        this.location = location;
         this.rating = rating;
         this.photoUrl = photoUrl;
+        this.basePrice = basePrice;
+        this.amenities = amenities || [];
     }
 }
