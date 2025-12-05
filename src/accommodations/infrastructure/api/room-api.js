@@ -53,4 +53,25 @@ export class RoomApi extends BaseApi {
         // We use the configured axios instance (this.http) to perform the custom GET request.
         return this.http.get(`${roomsEndpointPath}/type/${roomTypeId}`);
     }
+
+    /**
+     * Updates an existing room resource.
+     * PUT /api/v1/rooms/{id}
+     * @param {number} id - The room ID.
+     * @param {Object} resource - The updated room data (UpdateRoomResource).
+     * @returns {Promise<Object>} Axios response.
+     */
+    update(id, resource) {
+        return this.#endpoint.update(id, resource);
+    }
+
+    /**
+     * Deletes a room resource.
+     * DELETE /api/v1/rooms/{id}
+     * @param {number} id - The room ID.
+     * @returns {Promise<Object>} Axios response.
+     */
+    delete(id) {
+        return this.#endpoint.delete(id);
+    }
 }

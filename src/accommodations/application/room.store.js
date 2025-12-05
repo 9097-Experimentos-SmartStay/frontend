@@ -170,6 +170,51 @@ export const useRoomStore = defineStore('room', () => {
         }
     }
 
+    /**
+     * Updates an existing Room Entity.
+     * @param {number} id - The unique identifier of the room.
+     * @param {Object} roomData - The payload containing updated fields.
+     * @returns {Promise<Object>} The updated Room Entity.
+     */
+    async function updateRoom(id, roomData) {
+        loading.value = true;
+        try {
+            const response = await roomApi.update(id, roomData);
+            const updatedRoom = RoomAssembler.toEntityFromResponse(response);
+
+            // Optimistic Update: Update local state
+            const index = rooms.value.findIndex(r => r.id === id);
+            if (index !== -1 && updatedRoom) {
+                rooms.value[index] = updatedRoom;
+            }
+            return updatedRoom;
+        } catch (err) {
+            console.error(`Error updating room ${id}:`, err);
+            throw err;
+        } finally {
+            loading.value = false;
+        }
+    }
+
+    /**
+     * Deletes a Room Entity.
+     * @param {number} id - The unique identifier of the room to delete.
+     */
+    async function deleteRoom(id) {
+        loading.value = true;
+        try {
+            await roomApi.delete(id);
+
+            // Update local state immediately
+            rooms.value = rooms.value.filter(r => r.id !== id);
+        } catch (err) {
+            console.error(`Error deleting room ${id}:`, err);
+            throw err;
+        } finally {
+            loading.value = false;
+        }
+    }
+
     return {
         // State
         rooms,
@@ -186,6 +231,8 @@ export const useRoomStore = defineStore('room', () => {
         fetchAmenities,
         createRoom,
         createRoomType,
-        createAmenity
+        createAmenity,
+        updateRoom,
+        deleteRoom
     };
 });

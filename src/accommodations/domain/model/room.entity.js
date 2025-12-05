@@ -1,26 +1,46 @@
-// src/bounded-contexts/accommodations/domain/model/room.entity.js
-
+/**
+ * Room Domain Entity.
+ * Represents a room within the business logic.
+ */
 export class Room {
-    constructor({ id, roomTypeId, roomTypeName, description, amenities }) {
+    /**
+     * @param {Object} params
+     * @param {number} params.id
+     * @param {number} params.hotelId
+     * @param {number} params.roomTypeId
+     * @param {string} params.roomTypeName
+     * @param {number} params.price
+     * @param {string} params.description
+     * @param {string[]} params.amenities
+     */
+    constructor({ id, hotelId, roomTypeId, roomTypeName, price, description, amenities }) {
         this.id = id;
+        this.hotelId = hotelId;
         this.roomTypeId = roomTypeId;
-        this.roomTypeName = roomTypeName;
-        this.description = description;
+        this.roomTypeName = roomTypeName || 'Unknown';
+        this.price = Number(price) || 0; // Aseguramos que sea número para cálculos
+        this.description = description || '';
         this.amenities = amenities || [];
     }
 
-    static fromResource(resource) {
-        return new Room({
-            id: resource.id,
-            roomTypeId: resource.roomTypeId,
-            roomTypeName: resource.roomTypeName,
-            description: resource.description,
-            amenities: resource.amenities || []
-        });
+    /**
+     * Checks if the room has a specific amenity.
+     * @param {string} amenity - The amenity to check.
+     * @returns {boolean}
+     */
+    hasAmenity(amenity) {
+        if (!amenity) return false;
+        return this.amenities.map(a => a.toLowerCase()).includes(amenity.toLowerCase());
     }
 
-    hasAmenity(amenity) {
-        return this.amenities.includes(amenity);
+    /**
+     * Returns the formatted price.
+     * @returns {string} e.g. "$150.00"
+     */
+    get formattedPrice() {
+        return new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'USD'
+        }).format(this.price);
     }
 }
-

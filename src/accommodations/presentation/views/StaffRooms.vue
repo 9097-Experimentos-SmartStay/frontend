@@ -2,6 +2,8 @@
   <div class="surface-ground min-h-screen p-4 md:p-6">
     <pv-toast position="bottom-right" />
 
+    <pv-confirm-dialog></pv-confirm-dialog>
+
     <div class="surface-card p-4 shadow-2 border-round mb-4 flex justify-content-between align-items-center">
       <div class="flex align-items-center gap-3">
         <pv-button icon="pi pi-arrow-left" class="p-button-text p-button-secondary" @click="goBack" />
@@ -60,11 +62,21 @@
           </template>
         </pv-column>
 
-        <pv-column header="Acciones">
-          <template #body>
+        <pv-column header="Acciones" style="width: 150px">
+          <template #body="{ data }">
             <div class="flex gap-2">
-              <pv-button icon="pi pi-cog" class="p-button-rounded p-button-text p-button-secondary" v-tooltip="'Mantenimiento'" />
-              <pv-button icon="pi pi-pencil" class="p-button-rounded p-button-text p-button-info" v-tooltip="'Editar'" />
+              <pv-button
+                  icon="pi pi-pencil"
+                  class="p-button-rounded p-button-text p-button-info"
+                  v-tooltip="'Editar'"
+                  @click="editRoom(data.id)"
+              />
+              <pv-button
+                  icon="pi pi-trash"
+                  class="p-button-rounded p-button-text p-button-danger"
+                  v-tooltip="'Eliminar'"
+                  @click="confirmDelete(data)"
+              />
             </div>
           </template>
         </pv-column>
@@ -76,9 +88,13 @@
 <script setup>
 import { onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import { useToast } from 'primevue/usetoast';
+import { useConfirm } from 'primevue/useconfirm';
 import { useRoomStore } from '@/accommodations/application/room.store.js';
 
 const router = useRouter();
+const toast = useToast();
+const confirm = useConfirm();
 const roomStore = useRoomStore();
 
 onMounted(async () => {
@@ -86,9 +102,32 @@ onMounted(async () => {
 });
 
 const goBack = () => router.push({ name: 'staff-dashboard' });
+const goToCreateRoom = () => router.push({ name: 'create-room' });
 
-const goToCreateRoom = () => {
-  router.push({ name: 'create-room' });
+// --- ACCIONES ---
+
+const editRoom = (roomId) => {
+  router.push({ name: 'edit-room', params: { roomId } });
+};
+
+const confirmDelete = (room) => {
+  confirm.require({
+    message: `¿Estás seguro de eliminar la habitación #${room.id}? Esta acción es irreversible.`,
+    header: 'Confirmar Eliminación',
+    icon: 'pi pi-exclamation-triangle',
+    acceptClass: 'p-button-danger',
+    accept: () => deleteRoom(room.id),
+    reject: () => { /* Cancelado */ }
+  });
+};
+
+const deleteRoom = async (id) => {
+  try {
+    await roomStore.deleteRoom(id);
+    toast.add({ severity: 'success', summary: 'Eliminado', detail: 'La habitación ha sido eliminada.', life: 3000 });
+  } catch (err) {
+    toast.add({ severity: 'error', summary: 'Error', detail: 'No se pudo eliminar la habitación.', life: 3000 });
+  }
 };
 
 const truncate = (text, length) => {
