@@ -4,8 +4,8 @@ import es from "./locales/es.json";
 
 const i18n = createI18n({
     legacy: false,
-    locale: 'en',
-    fallbackLocale: 'en',
+    locale: localStorage.getItem('language') || 'es', // ✅ Español por defecto, pero respeta la preferencia guardada
+    fallbackLocale: 'es',
     messages: { en, es}
 });
 

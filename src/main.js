@@ -1,4 +1,3 @@
-// src/main.js
 import { createApp } from 'vue'
 import App from './app.vue'
 import i18n from "./i18n.js";
@@ -10,7 +9,6 @@ import router from "./router.js";
 import pinia from "./pinia.js";
 import Carousel from 'primevue/carousel';
 
-// --- Importaciones Individuales de PrimeVue ---
 import ConfirmationService from 'primevue/confirmationservice';
 import DialogService from 'primevue/dialogservice';
 import ToastService from 'primevue/toastservice';
@@ -22,7 +20,7 @@ import Checkbox from 'primevue/checkbox';
 import Column from 'primevue/column';
 import ConfirmDialog from 'primevue/confirmdialog';
 import DataTable from 'primevue/datatable';
-import DataView from 'primevue/dataview'; // Importación de DataView
+import DataView from 'primevue/dataview';
 import Dialog from 'primevue/dialog';
 import Drawer from 'primevue/drawer';
 import FileUpload from 'primevue/fileupload';
@@ -43,6 +41,9 @@ import Toolbar from 'primevue/toolbar';
 import Password from "primevue/password";
 import Badge from "primevue/badge";
 import Chart from 'primevue/chart';
+import ProgressSpinner from 'primevue/progressspinner';
+import InputMask from 'primevue/inputmask';
+import Skeleton from 'primevue/skeleton';
 
 // noinspection JSCheckFunctionSignatures
 createApp(App)
@@ -81,6 +82,9 @@ createApp(App)
     .component('pv-badge', Badge)
     .component('pv-chart', Chart)
     .component('pv-carousel', Carousel)
+    .component('pv-progress-spinner', ProgressSpinner)
+    .component('pv-input-mask', InputMask)
+    .component('pv-skeleton', Skeleton)
     .directive('tooltip', Tooltip)
     .use(router)
     .use(pinia)
