@@ -16,6 +16,8 @@ export const useHotelStore = defineStore('hotel', () => {
     const currentHotel = ref(null);
     const loading = ref(false);
     const error = ref(null);
+    const categories = ref([]);
+    const amenitiesList = ref([]);
 
     // --- Actions ---
 
@@ -88,6 +90,53 @@ export const useHotelStore = defineStore('hotel', () => {
         }
     }
 
+    async function fetchOptions() {
+        try {
+            const [catResponse, amResponse] = await Promise.all([
+                hotelApi.getHotelCategories(),
+                hotelApi.getAmenities()
+            ]);
+            // El backend devuelve array de strings directo: ["Hotel", "Resort"]
+            categories.value = catResponse.data;
+            amenitiesList.value = amResponse.data;
+        } catch (err) {
+            console.error('Error fetching options:', err);
+        }
+    }
+
+    /**
+     * Creates a new hotel category.
+     * @param {string} name - Name of the category.
+     */
+    async function createCategory(name) {
+        try {
+            // Asumiendo que tienes un endpoint POST /api/v1/accommodations/options/categories
+            // Si no lo tienes, el backend fallará. Asegúrate de crearlo.
+            await hotelApi.createCategory({ name });
+
+            // Recargamos la lista para que aparezca en el select
+            await fetchOptions();
+        } catch (err) {
+            console.error('Error creating category:', err);
+            throw err;
+        }
+    }
+
+    /**
+     * Creates a new amenity in the master catalog.
+     * @param {string} name - Name of the amenity.
+     */
+    async function createAmenity(name) {
+        try {
+            await hotelApi.createAmenity({ name });
+            // Refresh options to show the new amenity immediately
+            await fetchOptions();
+        } catch (err) {
+            console.error('Error creating amenity:', err);
+            throw err;
+        }
+    }
+
     return {
         hotels,
         currentHotel,
@@ -95,6 +144,11 @@ export const useHotelStore = defineStore('hotel', () => {
         error,
         fetchAllHotels,
         fetchHotelById,
-        createHotel
+        createHotel,
+        categories,
+        amenitiesList,
+        fetchOptions,
+        createCategory,
+        createAmenity
     };
 });

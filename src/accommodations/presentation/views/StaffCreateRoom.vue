@@ -10,32 +10,32 @@
         </div>
       </div>
 
-      <div v-if="roomStore.loading" class="text-center p-8">
-        <pv-progress-spinner />
-      </div>
-
-      <pv-card v-else class="surface-card shadow-2 border-round-xl">
+      <pv-card class="surface-card shadow-2 border-round-xl">
         <template #content>
           <div class="grid p-fluid formgrid">
 
             <div class="col-12 mb-4">
               <label class="font-bold text-color block mb-2">Tipo de Habitación</label>
-              <pv-select
-                  v-model="form.roomTypeId"
-                  :options="roomStore.roomTypes"
-                  optionLabel="name"
-                  optionValue="id"
-                  placeholder="Selecciona una categoría"
-                  class="w-full"
-                  :class="{ 'p-invalid': submitted && !form.roomTypeId }"
-              >
-                <template #option="slotProps">
-                  <div class="flex align-items-center">
-                    <div>{{ slotProps.option.name }}</div>
-                    <span class="ml-2 text-color-secondary text-xs">- {{ slotProps.option.description }}</span>
-                  </div>
-                </template>
-              </pv-select>
+              <div class="p-inputgroup">
+                <pv-select
+                    v-model="form.roomTypeId"
+                    :options="roomStore.roomTypes"
+                    optionLabel="name"
+                    optionValue="id"
+                    placeholder="Selecciona una categoría"
+                    class="w-full"
+                    :loading="roomStore.loading"
+                    :class="{ 'p-invalid': submitted && !form.roomTypeId }"
+                >
+                  <template #option="slotProps">
+                    <div class="flex flex-column">
+                      <span class="font-medium">{{ slotProps.option.name }}</span>
+                      <span class="text-color-secondary text-xs">{{ slotProps.option.description }}</span>
+                    </div>
+                  </template>
+                </pv-select>
+                <pv-button icon="pi pi-plus" class="p-button-success" @click="showAddTypeDialog" v-tooltip.top="'Nuevo Tipo'" />
+              </div>
               <small v-if="submitted && !form.roomTypeId" class="p-error">Debes seleccionar un tipo.</small>
             </div>
 
@@ -51,13 +51,23 @@
             </div>
 
             <div class="col-12 mb-4">
-              <label class="font-bold text-color block mb-2">Comodidades</label>
-              <div class="flex gap-3 flex-wrap">
-                <div v-for="opt in roomAmenityOptions" :key="opt" class="field-checkbox">
+              <div class="flex align-items-center gap-2 mb-2">
+                <label class="font-bold text-color m-0">Comodidades</label>
+                <pv-button icon="pi pi-plus" class="p-button-rounded p-button-text p-button-sm p-button-success" @click="showAddAmenityDialog" v-tooltip.top="'Crear Nueva Amenidad'" />
+              </div>
+
+              <div v-if="roomStore.loading && roomStore.amenitiesList.length === 0" class="flex gap-3">
+                <pv-skeleton width="6rem" height="2rem" />
+                <pv-skeleton width="6rem" height="2rem" />
+              </div>
+
+              <div v-else class="flex gap-3 flex-wrap">
+                <div v-for="opt in roomStore.amenitiesList" :key="opt" class="field-checkbox">
                   <pv-checkbox :inputId="'room-'+opt" name="roomAmenity" :value="opt" v-model="form.amenities" />
                   <label :for="'room-'+opt" class="ml-2 text-color-secondary cursor-pointer">{{ opt }}</label>
                 </div>
               </div>
+              <small class="text-500 mt-2 block" v-if="!roomStore.loading && roomStore.amenitiesList.length === 0">No hay amenidades disponibles.</small>
             </div>
 
             <div class="col-12 mt-2 flex justify-content-end gap-2 border-top-1 surface-border pt-4">
@@ -69,6 +79,10 @@
         </template>
       </pv-card>
     </div>
+
+    <AddRoomTypeDialog v-model="isTypeDialogVisible" @type-added="onTypeAdded" />
+    <AddAmenityDialog v-model="isAmenityDialogVisible" @amenity-added="onAmenityAdded" />
+
   </div>
 </template>
 
@@ -78,12 +92,19 @@ import { useRouter } from 'vue-router';
 import { useToast } from 'primevue/usetoast';
 import { useRoomStore } from '@/accommodations/application/room.store.js';
 
+// Import Components
+import AddRoomTypeDialog from '../components/AddRoomTypeDialog.vue';
+// Reutilizamos el mismo de hoteles
+import AddAmenityDialog from '../components/AddAmenityDialog.vue';
+
 const router = useRouter();
 const toast = useToast();
 const roomStore = useRoomStore();
 
 const submitted = ref(false);
 const isSaving = ref(false);
+const isTypeDialogVisible = ref(false);
+const isAmenityDialogVisible = ref(false);
 
 const form = reactive({
   roomTypeId: null,
@@ -91,14 +112,32 @@ const form = reactive({
   amenities: []
 });
 
-const roomAmenityOptions = ['TV Smart', 'WiFi', 'Aire Acondicionado', 'Minibar', 'Jacuzzi', 'Caja Fuerte', 'Vista al Mar', 'Escritorio', 'Balcón'];
-
 onMounted(async () => {
-  // Necesitamos cargar los tipos para el dropdown
-  await roomStore.fetchAllRoomTypes();
+  // Carga paralela de dependencias
+  await Promise.all([
+    roomStore.fetchAllRoomTypes(),
+    roomStore.fetchAmenities()
+  ]);
 });
 
 const goBack = () => router.push({ name: 'staff-rooms' });
+
+// --- Dialog Logic ---
+
+const showAddTypeDialog = () => { isTypeDialogVisible.value = true; };
+const showAddAmenityDialog = () => { isAmenityDialogVisible.value = true; };
+
+const onTypeAdded = (newTypeId) => {
+  form.roomTypeId = newTypeId;
+};
+
+const onAmenityAdded = (newAmenity) => {
+  if (!form.amenities.includes(newAmenity)) {
+    form.amenities.push(newAmenity);
+  }
+};
+
+// --- Submit ---
 
 const submitForm = async () => {
   submitted.value = true;

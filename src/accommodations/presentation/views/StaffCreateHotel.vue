@@ -22,13 +22,17 @@
 
             <div class="col-12 md:col-4 field">
               <label for="type" class="font-bold text-color">Tipo de Alojamiento</label>
-              <pv-select
-                  id="type"
-                  v-model="form.type"
-                  :options="hotelTypes"
-                  placeholder="Selecciona uno"
-                  class="w-full"
-              />
+              <div class="p-inputgroup">
+                <pv-select
+                    id="type"
+                    v-model="form.type"
+                    :options="hotelStore.categories"
+                    placeholder="Selecciona uno"
+                    class="w-full"
+                    :loading="hotelStore.loading"
+                />
+                <pv-button icon="pi pi-plus" class="p-button-success" @click="showAddCategoryDialog" v-tooltip.top="'Nueva Categoría'" />
+              </div>
             </div>
 
             <div class="col-12 field">
@@ -55,13 +59,24 @@
             </div>
 
             <div class="col-12 field">
-              <label class="font-bold text-color">Amenidades del Hotel</label>
-              <div class="flex gap-2 flex-wrap mt-2">
-                <div v-for="opt in amenityOptions" :key="opt" class="field-checkbox mr-4">
+              <div class="flex align-items-center gap-2 mb-2">
+                <label class="font-bold text-color m-0">Amenidades del Hotel</label>
+                <pv-button icon="pi pi-plus" class="p-button-rounded p-button-text p-button-sm p-button-success" @click="showAddAmenityDialog" v-tooltip.top="'Crear Nueva Amenidad'" />
+              </div>
+
+              <div v-if="hotelStore.loading" class="flex gap-3">
+                <pv-skeleton width="6rem" height="2rem"></pv-skeleton>
+                <pv-skeleton width="6rem" height="2rem"></pv-skeleton>
+                <pv-skeleton width="6rem" height="2rem"></pv-skeleton>
+              </div>
+
+              <div v-else class="flex gap-3 flex-wrap mt-2">
+                <div v-for="opt in hotelStore.amenitiesList" :key="opt" class="field-checkbox mr-2 align-items-center">
                   <pv-checkbox :inputId="opt" name="amenity" :value="opt" v-model="form.amenities" />
                   <label :for="opt" class="ml-2 text-color-secondary cursor-pointer">{{ opt }}</label>
                 </div>
               </div>
+              <small class="text-500 mt-2 block" v-if="hotelStore.amenitiesList.length === 0 && !hotelStore.loading">No se cargaron amenidades. Verifica el backend.</small>
             </div>
 
             <div class="col-12 mt-4 flex justify-content-end gap-2 border-top-1 surface-border pt-4">
@@ -73,49 +88,106 @@
         </template>
       </pv-card>
     </div>
+
+    <AddCategoryDialog v-model="isCategoryDialogVisible" @category-added="onCategoryAdded" />
+    <AddAmenityDialog v-model="isAmenityDialogVisible" @amenity-added="onAmenityAdded" />
+
   </div>
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue';
+/**
+ * @file StaffCreateHotel.vue
+ * @description View component for creating new Hotel Resources.
+ * Allows staff to define properties, categories, and amenities dynamically.
+ */
+
+import { ref, reactive, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useToast } from 'primevue/usetoast';
 import { useHotelStore } from '@/accommodations/application/hotel.store.js';
-// Importa tu store de IAM si necesitas el hostId del usuario logueado
 import useIamStore from '@/iam/application/iam.store.js';
+
+// Import dynamic dialog components for Master Data creation
+import AddCategoryDialog from '../components/AddCategoryDialog.vue';
+import AddAmenityDialog from '../components/AddAmenityDialog.vue';
 
 const router = useRouter();
 const toast = useToast();
 const hotelStore = useHotelStore();
 const iamStore = useIamStore();
 
+// --- State Management ---
 const submitted = ref(false);
+const isCategoryDialogVisible = ref(false);
+const isAmenityDialogVisible = ref(false);
 
+/**
+ * Reactive form state mapping to the CreateHotel Resource.
+ */
 const form = reactive({
   name: '',
   location: '',
   description: '',
   basePrice: null,
   imageUrl: '',
-  type: 'Hotel',
+  type: null,
   amenities: []
 });
 
-const hotelTypes = ['Hotel', 'Posada', 'Lodge', 'Hostal', 'Cabaña', 'Resort'];
-const amenityOptions = ['Wifi', 'Piscina', 'Gimnasio', 'Restaurante', 'Parking', 'Spa', 'Bar', 'Desayuno'];
+// --- Lifecycle ---
+onMounted(async () => {
+  // Load Master Data (Categories and Amenities) from the backend
+  await hotelStore.fetchOptions();
+});
+
+// --- Navigation & UI Actions ---
 
 const goBack = () => router.push({ name: 'staff-hotels' });
 
+const showAddCategoryDialog = () => {
+  isCategoryDialogVisible.value = true;
+};
+
+const showAddAmenityDialog = () => {
+  isAmenityDialogVisible.value = true;
+};
+
+/**
+ * Callback when a new category is created via dialog.
+ * Automatically selects the newly created category.
+ * @param {string} newCategoryName - The name of the created category.
+ */
+const onCategoryAdded = (newCategoryName) => {
+  form.type = newCategoryName;
+};
+
+/**
+ * Callback when a new amenity is created via dialog.
+ * Automatically adds the newly created amenity to the selection.
+ * @param {string} newAmenityName - The name of the created amenity.
+ */
+const onAmenityAdded = (newAmenityName) => {
+  if (!form.amenities.includes(newAmenityName)) {
+    form.amenities.push(newAmenityName);
+  }
+};
+
+/**
+ * Handles form submission.
+ * Validates input and dispatches the create action to the store.
+ */
 const submitForm = async () => {
   submitted.value = true;
 
-  // Validación básica
-  if (!form.name || !form.location || !form.basePrice) {
-    toast.add({ severity: 'warn', summary: 'Datos incompletos', detail: 'Por favor llena los campos obligatorios.', life: 3000 });
+  // Basic Domain Validation
+  if (!form.name || !form.location || !form.basePrice || !form.type) {
+    toast.add({ severity: 'warn', summary: 'Missing Data', detail: 'Please complete all required fields.', life: 3000 });
     return;
   }
 
   try {
+    // Construct the Payload for the API
     const payload = {
       hostId: iamStore.currentUserId,
       name: form.name,
@@ -127,15 +199,16 @@ const submitForm = async () => {
       amenities: form.amenities
     };
 
+    // Dispatch action to Application Layer
     await hotelStore.createHotel(payload);
 
-    toast.add({ severity: 'success', summary: 'Éxito', detail: 'Hotel creado correctamente.', life: 3000 });
+    toast.add({ severity: 'success', summary: 'Success', detail: 'Hotel created successfully.', life: 3000 });
     setTimeout(() => {
       router.push({ name: 'staff-hotels' });
     }, 1000);
 
   } catch (err) {
-    toast.add({ severity: 'error', summary: 'Error', detail: 'No se pudo crear el hotel.', life: 3000 });
+    toast.add({ severity: 'error', summary: 'Error', detail: 'Could not create hotel.', life: 3000 });
   }
 };
 </script>

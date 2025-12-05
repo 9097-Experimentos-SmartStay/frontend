@@ -40,4 +40,38 @@ export class HotelApi extends BaseApi {
     create(resource) {
         return this.#endpoint.create(resource);
     }
+
+    /**
+     * Obtiene las categorías de hotel disponibles.
+     * GET /api/v1/accommodations/options/categories
+     */
+    getHotelCategories() {
+        // Ajusta la ruta según definimos el controller
+        return this.http.get('/accommodations/options/categories');
+    }
+
+    /**
+     * Obtiene las amenidades disponibles.
+     * GET /api/v1/accommodations/options/amenities
+     */
+    getAmenities() {
+        return this.http.get('/accommodations/options/amenities');
+    }
+
+    /**
+     * Crea una nueva categoría.
+     * POST /api/v1/accommodations/options/categories
+     */
+    createCategory(data) {
+        return this.http.post('/accommodations/options/categories', data);
+    }
+
+    /**
+     * Creates a new amenity option.
+     * POST /api/v1/accommodations/options/amenities
+     * @param {Object} data - { name: string }
+     */
+    createAmenity(data) {
+        return this.http.post('/accommodations/options/amenities', data);
+    }
 }
