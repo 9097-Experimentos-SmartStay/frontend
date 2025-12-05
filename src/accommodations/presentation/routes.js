@@ -28,5 +28,19 @@ export default [
         component: () => import('./views/GuestHotels.vue'),
         meta: { requiresAuth: true, roles: ['guest'] }
     },
+    {
+        path: '/staff/hotels/:hotelId/edit',
+        name: 'edit-hotel',
+        component: () => import('../../accommodations/presentation/views/StaffEditHotel.vue'),
+        meta: { requiresAuth: true, roles: ['staff'] },
+        props: true
+    },
+    {
+        path: '/staff/rooms/:roomId/edit',
+        name: 'edit-room',
+        component: () => import('../../accommodations/presentation/views/StaffEditRoom.vue'),
+        meta: { requiresAuth: true, roles: ['staff'] },
+        props: true
+    }
 ];
 
