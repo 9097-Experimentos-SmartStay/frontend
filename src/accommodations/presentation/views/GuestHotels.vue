@@ -10,8 +10,22 @@
         </div>
       </template>
       <template #end>
-        <div class="flex gap-2">
-          <pv-button label="Volver al Dashboard" icon="pi pi-arrow-left" class="p-button-text" @click="goHome" />
+        <div class="flex align-items-center gap-2">
+          <!-- Language Selector -->
+          <pv-button
+              :label="currentLocale.toUpperCase()"
+              icon="pi pi-globe"
+              class="p-button-text p-button-rounded language-btn"
+              @click="toggleLanguage"
+              v-tooltip.bottom="$t('common.changeLanguage')"
+          />
+
+          <pv-button
+              :label="$t('common.back')"
+              icon="pi pi-arrow-left"
+              class="p-button-text"
+              @click="goHome"
+          />
         </div>
       </template>
     </pv-toolbar>
@@ -20,12 +34,16 @@
 
       <div class="flex flex-column md:flex-row justify-content-between align-items-center mb-5 gap-3">
         <div>
-          <h1 class="text-3xl font-bold text-900 m-0">Nuestros Hoteles</h1>
-          <p class="text-600 mt-2">Explora estancias únicas alrededor del mundo.</p>
+          <h1 class="text-3xl font-bold text-900 m-0">{{ $t('hotels.title') }}</h1>
+          <p class="text-600 mt-2">{{ $t('hotels.subtitle') }}</p>
         </div>
         <span class="p-input-icon-left w-full md:w-auto">
           <i class="pi pi-search" />
-          <pv-input-text v-model="searchQuery" placeholder="Buscar por ciudad o nombre..." class="w-full" />
+          <pv-input-text
+              v-model="searchQuery"
+              :placeholder="$t('hotels.searchPlaceholder')"
+              class="w-full"
+          />
         </span>
       </div>
 
@@ -35,8 +53,12 @@
 
       <div v-else-if="filteredHotels.length === 0" class="surface-card p-6 border-round-xl text-center shadow-1">
         <i class="pi pi-building text-5xl text-gray-300 mb-3"></i>
-        <h3>No encontramos hoteles con ese criterio.</h3>
-        <pv-button label="Ver todos" class="p-button-outlined" @click="searchQuery = ''" />
+        <h3>{{ $t('hotels.noResults') }}</h3>
+        <pv-button
+            :label="$t('hotels.viewAll')"
+            class="p-button-outlined"
+            @click="searchQuery = ''"
+        />
       </div>
 
       <div v-else class="grid">
@@ -44,7 +66,11 @@
           <div class="surface-card shadow-2 border-round-xl h-full flex flex-column overflow-hidden hover:shadow-4 transition-duration-300 cursor-pointer" @click="viewHotelDetails(hotel.id)">
 
             <div class="relative h-15rem w-full bg-gray-100">
-              <img :src="hotel.photoUrl || 'https://placehold.co/600x400/e2e8f0/1e293b?text=SmartStay'" alt="Hotel" class="w-full h-full object-cover" />
+              <img
+                  :src="hotel.photoUrl || 'https://placehold.co/600x400/e2e8f0/1e293b?text=SmartStay'"
+                  :alt="hotel.name"
+                  class="w-full h-full object-cover"
+              />
               <div class="absolute top-0 right-0 m-3">
                 <pv-tag :value="hotel.rating + ' ★'" severity="warning" rounded></pv-tag>
               </div>
@@ -77,7 +103,7 @@
 
               <div class="border-top-1 border-200 pt-3 flex justify-content-between align-items-center mt-auto">
                 <div>
-                  <span class="text-xs text-500 block">Precio por noche</span>
+                  <span class="text-xs text-500 block">{{ $t('hotels.pricePerNight') }}</span>
                   <span class="text-xl font-bold text-900">${{ hotel.basePrice }}</span>
                 </div>
                 <pv-button icon="pi pi-arrow-right" class="p-button-rounded p-button-outlined" />
@@ -93,15 +119,42 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
+import { useToast } from 'primevue/usetoast';
 // Import the store created previously
 import { useHotelStore } from '../../application/hotel.store.js';
 
 const router = useRouter();
 const hotelStore = useHotelStore();
 const searchQuery = ref('');
+const { t, locale } = useI18n();
+const toast = useToast();
+
+// Computed para el idioma actual
+const currentLocale = computed(() => locale.value);
+
+// Función para cambiar idioma
+function toggleLanguage() {
+  const newLocale = locale.value === 'en' ? 'es' : 'en';
+  locale.value = newLocale;
+  localStorage.setItem('language', newLocale);
+
+  toast.add({
+    severity: 'success',
+    summary: newLocale === 'es' ? 'Idioma cambiado' : 'Language changed',
+    detail: newLocale === 'es' ? 'Idioma cambiado a Español' : 'Language changed to English',
+    life: 2000
+  });
+}
 
 // --- Fetch Data on Mount ---
 onMounted(async () => {
+  // Cargar idioma guardado
+  const savedLanguage = localStorage.getItem('language');
+  if (savedLanguage) {
+    locale.value = savedLanguage;
+  }
+
   await hotelStore.fetchAllHotels();
 });
 
@@ -157,11 +210,22 @@ function truncateText(text, length) {
 }
 .app-title { color: #111827; }
 
+/* Language Button */
+.language-btn {
+  color: #4b5563 !important;
+  font-weight: 600;
+}
+
+.language-btn:hover {
+  background-color: #f3f4f6 !important;
+}
+
 @media (prefers-color-scheme: dark) {
   .adaptive-toolbar {
     background-color: #18181b;
     border-bottom: 1px solid #27272a;
   }
   .app-title { color: #f4f4f5; }
+  .language-btn { color: #a1a1aa !important; }
 }
 </style>
