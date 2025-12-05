@@ -12,8 +12,8 @@ export default defineConfig({
     server: {
         proxy: {
             '/api': {
-                // target: 'https://smart-backend-y5q6.onrender.com',
-                target: 'http://localhost:5192',
+                 target: 'https://smart-backend-y5q6.onrender.com/api/v1',
+                //target: 'http://localhost:5192',
                 changeOrigin: true,
                 secure: false,
             }
