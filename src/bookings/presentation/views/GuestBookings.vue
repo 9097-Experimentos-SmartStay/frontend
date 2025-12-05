@@ -1,155 +1,123 @@
 <template>
-  <div class="p-6 max-w-6xl mx-auto">
-    <div class="flex justify-between items-center mb-6">
-      <div class="flex items-center gap-3">
-        <pv-button
-          icon="pi pi-arrow-left"
-          label="Volver"
-          class="p-button-outlined p-button-sm"
-          @click="goBack"
-        />
-        <h3 class="text-3xl font-bold text-primary">Mis Reservas</h3>
+  <div class="surface-ground min-h-screen p-4 md:p-6">
+    <pv-toast position="bottom-right" />
+
+    <div class="flex justify-content-between align-items-center mb-6">
+      <div class="flex align-items-center gap-3">
+        <pv-button icon="pi pi-arrow-left" label="Volver" class="p-button-outlined p-button-sm" @click="goBack" />
+        <h3 class="text-3xl font-bold text-color m-0">Mis Reservas</h3>
       </div>
     </div>
 
-    <div v-if="loading" class="text-center p-8">
-      <i class="pi pi-spin pi-spinner" style="font-size: 2.5rem"></i>
-      <p class="text-gray-500 mt-2">Cargando reservas...</p>
+    <div v-if="bookingStore.loading" class="flex flex-column align-items-center justify-content-center h-20rem">
+      <pv-progress-spinner />
+      <p class="text-color-secondary mt-3">Cargando reservas...</p>
     </div>
 
     <pv-data-table
-      v-else-if="bookings.length"
-      :value="bookings"
-      responsive-layout="scroll"
-      tableStyle="min-width: 50rem"
-      class="shadow-sm rounded-lg overflow-hidden"
+        v-else-if="bookingStore.bookings.length"
+        :value="bookingStore.bookings"
+        responsive-layout="scroll"
+        class="shadow-2 border-round-xl overflow-hidden"
+        paginator :rows="5"
+        tableStyle="min-width: 50rem"
     >
       <template #header>
-        <div class="flex items-center justify-between gap-2">
-          <span class="text-lg font-semibold text-primary">Listado de reservas</span>
-          <pv-button icon="pi pi-refresh" class="p-button-rounded p-button-text" @click="fetchBookings" />
+        <div class="flex align-items-center justify-content-between p-3 surface-card border-bottom-1 surface-border">
+          <span class="text-xl font-bold text-color">Historial de Viajes</span>
+          <pv-button icon="pi pi-refresh" class="p-button-rounded p-button-text" @click="fetchData" v-tooltip="'Refrescar'" />
         </div>
       </template>
 
-      <pv-column field="id" header="ID" sortable />
-      <pv-column field="roomId" header="Habitación ID" sortable />
-      <pv-column field="guestName" header="Huésped" />
-      <pv-column field="guestEmail" header="Email" />
-      <pv-column field="checkInDate" header="Check-in" sortable>
+      <pv-column field="id" header="ID" sortable style="width: 10%"></pv-column>
+      <pv-column field="roomId" header="Habitación" sortable style="width: 15%"></pv-column>
+
+      <pv-column header="Fechas" style="width: 30%">
         <template #body="{ data }">
-          {{ formatDate(data.checkInDate) }}
+          <div class="flex flex-column">
+            <span class="font-medium text-color">{{ formatDate(data.checkInDate) }}</span>
+            <span class="text-color-secondary text-sm">hasta {{ formatDate(data.checkOutDate) }}</span>
+          </div>
         </template>
       </pv-column>
-      <pv-column field="checkOutDate" header="Check-out" sortable>
+
+      <pv-column field="status" header="Estado" sortable style="width: 15%">
         <template #body="{ data }">
-          {{ formatDate(data.checkOutDate) }}
+          <pv-tag :value="translateStatus(data.status)" :severity="getStatusSeverity(data.status)" rounded />
         </template>
       </pv-column>
-      <pv-column field="status" header="Estado" sortable>
+
+      <pv-column header="Acciones" style="width: 30%">
         <template #body="{ data }">
-          <pv-tag
-            :value="data.status"
-            :severity="getStatusSeverity(data.status)"
-          />
-        </template>
-      </pv-column>
-      <pv-column header="Acciones">
-        <template #body="{ data }">
-          <pv-button
-            icon="pi pi-eye"
-            label="Ver"
-            class="p-button-info p-button-sm"
-            @click="viewBooking(data.id)"
-          />
-          <pv-button
-            v-if="data.status === 'Pending'"
-            icon="pi pi-times"
-            label="Cancelar"
-            class="p-button-danger p-button-sm ml-2"
-            @click="cancelBooking(data.id)"
-          />
+          <div class="flex gap-2">
+            <pv-button icon="pi pi-eye" class="p-button-rounded p-button-text p-button-info" @click="viewBooking(data.id)" v-tooltip="'Ver Detalles'" />
+            <pv-button
+                v-if="data.status === 'Pending'"
+                icon="pi pi-times"
+                class="p-button-rounded p-button-text p-button-danger"
+                @click="cancelBooking(data.id)"
+                v-tooltip="'Cancelar Reserva'"
+            />
+          </div>
         </template>
       </pv-column>
     </pv-data-table>
 
-    <div v-else class="text-center p-8 bg-gray-50 rounded-lg">
-      <i class="pi pi-calendar-times text-gray-400" style="font-size: 3rem"></i>
-      <p class="text-gray-500 mt-4">No tienes reservas registradas</p>
-      <pv-button
-        label="Crear Nueva Reserva"
-        icon="pi pi-plus"
-        class="p-button-primary mt-4"
-        @click="createBooking"
-      />
+    <div v-else class="text-center p-8 surface-card border-round-xl shadow-1 border-1 surface-border">
+      <div class="surface-ground border-circle w-6rem h-6rem flex align-items-center justify-content-center mx-auto mb-4">
+        <i class="pi pi-calendar-times text-500 text-5xl"></i>
+      </div>
+      <h3 class="text-color font-bold m-0 mb-2">No tienes reservas activas</h3>
+      <p class="text-color-secondary mb-4">¿Planeando tu próxima escapada?</p>
+      <pv-button label="Explorar Habitaciones" icon="pi pi-search" class="p-button-primary" @click="createBooking" />
     </div>
   </div>
 </template>
 
 <script setup>
-import { useBookings } from '../composables/useBookings.js';
+// ... (El script se mantiene igual que la versión anterior)
+import { onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useToast } from 'primevue/usetoast';
+import { useBookingStore } from '../../application/booking.store.js';
 
 const router = useRouter();
 const toast = useToast();
-const { bookings, loading, error, fetchBookings, cancelBooking: cancelBookingService } = useBookings();
+const bookingStore = useBookingStore();
 
-const goBack = () => {
-  router.push({ name: 'guest-dashboard' });
+const fetchData = async () => {
+  await bookingStore.fetchAllBookings();
 };
 
-const viewBooking = (bookingId) => {
-  router.push({ name: 'guest-booking-detail', params: { bookingId } });
-};
+onMounted(() => {
+  fetchData();
+});
 
-const createBooking = () => {
-  router.push({ name: 'guest-create-booking' });
-};
+const goBack = () => router.push({ name: 'guest-dashboard' });
+const viewBooking = (bookingId) => router.push({ name: 'guest-booking-detail', params: { bookingId } });
+const createBooking = () => router.push({ name: 'guest-rooms' });
 
 const cancelBooking = async (bookingId) => {
   try {
-    await cancelBookingService(bookingId);
-    toast.add({
-      severity: 'success',
-      summary: 'Éxito',
-      detail: 'Reserva cancelada correctamente',
-      life: 3000
-    });
-    await fetchBookings();
+    await bookingStore.cancelBooking(bookingId);
+    toast.add({ severity: 'success', summary: 'Cancelada', detail: 'Reserva cancelada correctamente', life: 3000 });
   } catch (err) {
-    toast.add({
-      severity: 'error',
-      summary: 'Error',
-      detail: err.message || 'Error al cancelar la reserva',
-      life: 3000
-    });
+    toast.add({ severity: 'error', summary: 'Error', detail: 'No se pudo cancelar', life: 3000 });
   }
 };
 
 const getStatusSeverity = (status) => {
-  const statusMap = {
-    'Pending': 'warning',
-    'Confirmed': 'success',
-    'Cancelled': 'danger',
-    'Completed': 'info'
-  };
-  return statusMap[status] || 'secondary';
+  const map = { 'Pending': 'warning', 'Confirmed': 'success', 'Cancelled': 'danger' };
+  return map[status] || 'info';
 };
 
-const formatDate = (dateString) => {
-  if (!dateString) return 'N/A';
-  const date = new Date(dateString);
-  return date.toLocaleDateString('es-ES', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric'
-  });
+const translateStatus = (status) => {
+  const map = { 'Pending': 'Pendiente', 'Confirmed': 'Confirmada', 'Cancelled': 'Cancelada' };
+  return map[status] || status;
+};
+
+const formatDate = (date) => {
+  if (!date) return 'N/A';
+  return new Date(date).toLocaleDateString();
 };
 </script>
-
-<style scoped>
-.text-primary {
-  color: var(--primary-color);
-}
-</style>
-

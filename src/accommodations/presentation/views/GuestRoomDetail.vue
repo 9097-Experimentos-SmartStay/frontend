@@ -1,83 +1,92 @@
 <template>
-  <div class="p-6 max-w-4xl mx-auto">
-    <div class="flex justify-between items-center mb-6">
-      <div class="flex items-center gap-3">
-        <pv-button
-          icon="pi pi-arrow-left"
-          label="Volver"
-          class="p-button-outlined p-button-sm"
-          @click="goBack"
-        />
-        <h3 class="text-3xl font-bold text-primary">Detalle de Habitación #{{ roomId }}</h3>
+  <div class="surface-ground min-h-screen flex flex-column">
+    <pv-toolbar class="sticky top-0 z-5 shadow-1 border-none px-4 md:px-6 py-3 adaptive-toolbar">
+      <template #start>
+        <pv-button label="Volver" icon="pi pi-arrow-left" class="p-button-text text-600" @click="goBack" />
+      </template>
+      <template #center>
+        <span class="font-bold text-xl text-900 hidden md:block">Detalle de Habitación</span>
+      </template>
+    </pv-toolbar>
+
+    <div class="flex-1 p-4 md:p-6 w-full max-w-5xl mx-auto">
+
+      <div v-if="roomStore.loading" class="flex justify-content-center p-8">
+        <pv-progress-spinner />
       </div>
-    </div>
 
-    <div v-if="loading" class="text-center p-8">
-      <i class="pi pi-spin pi-spinner" style="font-size: 2.5rem"></i>
-      <p class="text-gray-500 mt-2">Cargando detalles...</p>
-    </div>
+      <div v-else-if="!roomStore.currentRoom" class="surface-card p-6 border-round-xl text-center shadow-1">
+        <i class="pi pi-exclamation-circle text-5xl text-gray-300 mb-3"></i>
+        <h3>Habitación no encontrada</h3>
+        <pv-button label="Volver al listado" class="p-button-outlined mt-3" @click="goBack" />
+      </div>
 
-    <pv-card v-else-if="room">
-      <template #content>
-        <div class="grid">
-          <div class="col-12">
-            <h4 class="text-2xl font-bold mb-2">{{ room.roomTypeName || 'Habitación' }}</h4>
-          </div>
-          <div class="col-12">
-            <div class="field">
-              <label class="font-semibold">ID de Habitación</label>
-              <p>{{ room.id }}</p>
+      <div v-else class="grid">
+        <div class="col-12 lg:col-8">
+          <div class="surface-card shadow-2 border-round-xl overflow-hidden mb-4">
+            <div class="h-20rem bg-gray-200 w-full flex align-items-center justify-content-center">
+              <i class="pi pi-image text-6xl text-gray-400"></i>
             </div>
-          </div>
-          <div class="col-12">
-            <div class="field">
-              <label class="font-semibold">Tipo de Habitación</label>
-              <p>{{ room.roomTypeName }} (ID: {{ room.roomTypeId }})</p>
-            </div>
-          </div>
-          <div class="col-12">
-            <div class="field">
-              <label class="font-semibold">Descripción</label>
-              <p>{{ room.description || 'Sin descripción' }}</p>
-            </div>
-          </div>
-          <div class="col-12">
-            <div class="field">
-              <label class="font-semibold">Amenidades</label>
-              <div class="flex flex-wrap gap-2 mt-2">
-                <pv-tag
-                  v-for="amenity in room.amenities"
-                  :key="amenity"
-                  :value="amenity"
-                  severity="info"
-                />
-                <span v-if="!room.amenities || room.amenities.length === 0" class="text-gray-500">Sin amenidades</span>
+            <div class="p-5">
+              <div class="flex justify-content-between align-items-start mb-3">
+                <div>
+                  <h1 class="text-3xl font-bold text-900 m-0 mb-2">{{ roomStore.currentRoom.roomTypeName || 'Habitación' }}</h1>
+                  <span class="text-600 text-sm">ID: {{ roomStore.currentRoom.id }}</span>
+                </div>
+                <pv-tag value="Disponible" severity="success" rounded></pv-tag>
+              </div>
+
+              <div class="border-top-1 border-200 my-4"></div>
+
+              <h3 class="text-xl font-bold text-900 mb-3">Descripción</h3>
+              <p class="text-700 line-height-3 mb-5">
+                {{ roomStore.currentRoom.description || 'Disfruta de una estancia inolvidable con todas las comodidades que necesitas para relajarte.' }}
+              </p>
+
+              <h3 class="text-xl font-bold text-900 mb-3">Amenidades</h3>
+              <div class="flex flex-wrap gap-3">
+                <div v-if="!roomStore.currentRoom.amenities?.length" class="text-600 font-italic">No especificadas</div>
+                <div v-for="amenity in roomStore.currentRoom.amenities" :key="amenity" class="surface-100 border-round px-3 py-2 flex align-items-center gap-2">
+                  <i class="pi pi-check-circle text-primary"></i>
+                  <span class="text-700 font-medium capitalize">{{ amenity }}</span>
+                </div>
               </div>
             </div>
           </div>
-          <div class="col-12">
+        </div>
+
+        <div class="col-12 lg:col-4">
+          <div class="surface-card shadow-2 border-round-xl p-4 sticky" style="top: 6rem;">
+            <h3 class="text-xl font-bold text-900 mb-4">Reserva tu estancia</h3>
+
+            <div class="bg-blue-50 border-round p-3 mb-4 flex align-items-center gap-3">
+              <i class="pi pi-info-circle text-blue-500 text-xl"></i>
+              <span class="text-sm text-blue-700">Cancelación gratuita hasta 24h antes del check-in.</span>
+            </div>
+
             <pv-button
-              label="Reservar esta Habitación"
-              icon="pi pi-calendar-plus"
-              class="p-button-primary w-full"
-              @click="bookRoom"
+                label="Reservar Ahora"
+                icon="pi pi-calendar-plus"
+                class="w-full p-button-lg font-bold mb-3"
+                @click="bookRoom"
+            />
+
+            <pv-button
+                label="Contactar Anfitrión"
+                icon="pi pi-envelope"
+                class="w-full p-button-outlined p-button-secondary"
             />
           </div>
         </div>
-      </template>
-    </pv-card>
-
-    <div v-else class="text-center p-8 bg-gray-50 rounded-lg">
-      <i class="pi pi-exclamation-triangle text-gray-400" style="font-size: 3rem"></i>
-      <p class="text-gray-500 mt-4">No se pudo cargar la habitación</p>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-import { useRooms } from '../composables/useRooms.js';
+import { onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import { useRoomStore } from '../../application/room.store.js';
 
 const props = defineProps({
   roomId: {
@@ -87,16 +96,10 @@ const props = defineProps({
 });
 
 const router = useRouter();
-const { loading, error, getRoomById } = useRooms();
-
-const room = ref(null);
+const roomStore = useRoomStore();
 
 onMounted(async () => {
-  try {
-    room.value = await getRoomById(Number(props.roomId));
-  } catch (err) {
-    console.error('Error loading room:', err);
-  }
+  await roomStore.fetchRoomById(Number(props.roomId));
 });
 
 const goBack = () => {
@@ -109,8 +112,13 @@ const bookRoom = () => {
 </script>
 
 <style scoped>
-.text-primary {
-  color: var(--primary-color);
+.adaptive-toolbar {
+  background-color: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(8px);
+}
+@media (prefers-color-scheme: dark) {
+  .adaptive-toolbar {
+    background-color: rgba(24, 24, 27, 0.9);
+  }
 }
 </style>
-

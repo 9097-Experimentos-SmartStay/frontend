@@ -11,7 +11,19 @@ export class UserAssembler {
      * @returns {User} The User entity.
      */
     static toEntityFromResource(resource) {
-        return new User({...resource});
+        if (!resource) return null;
+
+        const rawRole = resource.role || resource.Role;
+
+        // Manejo de roles como array (si existiera)
+        const rawRoles = resource.roles || resource.Roles || [rawRole];
+
+        return {
+            id: resource.id || resource.Id,
+            username: resource.username || resource.Username,
+            role: rawRole,
+            roles: rawRoles
+        };
     }
     
     /**
@@ -23,12 +35,7 @@ export class UserAssembler {
      * @returns {User[]} Array of User entities.
      */
     static toEntitiesFromResponse(response) {
-        if (response.status !== 200) {
-            console.error(`${response.status}, ${response.statusText}`);
-            return [];
-        }
-        let resources = response.data instanceof Array ? response.data : response.data['users'];
-
-        return resources.map(resource => this.toEntityFromResource(resource));
+        if (!response.data || !Array.isArray(response.data)) return [];
+        return response.data.map(resource => UserAssembler.toEntityFromResource(resource));
     }
 }

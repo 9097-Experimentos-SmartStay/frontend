@@ -55,29 +55,30 @@
                 <div class="flex justify-content-between align-items-start mb-2">
                   <h2 class="text-xl font-bold text-900 m-0">{{ hotel.name }}</h2>
                 </div>
+
                 <div class="text-600 flex align-items-center gap-2 mb-3 text-sm">
                   <i class="pi pi-map-marker text-primary"></i>
-                  {{ hotel.city }}, {{ hotel.country }}
+                  {{ hotel.location }}
                 </div>
+
                 <p class="text-600 line-height-3 text-sm mb-4">
                   {{ truncateText(hotel.description, 100) }}
                 </p>
 
                 <div class="flex gap-2 flex-wrap mb-4">
-                  <span v-for="amenity in (hotel.amenities || []).slice(0, 3)" :key="amenity" class="surface-100 text-600 border-round px-2 py-1 text-xs font-medium">
+                  <span v-for="amenity in (hotel.amenities || []).slice(0, 3)" :key="amenity" class="surface-100 text-600 border-round px-2 py-1 text-xs font-medium uppercase">
                     {{ amenity }}
                   </span>
                   <span v-if="hotel.amenities?.length > 3" class="text-xs text-500 flex align-items-center">
-                    +{{ hotel.amenities.length - 3 }} más
+                    +{{ hotel.amenities.length - 3 }}
                   </span>
                 </div>
               </div>
 
               <div class="border-top-1 border-200 pt-3 flex justify-content-between align-items-center mt-auto">
                 <div>
-                  <span class="text-xs text-500 block">Precio base</span>
-                  <span class="text-xl font-bold text-900">${{ hotel.basePrice || 0 }}</span>
-                  <span class="text-xs text-600"> / noche</span>
+                  <span class="text-xs text-500 block">Precio por noche</span>
+                  <span class="text-xl font-bold text-900">${{ hotel.basePrice }}</span>
                 </div>
                 <pv-button icon="pi pi-arrow-right" class="p-button-rounded p-button-outlined" />
               </div>
@@ -105,6 +106,9 @@ onMounted(async () => {
 });
 
 // --- Computed Filter ---
+/**
+ * @type {import('vue').ComputedRef<Array<Hotel>>} filteredHotels - Filtered list of hotels based on search query.
+ */
 const filteredHotels = computed(() => {
   if (!searchQuery.value) return hotelStore.hotels;
   const lowerQuery = searchQuery.value.toLowerCase();
@@ -116,16 +120,29 @@ const filteredHotels = computed(() => {
 });
 
 // --- Actions ---
+/**
+ * Navigates to the home dashboard.
+ */
 function goHome() {
   router.push({ name: 'dashboard' });
 }
 
+/**
+ * Views the details of a specific hotel.
+ * @param {number} hotelId - The ID of the hotel to view.
+ */
 function viewHotelDetails(hotelId) {
   // Logic to go to rooms of this hotel (Future implementation)
   // router.push({ name: 'hotel-rooms', params: { hotelId } });
   console.log("Navigating to hotel:", hotelId);
 }
 
+/**
+ * Truncates text to a specified length.
+ * @param {string} text - The text to truncate.
+ * @param {number} length - The maximum length.
+ * @returns {string} The truncated text.
+ */
 function truncateText(text, length) {
   if (!text) return '';
   return text.length > length ? text.substring(0, length) + '...' : text;
