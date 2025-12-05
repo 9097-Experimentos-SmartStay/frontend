@@ -20,7 +20,7 @@
     "signInTitle": "Iniciar Sesión",
     "registerTitle": "Registrarse",
     "emailLabel": "Correo Electrónico",
-    "emailPlaceholder": "ejemplo@email.com",
+    "emailPlaceholder": "ejemplo.email.com",
     "nameLabel": "Nombre",
     "namePlaceholder": "Tu nombre completo",
     "passwordLabel": "Contraseña",
