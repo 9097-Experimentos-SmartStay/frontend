@@ -8,6 +8,7 @@ const roomTypesEndpointPath = import.meta.env.VITE_ROOM_TYPES_ENDPOINT_PATH;
  * RoomTypeApi class.
  * Handles API communication for RoomType Resources.
  * Extends BaseApi to ensure Token injection and centralized configuration.
+ * @class
  */
 export class RoomTypeApi extends BaseApi {
     #endpoint;

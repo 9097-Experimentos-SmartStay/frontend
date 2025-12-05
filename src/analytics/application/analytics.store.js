@@ -5,15 +5,33 @@ import { AnalyticsAssembler } from '../infrastructure/analytics.assembler.js';
 
 const analyticsApi = new AnalyticsApi();
 
+/**
+ * Pinia Store for Analytics Management.
+ * Handles state management and business logic for Analytics.
+ * @returns {Object} The analytics store composable with state, actions, and computed properties.
+ */
 export const useAnalyticsStore = defineStore('analytics', () => {
 
     // --- State ---
+    /**
+     * @type {import('vue').Ref<Analytics|null>} metrics - The current analytics metrics.
+     */
     const metrics = ref(null);
+    /**
+     * @type {import('vue').Ref<boolean>} loading - Indicates if an operation is in progress.
+     */
     const loading = ref(false);
+    /**
+     * @type {import('vue').Ref<Error|null>} error - The last error encountered.
+     */
     const error = ref(null);
 
     // --- Actions ---
 
+    /**
+     * Fetches monthly performance metrics from the API.
+     * @returns {Promise<void>}
+     */
     async function fetchMonthlyMetrics() {
         loading.value = true;
         try {
@@ -30,8 +48,9 @@ export const useAnalyticsStore = defineStore('analytics', () => {
     // --- COMPUTED: Smart Charts (Innovación Visual) ---
 
     /**
-     * Genera datos para el gráfico de líneas con gradiente.
-     * Mezcla datos históricos (mock) con el dato real actual del backend.
+     * Generates data for the revenue line chart with gradient.
+     * Mixes historical data (mock) with the real current data from the backend.
+     * @type {import('vue').ComputedRef<Object>}
      */
     const revenueChartData = computed(() => {
         const currentRevenue = metrics.value?.totalRevenue || 0;
@@ -58,6 +77,10 @@ export const useAnalyticsStore = defineStore('analytics', () => {
         };
     });
 
+    /**
+     * Generates data for the occupancy pie chart.
+     * @type {import('vue').ComputedRef<Object>}
+     */
     const occupancyChartData = computed(() => {
         const occupancy = metrics.value?.occupancyRate || 0;
         const vacancy = 100 - occupancy;

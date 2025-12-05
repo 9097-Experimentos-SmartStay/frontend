@@ -8,6 +8,7 @@ const roomsEndpointPath = import.meta.env.VITE_ROOMS_ENDPOINT_PATH;
  * RoomApi class.
  * Handles API communication for Room Resources.
  * Extends BaseApi to ensure Token injection.
+ * @class
  */
 export class RoomApi extends BaseApi {
     #endpoint;
@@ -27,7 +28,7 @@ export class RoomApi extends BaseApi {
 
     /**
      * Retrieves a room resource by ID.
-     * @param {number} roomId
+     * @param {number} roomId - The unique identifier of the room.
      * @returns {Promise<Object>} Axios response.
      */
     getById(roomId) {
@@ -36,7 +37,7 @@ export class RoomApi extends BaseApi {
 
     /**
      * Creates a new room resource.
-     * @param {Object} data
+     * @param {Object} data - The room data.
      * @returns {Promise<Object>} Axios response.
      */
     create(data) {
@@ -46,7 +47,7 @@ export class RoomApi extends BaseApi {
     /**
      * Get rooms by type.
      * Swagger Endpoint: GET /api/v1/rooms/type/{roomTypeId}
-     * @param {number} roomTypeId
+     * @param {number} roomTypeId - The room type ID.
      * @returns {Promise<Object>} Axios response.
      */
     getByType(roomTypeId) {

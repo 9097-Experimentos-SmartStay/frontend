@@ -2,11 +2,19 @@
 
 /**
  * Assembler to convert data between Infrastructure (API Resource) and Domain (Entity).
+ * @class
  */
 export class HotelAssembler {
     /**
      * Converts a raw resource object from the API into a Hotel Entity.
      * @param {Object} resource - The raw data from the API response.
+     * @param {number} resource.id - The unique identifier.
+     * @param {string} resource.name - The name of the hotel.
+     * @param {string} resource.description - The description.
+     * @param {string} resource.location - The location.
+     * @param {string} resource.imageUrl - The URL of the image.
+     * @param {number} resource.basePrice - The base price.
+     * @param {Array<string>} resource.amenities - The list of amenities.
      * @returns {Hotel} The domain entity.
      */
     static toEntityFromResource(resource) {
@@ -27,6 +35,7 @@ export class HotelAssembler {
     /**
      * Converts a list of resources into a list of Hotel Entities.
      * @param {Object} response - The Axios response object.
+     * @param {Array} response.data - The array of resource objects.
      * @returns {Array<Hotel>} List of Hotel entities.
      */
     static toEntitiesFromResponse(response) {
@@ -37,6 +46,7 @@ export class HotelAssembler {
     /**
      * Converts a single resource response into a Hotel Entity.
      * @param {Object} response - The Axios response object.
+     * @param {Object} response.data - The resource object.
      * @returns {Hotel} The domain entity.
      */
     static toEntityFromResponse(response) {

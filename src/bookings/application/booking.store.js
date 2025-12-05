@@ -5,17 +5,37 @@ import { BookingAssembler } from '../infrastructure/booking.assembler.js';
 
 const bookingApi = new BookingApi();
 
+/**
+ * Pinia Store for Booking Management.
+ * Handles state management and business logic for Bookings.
+ * @returns {Object} The booking store composable with state and actions.
+ */
 export const useBookingStore = defineStore('booking', () => {
 
     // --- State ---
+    /**
+     * @type {import('vue').Ref<Array<Booking>>} bookings - List of all bookings.
+     */
     const bookings = ref([]);
+    /**
+     * @type {import('vue').Ref<Booking|null>} currentBooking - The currently selected booking.
+     */
     const currentBooking = ref(null);
+    /**
+     * @type {import('vue').Ref<boolean>} loading - Indicates if an operation is in progress.
+     */
     const loading = ref(false);
+    /**
+     * @type {import('vue').Ref<Error|null>} error - The last error encountered.
+     */
     const error = ref(null);
 
     // --- Actions ---
 
-    // 1. Obtener todas las reservas
+    /**
+     * Fetches all bookings from the API and updates state.
+     * @returns {Promise<void>}
+     */
     async function fetchAllBookings() {
         loading.value = true;
         error.value = null;
@@ -30,7 +50,16 @@ export const useBookingStore = defineStore('booking', () => {
         }
     }
 
-    // 2. Crear reserva
+    /**
+     * Creates a new booking.
+     * @param {Object} bookingData - The data for the new booking.
+     * @param {number} bookingData.roomId - The room identifier.
+     * @param {string} bookingData.guestName - The guest name.
+     * @param {string} bookingData.guestEmail - The guest email.
+     * @param {Date} bookingData.checkInDate - The check-in date.
+     * @param {Date} bookingData.checkOutDate - The check-out date.
+     * @returns {Promise<Booking>} The created booking entity.
+     */
     async function createBooking(bookingData) {
         loading.value = true;
         try {
@@ -50,7 +79,11 @@ export const useBookingStore = defineStore('booking', () => {
         }
     }
 
-    // 3. Cancelar reserva
+    /**
+     * Cancels a booking by ID.
+     * @param {number} id - The unique identifier of the booking to cancel.
+     * @returns {Promise<void>}
+     */
     async function cancelBooking(id) {
         loading.value = true;
         try {

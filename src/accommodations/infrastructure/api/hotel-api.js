@@ -6,6 +6,7 @@ const hotelsEndpointPath = import.meta.env.VITE_HOTELS_ENDPOINT_PATH;
 /**
  * HotelApi class.
  * Direct communication with the Backend for Hotel resources.
+ * @class
  */
 export class HotelApi extends BaseApi {
     #endpoint;
@@ -25,7 +26,7 @@ export class HotelApi extends BaseApi {
 
     /**
      * Get hotel by ID.
-     * @param {number} id
+     * @param {number} id - The unique identifier of the hotel.
      * @returns {Promise<Object>} Axios response.
      */
     getById(id) {
@@ -42,8 +43,9 @@ export class HotelApi extends BaseApi {
     }
 
     /**
-     * Obtiene las categorías de hotel disponibles.
+     * Gets the available hotel categories.
      * GET /api/v1/accommodations/options/categories
+     * @returns {Promise<Object>} Axios response.
      */
     getHotelCategories() {
         // Ajusta la ruta según definimos el controller
@@ -72,16 +74,19 @@ export class HotelApi extends BaseApi {
     }
 
     /**
-     * Obtiene las amenidades disponibles.
+     * Gets the available amenities.
      * GET /api/v1/accommodations/options/amenities
+     * @returns {Promise<Object>} Axios response.
      */
     getAmenities() {
         return this.http.get('/accommodations/options/amenities');
     }
 
     /**
-     * Crea una nueva categoría.
+     * Creates a new category.
      * POST /api/v1/accommodations/options/categories
+     * @param {Object} data - The category data.
+     * @returns {Promise<Object>} Axios response.
      */
     createCategory(data) {
         return this.http.post('/accommodations/options/categories', data);
@@ -91,6 +96,8 @@ export class HotelApi extends BaseApi {
      * Creates a new amenity option.
      * POST /api/v1/accommodations/options/amenities
      * @param {Object} data - { name: string }
+     * @param {string} data.name - The name of the amenity.
+     * @returns {Promise<Object>} Axios response.
      */
     createAmenity(data) {
         return this.http.post('/accommodations/options/amenities', data);

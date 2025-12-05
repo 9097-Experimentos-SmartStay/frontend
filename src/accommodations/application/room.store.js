@@ -13,33 +13,35 @@ const roomTypeApi = new RoomTypeApi();
  * Pinia Store for Room Management within the Accommodations Bounded Context.
  * Handles state management, business logic, and communication with the Infrastructure Layer.
  * Maps Infrastructure Resources to Domain Entities.
+ * @returns {Object} The room store composable with state and actions.
  */
 export const useRoomStore = defineStore('room', () => {
 
     // --- State ---
 
-    /** @type {import('vue').Ref<Array>} List of Room Domain Entities. */
+    /** @type {import('vue').Ref<Array<Room>>} rooms - List of Room Domain Entities. */
     const rooms = ref([]);
 
-    /** @type {import('vue').Ref<Array>} List of RoomType Domain Entities. */
+    /** @type {import('vue').Ref<Array<RoomType>>} roomTypes - List of RoomType Domain Entities. */
     const roomTypes = ref([]);
 
-    /** @type {import('vue').Ref<Array<string>>} List of available amenity names (Master Data). */
+    /** @type {import('vue').Ref<Array<string>>} amenitiesList - List of available amenity names (Master Data). */
     const amenitiesList = ref([]);
 
-    /** @type {import('vue').Ref<Object|null>} The currently selected Room Entity. */
+    /** @type {import('vue').Ref<Room|null>} currentRoom - The currently selected Room Entity. */
     const currentRoom = ref(null);
 
-    /** @type {import('vue').Ref<boolean>} Loading state indicator. */
+    /** @type {import('vue').Ref<boolean>} loading - Loading state indicator. */
     const loading = ref(false);
 
-    /** @type {import('vue').Ref<Error|null>} Error state. */
+    /** @type {import('vue').Ref<Error|null>} error - Error state. */
     const error = ref(null);
 
     // --- Actions ---
 
     /**
      * Fetches all rooms from the infrastructure and updates the state with Domain Entities.
+     * @returns {Promise<void>}
      */
     async function fetchAllRooms() {
         loading.value = true;
@@ -58,6 +60,7 @@ export const useRoomStore = defineStore('room', () => {
     /**
      * Fetches a specific room by ID.
      * @param {number} id - The unique identifier of the room.
+     * @returns {Promise<void>}
      */
     async function fetchRoomById(id) {
         loading.value = true;
@@ -75,6 +78,7 @@ export const useRoomStore = defineStore('room', () => {
 
     /**
      * Fetches all available Room Types (Master Data).
+     * @returns {Promise<void>}
      */
     async function fetchAllRoomTypes() {
         try {
@@ -88,6 +92,7 @@ export const useRoomStore = defineStore('room', () => {
     /**
      * Fetches the catalog of available amenities.
      * Uses the shared options endpoint via the configured HTTP client.
+     * @returns {Promise<void>}
      */
     async function fetchAmenities() {
         try {
@@ -103,7 +108,9 @@ export const useRoomStore = defineStore('room', () => {
      * Creates a new Room Entity.
      * Validates domain constraints before sending the resource to the infrastructure.
      * @param {Object} roomData - The data required to create a room.
-     * @returns {Promise<Object>} The newly created Room Entity.
+     * @param {number} roomData.roomTypeId - The ID of the room type.
+     * @param {string} roomData.description - The description of the room.
+     * @returns {Promise<Room>} The newly created Room Entity.
      */
     async function createRoom(roomData) {
         loading.value = true;
@@ -130,7 +137,9 @@ export const useRoomStore = defineStore('room', () => {
     /**
      * Creates a new Room Type in the system.
      * @param {Object} typeData - The payload containing name and description.
-     * @returns {Promise<Object>} The newly created RoomType Entity.
+     * @param {string} typeData.name - The name of the room type.
+     * @param {string} typeData.description - The description of the room type.
+     * @returns {Promise<RoomType>} The newly created RoomType Entity.
      */
     async function createRoomType(typeData) {
         loading.value = true;
@@ -154,6 +163,7 @@ export const useRoomStore = defineStore('room', () => {
     /**
      * Creates a new Amenity in the master catalog.
      * @param {string} name - The name of the new amenity.
+     * @returns {Promise<void>}
      */
     async function createAmenity(name) {
         loading.value = true;
@@ -174,7 +184,7 @@ export const useRoomStore = defineStore('room', () => {
      * Updates an existing Room Entity.
      * @param {number} id - The unique identifier of the room.
      * @param {Object} roomData - The payload containing updated fields.
-     * @returns {Promise<Object>} The updated Room Entity.
+     * @returns {Promise<Room>} The updated Room Entity.
      */
     async function updateRoom(id, roomData) {
         loading.value = true;
@@ -199,6 +209,7 @@ export const useRoomStore = defineStore('room', () => {
     /**
      * Deletes a Room Entity.
      * @param {number} id - The unique identifier of the room to delete.
+     * @returns {Promise<void>}
      */
     async function deleteRoom(id) {
         loading.value = true;

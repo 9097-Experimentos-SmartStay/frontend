@@ -102,23 +102,43 @@ onMounted(async () => {
   await hotelStore.fetchAllHotels();
 });
 
+/**
+ * Navigates back to the staff dashboard.
+ */
 const goBack = () => router.push({ name: 'staff-dashboard' });
 
+/**
+ * Navigates to the create hotel page.
+ */
 const goToCreateHotel = () => {
   router.push({ name: 'create-hotel' });
 };
 
+/**
+ * Handles image loading errors by setting a placeholder.
+ * @param {Event} event - The error event.
+ */
 const onImageError = (event) => {
   event.target.src = 'https://placehold.co/100?text=No+Image';
 };
 
 // --- ACCIONES NUEVAS ---
 
+/**
+ * Navigates to the edit hotel page for the given hotel ID.
+ * @param {number} hotelId - The hotel identifier.
+ */
 const editHotel = (hotelId) => {
   // Redirige a la vista de edición (asegúrate de tener la ruta creada)
   router.push({ name: 'edit-hotel', params: { hotelId } });
 };
 
+/**
+ * Shows a confirmation dialog for deleting a hotel.
+ * @param {Object} hotel - The hotel object to delete.
+ * @param {number} hotel.id - The hotel identifier.
+ * @param {string} hotel.name - The hotel name.
+ */
 const confirmDelete = (hotel) => {
   confirm.require({
     message: `¿Estás seguro de que deseas eliminar "${hotel.name}"? Esta acción borrará todas sus habitaciones asociadas.`,
@@ -132,6 +152,10 @@ const confirmDelete = (hotel) => {
   });
 };
 
+/**
+ * Deletes a hotel by ID.
+ * @param {number} id - The hotel identifier.
+ */
 const deleteHotel = async (id) => {
   try {
     await hotelStore.deleteHotel(id);

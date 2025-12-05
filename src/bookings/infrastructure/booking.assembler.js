@@ -2,6 +2,7 @@
 
 /**
  * Assembler to convert between Booking Resources and Booking Entities.
+ * @class
  */
 export class BookingAssembler {
 

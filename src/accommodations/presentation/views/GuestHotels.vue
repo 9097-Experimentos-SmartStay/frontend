@@ -106,6 +106,9 @@ onMounted(async () => {
 });
 
 // --- Computed Filter ---
+/**
+ * @type {import('vue').ComputedRef<Array<Hotel>>} filteredHotels - Filtered list of hotels based on search query.
+ */
 const filteredHotels = computed(() => {
   if (!searchQuery.value) return hotelStore.hotels;
   const lowerQuery = searchQuery.value.toLowerCase();
@@ -117,16 +120,29 @@ const filteredHotels = computed(() => {
 });
 
 // --- Actions ---
+/**
+ * Navigates to the home dashboard.
+ */
 function goHome() {
   router.push({ name: 'dashboard' });
 }
 
+/**
+ * Views the details of a specific hotel.
+ * @param {number} hotelId - The ID of the hotel to view.
+ */
 function viewHotelDetails(hotelId) {
   // Logic to go to rooms of this hotel (Future implementation)
   // router.push({ name: 'hotel-rooms', params: { hotelId } });
   console.log("Navigating to hotel:", hotelId);
 }
 
+/**
+ * Truncates text to a specified length.
+ * @param {string} text - The text to truncate.
+ * @param {number} length - The maximum length.
+ * @returns {string} The truncated text.
+ */
 function truncateText(text, length) {
   if (!text) return '';
   return text.length > length ? text.substring(0, length) + '...' : text;

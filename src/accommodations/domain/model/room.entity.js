@@ -1,32 +1,55 @@
 /**
  * Room Domain Entity.
  * Represents a room within the business logic.
+ * @class
  */
 export class Room {
     /**
-     * @param {Object} params
-     * @param {number} params.id
-     * @param {number} params.hotelId
-     * @param {number} params.roomTypeId
-     * @param {string} params.roomTypeName
-     * @param {number} params.price
-     * @param {string} params.description
-     * @param {string[]} params.amenities
+     * Creates an instance of Room.
+     * @param {Object} params - The parameters for creating the room.
+     * @param {number} params.id - The unique identifier of the room.
+     * @param {number} params.hotelId - The identifier of the hotel this room belongs to.
+     * @param {number} params.roomTypeId - The identifier of the room type.
+     * @param {string} params.roomTypeName - The name of the room type.
+     * @param {number} params.price - The price of the room.
+     * @param {string} params.description - The description of the room.
+     * @param {string[]} params.amenities - The list of amenities for the room.
      */
     constructor({ id, hotelId, roomTypeId, roomTypeName, price, description, amenities }) {
+        /**
+         * @property {number} id - The unique identifier of the room.
+         */
         this.id = id;
+        /**
+         * @property {number} hotelId - The identifier of the hotel this room belongs to.
+         */
         this.hotelId = hotelId;
+        /**
+         * @property {number} roomTypeId - The identifier of the room type.
+         */
         this.roomTypeId = roomTypeId;
+        /**
+         * @property {string} roomTypeName - The name of the room type.
+         */
         this.roomTypeName = roomTypeName || 'Unknown';
+        /**
+         * @property {number} price - The price of the room.
+         */
         this.price = Number(price) || 0; // Aseguramos que sea número para cálculos
+        /**
+         * @property {string} description - The description of the room.
+         */
         this.description = description || '';
+        /**
+         * @property {string[]} amenities - The list of amenities for the room.
+         */
         this.amenities = amenities || [];
     }
 
     /**
      * Checks if the room has a specific amenity.
      * @param {string} amenity - The amenity to check.
-     * @returns {boolean}
+     * @returns {boolean} True if the room has the amenity, false otherwise.
      */
     hasAmenity(amenity) {
         if (!amenity) return false;
@@ -35,7 +58,7 @@ export class Room {
 
     /**
      * Returns the formatted price.
-     * @returns {string} e.g. "$150.00"
+     * @returns {string} The price formatted as currency, e.g., "$150.00".
      */
     get formattedPrice() {
         return new Intl.NumberFormat('en-US', {
