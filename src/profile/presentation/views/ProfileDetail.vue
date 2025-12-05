@@ -1,348 +1,354 @@
 <template>
-  <div class="profile-detail-container">
-    <!-- Loading State -->
-    <div v-if="loading" class="loading-container">
-      <div class="spinner"></div>
-      <p>Cargando perfil...</p>
-    </div>
+  <div class="surface-ground min-h-screen p-4 md:p-6">
+    <pv-toast position="bottom-right" />
 
-    <!-- Error State -->
-    <div v-else-if="error" class="error-container">
-      <div class="error-card">
-        <h2>Error</h2>
-        <p>{{ error }}</p>
-        <button @click="handleRetry" class="btn btn-primary">
-          Reintentar
-        </button>
-      </div>
-    </div>
-
-    <!-- Profile Detail -->
-    <div v-else-if="profile || currentUser" class="profile-card">
-      <!-- Header -->
-      <div class="profile-header">
-        <div class="profile-avatar">
-          {{ getInitials() }}
-        </div>
-        <div class="profile-header-info">
-          <h1 class="profile-name">{{ getDisplayName() }}</h1>
-          <p class="profile-email">{{ getEmail() }}</p>
-          <span v-if="!profile" class="badge-incomplete">Perfil Incompleto</span>
-        </div>
+    <div class="max-w-5xl mx-auto">
+      <!-- Language Selector -->
+      <div class="flex justify-content-end mb-3">
+        <pv-button
+            :label="currentLocale.toUpperCase()"
+            icon="pi pi-globe"
+            class="p-button-text p-button-rounded language-btn"
+            @click="toggleLanguage"
+            v-tooltip.bottom="$t('common.changeLanguage')"
+        />
       </div>
 
-      <!-- Profile Information -->
-      <div class="profile-content">
-        <!-- Account Information Section -->
-        <div class="info-section">
-          <h2 class="section-title">
-            <span class="icon">👤</span>
-            Información de Cuenta
-          </h2>
-          <div class="info-grid">
-            <div class="info-item">
-              <span class="info-label">Usuario:</span>
-              <span class="info-value">{{ currentUser?.username || 'N/A' }}</span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">Correo Electrónico:</span>
-              <span class="info-value">{{ getEmail() }}</span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">ID de Usuario:</span>
-              <span class="info-value">#{{ currentUser?.id || 'N/A' }}</span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">Rol:</span>
-              <span class="info-value">{{ currentUser?.role || 'GUEST' }}</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Personal Information Section (if profile exists) -->
-        <div v-if="profile" class="info-section">
-          <h2 class="section-title">
-            <span class="icon">📋</span>
-            Información Personal
-          </h2>
-          <div class="info-grid">
-            <div class="info-item">
-              <span class="info-label">Nombre:</span>
-              <span class="info-value">{{ profile.firstName || 'No especificado' }}</span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">Apellido:</span>
-              <span class="info-value">{{ profile.lastName || 'No especificado' }}</span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">Teléfono:</span>
-              <span class="info-value">{{ profile.phone || 'No especificado' }}</span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">ID de Perfil:</span>
-              <span class="info-value">#{{ profile.id }}</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Address Section (if profile exists) -->
-        <div v-if="profile && (profile.street || profile.city || profile.country)" class="info-section">
-          <h2 class="section-title">
-            <span class="icon">📍</span>
-            Dirección
-          </h2>
-          <div class="info-grid">
-            <div class="info-item">
-              <span class="info-label">Calle:</span>
-              <span class="info-value">{{ profile.street || 'No especificado' }}</span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">Número:</span>
-              <span class="info-value">{{ profile.number || 'No especificado' }}</span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">Ciudad:</span>
-              <span class="info-value">{{ profile.city || 'No especificado' }}</span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">Código Postal:</span>
-              <span class="info-value">{{ profile.postalCode || 'No especificado' }}</span>
-            </div>
-            <div class="info-item full-width">
-              <span class="info-label">País:</span>
-              <span class="info-value">{{ profile.country || 'No especificado' }}</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- No Profile Created Yet -->
-        <div v-if="!profile" class="no-profile-section">
-          <div class="no-profile-card">
-            <span class="icon-large">📝</span>
-            <h3>Completa tu Perfil</h3>
-            <p>Aún no has completado tu información de perfil. Agrega más detalles para una mejor experiencia.</p>
-            <button @click="handleCreateProfile" class="btn btn-primary">
-              Completar Perfil
-            </button>
-          </div>
-        </div>
+      <!-- Loading State -->
+      <div v-if="loading" class="flex flex-column align-items-center justify-content-center h-20rem">
+        <pv-progress-spinner />
+        <p class="text-color-secondary mt-3">{{ $t('profileDetail.loading') }}</p>
       </div>
 
-      <!-- Actions -->
-      <div class="profile-actions">
-        <button @click="handleBack" class="btn btn-secondary">
-          Volver
-        </button>
-        <button v-if="profile" @click="handleEditProfile" class="btn btn-primary">
-          Editar Perfil
-        </button>
+      <!-- Error State -->
+      <div v-else-if="error" class="text-center p-8 surface-card border-round-xl shadow-1 border-1 border-red-100">
+        <div class="bg-red-50 border-circle w-6rem h-6rem flex align-items-center justify-content-center mx-auto mb-4">
+          <i class="pi pi-exclamation-triangle text-red-500 text-5xl"></i>
+        </div>
+        <h3 class="text-color font-bold m-0 mb-2">{{ $t('common.error') }}</h3>
+        <p class="text-red-600 mb-4">{{ error }}</p>
+        <pv-button
+            :label="$t('profileDetail.retry')"
+            icon="pi pi-refresh"
+            class="p-button-outlined p-button-danger"
+            @click="handleRetry"
+        />
       </div>
-    </div>
 
-    <!-- Not Found State -->
-    <div v-else class="not-found-container">
-      <div class="not-found-card">
-        <h2>Perfil no encontrado</h2>
-        <p>No se pudo cargar la información del perfil.</p>
-        <button @click="handleBack" class="btn btn-primary">
-          Volver al Dashboard
-        </button>
+      <!-- Profile Detail -->
+      <div v-else-if="profile || currentUser">
+        <pv-card class="surface-card shadow-2 border-round-xl overflow-hidden">
+          <!-- Header -->
+          <template #header>
+            <div class="profile-header">
+              <pv-avatar
+                  :label="getInitials()"
+                  class="profile-avatar"
+                  size="xlarge"
+                  shape="circle"
+              />
+              <div class="profile-header-info">
+                <h1 class="profile-name">{{ getDisplayName() }}</h1>
+                <p class="profile-email">{{ getEmail() }}</p>
+                <pv-tag
+                    v-if="!profile"
+                    :value="$t('profileDetail.incompleteProfile')"
+                    severity="warning"
+                    rounded
+                    class="mt-2"
+                />
+              </div>
+            </div>
+          </template>
+
+          <template #content>
+            <!-- Account Information Section -->
+            <div class="info-section mb-4">
+              <h2 class="section-title">
+                <i class="pi pi-user text-primary"></i>
+                {{ $t('profileDetail.accountInfo') }}
+              </h2>
+              <div class="grid">
+                <div class="col-12 md:col-6">
+                  <div class="info-item">
+                    <span class="info-label">{{ $t('profileDetail.username') }}:</span>
+                    <span class="info-value">{{ currentUser?.username || 'N/A' }}</span>
+                  </div>
+                </div>
+                <div class="col-12 md:col-6">
+                  <div class="info-item">
+                    <span class="info-label">{{ $t('profileDetail.email') }}:</span>
+                    <span class="info-value">{{ getEmail() }}</span>
+                  </div>
+                </div>
+                <div class="col-12 md:col-6">
+                  <div class="info-item">
+                    <span class="info-label">{{ $t('profileDetail.userId') }}:</span>
+                    <span class="info-value">#{{ currentUser?.id || 'N/A' }}</span>
+                  </div>
+                </div>
+                <div class="col-12 md:col-6">
+                  <div class="info-item">
+                    <span class="info-label">{{ $t('profileDetail.role') }}:</span>
+                    <pv-tag :value="currentUser?.role || 'GUEST'" severity="info" rounded />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Personal Information Section (if profile exists) -->
+            <div v-if="profile" class="info-section mb-4">
+              <h2 class="section-title">
+                <i class="pi pi-id-card text-primary"></i>
+                {{ $t('profileDetail.personalInfo') }}
+              </h2>
+              <div class="grid">
+                <div class="col-12 md:col-6">
+                  <div class="info-item">
+                    <span class="info-label">{{ $t('profileDetail.firstName') }}:</span>
+                    <span class="info-value">{{ profile.firstName || $t('profileDetail.notSpecified') }}</span>
+                  </div>
+                </div>
+                <div class="col-12 md:col-6">
+                  <div class="info-item">
+                    <span class="info-label">{{ $t('profileDetail.lastName') }}:</span>
+                    <span class="info-value">{{ profile.lastName || $t('profileDetail.notSpecified') }}</span>
+                  </div>
+                </div>
+                <div class="col-12 md:col-6">
+                  <div class="info-item">
+                    <span class="info-label">{{ $t('profileDetail.phone') }}:</span>
+                    <span class="info-value">{{ profile.phone || $t('profileDetail.notSpecified') }}</span>
+                  </div>
+                </div>
+                <div class="col-12 md:col-6">
+                  <div class="info-item">
+                    <span class="info-label">{{ $t('profileDetail.profileId') }}:</span>
+                    <span class="info-value">#{{ profile.id }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Address Section (if profile exists) -->
+            <div v-if="profile && (profile.street || profile.city || profile.country)" class="info-section mb-4">
+              <h2 class="section-title">
+                <i class="pi pi-map-marker text-primary"></i>
+                {{ $t('profileDetail.address') }}
+              </h2>
+              <div class="grid">
+                <div class="col-12 md:col-6">
+                  <div class="info-item">
+                    <span class="info-label">{{ $t('profileDetail.street') }}:</span>
+                    <span class="info-value">{{ profile.street || $t('profileDetail.notSpecified') }}</span>
+                  </div>
+                </div>
+                <div class="col-12 md:col-6">
+                  <div class="info-item">
+                    <span class="info-label">{{ $t('profileDetail.number') }}:</span>
+                    <span class="info-value">{{ profile.number || $t('profileDetail.notSpecified') }}</span>
+                  </div>
+                </div>
+                <div class="col-12 md:col-6">
+                  <div class="info-item">
+                    <span class="info-label">{{ $t('profileDetail.city') }}:</span>
+                    <span class="info-value">{{ profile.city || $t('profileDetail.notSpecified') }}</span>
+                  </div>
+                </div>
+                <div class="col-12 md:col-6">
+                  <div class="info-item">
+                    <span class="info-label">{{ $t('profileDetail.postalCode') }}:</span>
+                    <span class="info-value">{{ profile.postalCode || $t('profileDetail.notSpecified') }}</span>
+                  </div>
+                </div>
+                <div class="col-12">
+                  <div class="info-item">
+                    <span class="info-label">{{ $t('profileDetail.country') }}:</span>
+                    <span class="info-value">{{ profile.country || $t('profileDetail.notSpecified') }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- No Profile Created Yet -->
+            <div v-if="!profile" class="no-profile-section">
+              <pv-card class="no-profile-card bg-blue-50">
+                <template #content>
+                  <div class="text-center">
+                    <i class="pi pi-file-edit text-6xl text-blue-500 mb-4"></i>
+                    <h3 class="text-color font-bold mb-2">{{ $t('profileDetail.completeProfile') }}</h3>
+                    <p class="text-color-secondary mb-4">{{ $t('profileDetail.completeProfileMessage') }}</p>
+                    <pv-button
+                        :label="$t('profileDetail.completeProfileButton')"
+                        icon="pi pi-plus"
+                        class="p-button-primary"
+                        @click="handleCreateProfile"
+                    />
+                  </div>
+                </template>
+              </pv-card>
+            </div>
+          </template>
+
+          <template #footer>
+            <div class="flex justify-content-between gap-3">
+              <pv-button
+                  :label="$t('common.back')"
+                  icon="pi pi-arrow-left"
+                  class="p-button-outlined p-button-secondary"
+                  @click="handleBack"
+              />
+              <pv-button
+                  v-if="profile"
+                  :label="$t('profileDetail.editProfile')"
+                  icon="pi pi-pencil"
+                  class="p-button-primary"
+                  @click="handleEditProfile"
+              />
+            </div>
+          </template>
+        </pv-card>
+      </div>
+
+      <!-- Not Found State -->
+      <div v-else class="text-center p-8 surface-card border-round-xl shadow-1 border-1 surface-border">
+        <i class="pi pi-search text-500 text-6xl mb-4"></i>
+        <h3 class="text-color font-bold m-0 mb-2">{{ $t('profileDetail.notFound') }}</h3>
+        <p class="text-color-secondary mb-4">{{ $t('profileDetail.notFoundMessage') }}</p>
+        <pv-button
+            :label="$t('profileDetail.backToDashboard')"
+            icon="pi pi-home"
+            class="p-button-primary"
+            @click="handleBack"
+        />
       </div>
     </div>
   </div>
 </template>
 
-<script>
+<script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { useToast } from 'primevue/usetoast';
+import { useI18n } from 'vue-i18n';
 import { useProfileStore } from '../../application/profile.store.js';
 import useIamStore from '@/iam/application/iam.store.js';
 
-export default {
-  name: 'ProfileDetail',
+const route = useRoute();
+const router = useRouter();
+const toast = useToast();
+const profileStore = useProfileStore();
+const iamStore = useIamStore();
+const { t, locale } = useI18n();
 
-  setup() {
-    const route = useRoute();
-    const router = useRouter();
-    const profileStore = useProfileStore();
-    const iamStore = useIamStore();
+const profile = computed(() => profileStore.getCurrentProfile);
+const loading = computed(() => profileStore.isLoading);
+const error = computed(() => profileStore.getError);
+const currentUser = ref(null);
+const currentLocale = computed(() => locale.value);
 
-    const profile = computed(() => profileStore.getCurrentProfile);
-    const loading = computed(() => profileStore.isLoading);
-    const error = computed(() => profileStore.getError);
-    const currentUser = ref(null);
+function toggleLanguage() {
+  const newLocale = locale.value === 'en' ? 'es' : 'en';
+  locale.value = newLocale;
+  localStorage.setItem('language', newLocale);
+}
 
-    const loadProfile = async () => {
-      try {
-        // Get current user from IAM store
-        let userId = iamStore.currentUserId;
+const loadProfile = async () => {
+  try {
+    let userId = iamStore.currentUserId;
 
-        // Try to get from localStorage if not in store
-        if (!userId) {
-          const storedId = localStorage.getItem('user_id');
-          if (storedId) {
-            userId = Number(storedId);
-            iamStore.currentUserId = userId;
-          }
-        }
-
-        // Load users if not loaded
-        if (iamStore.users.length === 0) {
-          await iamStore.fetchUsers();
-        }
-
-        // Get current user data
-        currentUser.value = iamStore.users.find(u => u.id === userId);
-
-        // If user not found but we have username in store
-        if (!currentUser.value && iamStore.currentUsername) {
-          currentUser.value = {
-            id: userId,
-            username: iamStore.currentUsername,
-            email: iamStore.currentUsername
-          };
-        }
-
-        // Try to load profile by email or by ID from route params
-        if (route.params.id) {
-          // If we have an ID in the route, try to load by ID
-          await profileStore.fetchProfileById(parseInt(route.params.id));
-        } else if (currentUser.value?.email || currentUser.value?.username) {
-          // Otherwise, try to load by email
-          const email = currentUser.value.email || currentUser.value.username;
-          await profileStore.fetchProfileByEmail(email);
-        }
-
-      } catch (err) {
-        console.error('Error loading profile:', err);
+    if (!userId) {
+      const storedId = localStorage.getItem('user_id');
+      if (storedId) {
+        userId = Number(storedId);
+        iamStore.currentUserId = userId;
       }
-    };
+    }
 
-    const getInitials = () => {
-      if (profile.value?.firstName && profile.value?.lastName) {
-        return `${profile.value.firstName.charAt(0)}${profile.value.lastName.charAt(0)}`.toUpperCase();
-      }
+    if (iamStore.users.length === 0) {
+      await iamStore.fetchUsers();
+    }
 
-      const username = currentUser.value?.username || currentUser.value?.email || 'U';
-      return username.substring(0, 2).toUpperCase();
-    };
+    currentUser.value = iamStore.users.find(u => u.id === userId);
 
-    const getDisplayName = () => {
-      if (profile.value?.fullName) {
-        return profile.value.fullName;
-      }
+    if (!currentUser.value && iamStore.currentUsername) {
+      currentUser.value = {
+        id: userId,
+        username: iamStore.currentUsername,
+        email: iamStore.currentUsername
+      };
+    }
 
-      if (currentUser.value?.username) {
-        return currentUser.value.username.split('@')[0];
-      }
-
-      return 'Usuario';
-    };
-
-    const getEmail = () => {
-      return profile.value?.email || currentUser.value?.email || currentUser.value?.username || 'N/A';
-    };
-
-    const handleRetry = () => {
-      loadProfile();
-    };
-
-    const handleBack = () => {
-      router.push({ name: 'guest-dashboard' });
-    };
-
-    const handleCreateProfile = () => {
-      router.push({ name: 'CreateProfile' });
-    };
-
-    const handleEditProfile = () => {
-      // Navigate to edit profile (you can create this route later)
-      console.log('Edit profile feature - coming soon');
-      // router.push({ name: 'EditProfile', params: { id: profile.value.id } });
-    };
-
-    onMounted(() => {
-      loadProfile();
-    });
-
-    return {
-      profile,
-      loading,
-      error,
-      currentUser,
-      getInitials,
-      getDisplayName,
-      getEmail,
-      handleRetry,
-      handleBack,
-      handleCreateProfile,
-      handleEditProfile
-    };
+    if (route.params.id) {
+      await profileStore.fetchProfileById(parseInt(route.params.id));
+    } else if (currentUser.value?.email || currentUser.value?.username) {
+      const email = currentUser.value.email || currentUser.value.username;
+      await profileStore.fetchProfileByEmail(email);
+    }
+  } catch (err) {
+    console.error('Error loading profile:', err);
   }
 };
+
+const getInitials = () => {
+  if (profile.value?.firstName && profile.value?.lastName) {
+    return `${profile.value.firstName.charAt(0)}${profile.value.lastName.charAt(0)}`.toUpperCase();
+  }
+
+  const username = currentUser.value?.username || currentUser.value?.email || 'U';
+  return username.substring(0, 2).toUpperCase();
+};
+
+const getDisplayName = () => {
+  if (profile.value?.fullName) {
+    return profile.value.fullName;
+  }
+
+  if (currentUser.value?.username) {
+    return currentUser.value.username.split('@')[0];
+  }
+
+  return t('profileDetail.user');
+};
+
+const getEmail = () => {
+  return profile.value?.email || currentUser.value?.email || currentUser.value?.username || 'N/A';
+};
+
+const handleRetry = () => {
+  loadProfile();
+};
+
+const handleBack = () => {
+  router.push({ name: 'guest-dashboard' });
+};
+
+const handleCreateProfile = () => {
+  router.push({ name: 'CreateProfile' });
+};
+
+const handleEditProfile = () => {
+  toast.add({
+    severity: 'info',
+    summary: t('profileDetail.comingSoon'),
+    detail: t('profileDetail.editFeatureComingSoon'),
+    life: 3000
+  });
+};
+
+onMounted(() => {
+  const savedLanguage = localStorage.getItem('language');
+  if (savedLanguage) {
+    locale.value = savedLanguage;
+  }
+
+  loadProfile();
+});
 </script>
 
 <style scoped>
-.profile-detail-container {
-  max-width: 900px;
-  margin: 2rem auto;
-  padding: 0 1rem;
-}
-
-/* Loading State */
-.loading-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 4rem;
-  color: #666;
-}
-
-.spinner {
-  width: 50px;
-  height: 50px;
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #4CAF50;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-/* Error State */
-.error-container,
-.not-found-container {
-  display: flex;
-  justify-content: center;
-  padding: 2rem;
-}
-
-.error-card,
-.not-found-card {
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  padding: 2rem;
-  text-align: center;
-  max-width: 500px;
-}
-
-.error-card h2,
-.not-found-card h2 {
-  color: #c62828;
-  margin-bottom: 1rem;
-}
-
-/* Profile Card */
-.profile-card {
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
+.language-btn {
+  min-width: 3rem;
 }
 
 .profile-header {
@@ -355,16 +361,10 @@ export default {
 }
 
 .profile-avatar {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
   background: rgba(255, 255, 255, 0.2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  border: 3px solid white;
   font-size: 2rem;
   font-weight: bold;
-  border: 3px solid white;
 }
 
 .profile-header-info {
@@ -383,71 +383,39 @@ export default {
   opacity: 0.9;
 }
 
-.badge-incomplete {
-  display: inline-block;
-  background: rgba(255, 193, 7, 0.9);
-  color: #333;
-  padding: 0.25rem 0.75rem;
-  border-radius: 12px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  margin-top: 0.5rem;
-}
-
-.profile-content {
-  padding: 2rem;
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-}
-
 .info-section {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
+  margin-bottom: 2rem;
 }
 
 .section-title {
   font-size: 1.25rem;
   font-weight: 600;
-  color: #333;
+  color: var(--text-color);
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  border-bottom: 2px solid #e0e0e0;
+  border-bottom: 2px solid var(--surface-border);
   padding-bottom: 0.5rem;
-}
-
-.icon {
-  font-size: 1.5rem;
-}
-
-.info-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1rem;
+  margin-bottom: 1rem;
 }
 
 .info-item {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
-}
-
-.info-item.full-width {
-  grid-column: 1 / -1;
+  margin-bottom: 1rem;
 }
 
 .info-label {
   font-size: 0.875rem;
   font-weight: 600;
-  color: #666;
+  color: var(--text-color-secondary);
   text-transform: uppercase;
 }
 
 .info-value {
   font-size: 1rem;
-  color: #333;
+  color: var(--text-color);
 }
 
 .no-profile-section {
@@ -455,68 +423,7 @@ export default {
 }
 
 .no-profile-card {
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
   border-radius: 8px;
-  padding: 3rem 2rem;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-}
-
-.icon-large {
-  font-size: 4rem;
-}
-
-.no-profile-card h3 {
-  margin: 0;
-  color: #333;
-  font-size: 1.5rem;
-}
-
-.no-profile-card p {
-  margin: 0;
-  color: #666;
-  max-width: 500px;
-}
-
-.profile-actions {
-  padding: 1.5rem 2rem;
-  background: #f9f9f9;
-  border-top: 1px solid #e0e0e0;
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-}
-
-.btn {
-  padding: 0.75rem 2rem;
-  border: none;
-  border-radius: 4px;
-  font-size: 1rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.btn-primary {
-  background-color: #667eea;
-  color: white;
-}
-
-.btn-primary:hover {
-  background-color: #5568d3;
-}
-
-.btn-secondary {
-  background-color: #f5f5f5;
-  color: #333;
-  border: 1px solid #ddd;
-}
-
-.btn-secondary:hover {
-  background-color: #e0e0e0;
 }
 
 @media (max-width: 768px) {
@@ -527,14 +434,6 @@ export default {
 
   .profile-name {
     font-size: 1.5rem;
-  }
-
-  .info-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .profile-actions {
-    flex-direction: column;
   }
 }
 </style>

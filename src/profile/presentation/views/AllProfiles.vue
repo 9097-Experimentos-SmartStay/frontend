@@ -1,250 +1,197 @@
 <template>
-  <div class="all-profiles">
-    <h1>All Profiles</h1>
+  <div class="surface-ground min-h-screen p-4 md:p-6">
+    <pv-toast position="bottom-right" />
 
-    <!-- Loading State -->
-    <div v-if="loading" class="loading">
-      <p>Loading profiles...</p>
-    </div>
-
-    <!-- Error State -->
-    <div v-if="error" class="error">
-      <p>{{ error }}</p>
-      <button @click="loadProfiles">Retry</button>
-    </div>
-
-    <!-- Profiles List -->
-    <div v-if="!loading && !error" class="profiles-container">
-      <div v-if="profiles.length === 0" class="empty-state">
-        <p>No profiles found</p>
-        <router-link to="/profiles/create" class="btn btn-primary">
-          Create First Profile
-        </router-link>
+    <div class="max-w-7xl mx-auto">
+      <div class="flex justify-content-between align-items-center mb-6">
+        <h1 class="text-3xl font-bold text-color m-0">{{ $t('allProfiles.title') }}</h1>
+        <pv-button
+            :label="currentLocale.toUpperCase()"
+            icon="pi pi-globe"
+            class="p-button-text p-button-rounded language-btn"
+            @click="toggleLanguage"
+            v-tooltip.bottom="$t('common.changeLanguage')"
+        />
       </div>
 
-      <div v-else class="profiles-grid">
-        <div
-            v-for="profile in profiles"
-            :key="profile.id"
-            class="profile-card"
-            @click="goToProfile(profile.id)"
-        >
-          <div class="profile-card-header">
-            <div class="profile-avatar">
-              {{ getInitials(profile.fullName) }}
+      <!-- Loading State -->
+      <div v-if="loading" class="flex flex-column align-items-center justify-content-center h-20rem">
+        <pv-progress-spinner />
+        <p class="text-color-secondary mt-3">{{ $t('allProfiles.loading') }}</p>
+      </div>
+
+      <!-- Error State -->
+      <div v-else-if="error" class="text-center p-8 surface-card border-round-xl shadow-1 border-1 border-red-100">
+        <div class="bg-red-50 border-circle w-6rem h-6rem flex align-items-center justify-content-center mx-auto mb-4">
+          <i class="pi pi-exclamation-triangle text-red-500 text-5xl"></i>
+        </div>
+        <h3 class="text-color font-bold m-0 mb-2">{{ $t('common.error') }}</h3>
+        <p class="text-red-600 mb-4">{{ error }}</p>
+        <pv-button
+            :label="$t('allProfiles.retry')"
+            icon="pi pi-refresh"
+            class="p-button-outlined p-button-danger"
+            @click="loadProfiles"
+        />
+      </div>
+
+      <!-- Profiles Content -->
+      <div v-else>
+        <!-- Empty State -->
+        <div v-if="profiles.length === 0" class="text-center p-8 surface-card border-round-xl shadow-1 border-1 surface-border">
+          <div class="surface-ground border-circle w-6rem h-6rem flex align-items-center justify-content-center mx-auto mb-4">
+            <i class="pi pi-user text-500 text-5xl"></i>
+          </div>
+          <h3 class="text-color font-bold m-0 mb-2">{{ $t('allProfiles.noProfiles') }}</h3>
+          <p class="text-color-secondary mb-4">{{ $t('allProfiles.createFirst') }}</p>
+          <pv-button
+              :label="$t('allProfiles.createProfile')"
+              icon="pi pi-plus"
+              class="p-button-primary"
+              @click="goToCreate"
+          />
+        </div>
+
+        <!-- Profiles Grid -->
+        <div v-else>
+          <div class="grid">
+            <div
+                v-for="profile in profiles"
+                :key="profile.id"
+                class="col-12 md:col-6 lg:col-4"
+            >
+              <pv-card
+                  class="surface-card shadow-2 border-round-xl h-full cursor-pointer hover:shadow-4 transition-duration-300"
+                  @click="goToProfile(profile.id)"
+              >
+                <template #header>
+                  <div class="flex align-items-center gap-3 p-4 pb-0">
+                    <pv-avatar
+                        :label="getInitials(profile.fullName)"
+                        class="profile-avatar"
+                        size="xlarge"
+                        shape="circle"
+                    />
+                    <div>
+                      <h3 class="text-xl font-bold text-color m-0 mb-1">{{ profile.fullName }}</h3>
+                      <span class="text-color-secondary text-sm">ID: {{ profile.id }}</span>
+                    </div>
+                  </div>
+                </template>
+
+                <template #content>
+                  <div class="flex flex-column gap-2">
+                    <div class="flex align-items-center gap-2">
+                      <i class="pi pi-envelope text-color-secondary"></i>
+                      <span class="text-sm text-color-secondary">{{ $t('allProfiles.email') }}:</span>
+                      <span class="text-sm text-color font-medium">{{ profile.email }}</span>
+                    </div>
+                    <div class="flex align-items-center gap-2">
+                      <i class="pi pi-map-marker text-color-secondary"></i>
+                      <span class="text-sm text-color-secondary">{{ $t('allProfiles.address') }}:</span>
+                      <span class="text-sm text-color font-medium">{{ profile.streetAddress }}</span>
+                    </div>
+                  </div>
+                </template>
+
+                <template #footer>
+                  <div class="flex justify-content-end">
+                    <pv-button
+                        :label="$t('allProfiles.viewDetails')"
+                        icon="pi pi-arrow-right"
+                        iconPos="right"
+                        class="p-button-text p-button-sm"
+                    />
+                  </div>
+                </template>
+              </pv-card>
             </div>
-            <h3>{{ profile.fullName }}</h3>
           </div>
 
-          <div class="profile-card-body">
-            <div class="profile-info">
-              <span class="label">Email:</span>
-              <span class="value">{{ profile.email }}</span>
-            </div>
-            <div class="profile-info">
-              <span class="label">Address:</span>
-              <span class="value">{{ profile.streetAddress }}</span>
-            </div>
-          </div>
-
-          <div class="profile-card-footer">
-            <button class="btn btn-sm btn-primary">View Details</button>
-          </div>
+          <!-- Floating Action Button -->
+          <pv-button
+              icon="pi pi-plus"
+              class="fab p-button-rounded p-button-primary shadow-4"
+              @click="goToCreate"
+              v-tooltip.left="$t('allProfiles.createProfile')"
+          />
         </div>
       </div>
     </div>
-
-    <!-- Floating Action Button -->
-    <router-link to="/profiles/create" class="fab">
-      <span>+</span>
-    </router-link>
   </div>
 </template>
 
-<script>
+<script setup>
+import { ref, onMounted, computed } from 'vue';
+import { useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import { profileStore } from '../../application/profile.store';
 
-export default {
-  name: 'AllProfiles',
+const router = useRouter();
+const { t, locale } = useI18n();
 
-  data() {
-    return {
-      loading: false,
-      error: null
-    };
-  },
+const loading = ref(false);
+const error = ref(null);
 
-  computed: {
-    profiles() {
-      return profileStore.state.profiles;
-    }
-  },
+const currentLocale = computed(() => locale.value);
+const profiles = computed(() => profileStore.state.profiles);
 
-  methods: {
-    async loadProfiles() {
-      this.loading = true;
-      this.error = null;
+function toggleLanguage() {
+  const newLocale = locale.value === 'en' ? 'es' : 'en';
+  locale.value = newLocale;
+  localStorage.setItem('language', newLocale);
+}
 
-      try {
-        await profileStore.fetchAllProfiles();
-      } catch (err) {
-        this.error = err.message || 'Failed to load profiles';
-      } finally {
-        this.loading = false;
-      }
-    },
+async function loadProfiles() {
+  loading.value = true;
+  error.value = null;
 
-    goToProfile(profileId) {
-      this.$router.push(`/profiles/${profileId}`);
-    },
-
-    getInitials(fullName) {
-      return fullName
-          .split(' ')
-          .map(name => name.charAt(0))
-          .join('')
-          .toUpperCase()
-          .substring(0, 2);
-    }
-  },
-
-  mounted() {
-    this.loadProfiles();
+  try {
+    await profileStore.fetchAllProfiles();
+  } catch (err) {
+    error.value = err.message || t('allProfiles.errorMessage');
+  } finally {
+    loading.value = false;
   }
-};
+}
+
+function goToProfile(profileId) {
+  router.push(`/profiles/${profileId}`);
+}
+
+function goToCreate() {
+  router.push('/profiles/create');
+}
+
+function getInitials(fullName) {
+  return fullName
+      .split(' ')
+      .map(name => name.charAt(0))
+      .join('')
+      .toUpperCase()
+      .substring(0, 2);
+}
+
+onMounted(() => {
+  // Load saved language
+  const savedLanguage = localStorage.getItem('language');
+  if (savedLanguage) {
+    locale.value = savedLanguage;
+  }
+
+  loadProfiles();
+});
 </script>
 
 <style scoped>
-.all-profiles {
-  padding: 2rem;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-h1 {
-  margin-bottom: 2rem;
-  color: #333;
-}
-
-.loading, .error {
-  text-align: center;
-  padding: 2rem;
-}
-
-.error {
-  color: #dc3545;
-}
-
-.error button {
-  margin-top: 1rem;
-  padding: 0.5rem 1rem;
-  background: #dc3545;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.empty-state {
-  text-align: center;
-  padding: 3rem;
-}
-
-.profiles-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1.5rem;
-}
-
-.profile-card {
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  padding: 1.5rem;
-  cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.profile-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.profile-card-header {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 1rem;
+.language-btn {
+  min-width: 3rem;
 }
 
 .profile-avatar {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   font-weight: bold;
-  font-size: 1.2rem;
-}
-
-.profile-card-header h3 {
-  margin: 0;
-  font-size: 1.2rem;
-  color: #333;
-}
-
-.profile-card-body {
-  margin-bottom: 1rem;
-}
-
-.profile-info {
-  display: flex;
-  margin-bottom: 0.5rem;
-  font-size: 0.9rem;
-}
-
-.profile-info .label {
-  font-weight: 600;
-  color: #666;
-  min-width: 70px;
-}
-
-.profile-info .value {
-  color: #333;
-  word-break: break-word;
-}
-
-.profile-card-footer {
-  border-top: 1px solid #eee;
-  padding-top: 1rem;
-  text-align: right;
-}
-
-.btn {
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.9rem;
-  text-decoration: none;
-  display: inline-block;
-}
-
-.btn-primary {
-  background: #007bff;
-  color: white;
-}
-
-.btn-primary:hover {
-  background: #0056b3;
-}
-
-.btn-sm {
-  padding: 0.4rem 0.8rem;
-  font-size: 0.85rem;
 }
 
 .fab {
@@ -253,21 +200,15 @@ h1 {
   right: 2rem;
   width: 60px;
   height: 60px;
-  border-radius: 50%;
-  background: #007bff;
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 2rem;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  cursor: pointer;
-  text-decoration: none;
-  transition: transform 0.2s;
+  font-size: 1.5rem;
+  z-index: 999;
 }
 
-.fab:hover {
-  transform: scale(1.1);
-  background: #0056b3;
+.transition-duration-300 {
+  transition-duration: 300ms;
 }
-</style>
+
+.hover\:shadow-4:hover {
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+</style

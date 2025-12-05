@@ -1,236 +1,275 @@
 <template>
-  <div class="create-profile-container">
-    <div class="create-profile-card">
-      <h1 class="title">Crear Perfil</h1>
+  <div class="surface-ground min-h-screen p-4 md:p-6">
+    <pv-toast position="bottom-right" />
 
-      <form @submit.prevent="handleSubmit" class="profile-form">
-        <!-- Personal Information Section -->
-        <div class="form-section">
-          <h2 class="section-title">Información Personal</h2>
-
-          <div class="form-row">
-            <div class="form-group">
-              <label for="firstName">Nombre *</label>
-              <input
-                  id="firstName"
-                  v-model="formData.firstName"
-                  type="text"
-                  required
-                  placeholder="Ingresa tu nombre"
-                  class="form-input"
-              />
-            </div>
-
-            <div class="form-group">
-              <label for="lastName">Apellido *</label>
-              <input
-                  id="lastName"
-                  v-model="formData.lastName"
-                  type="text"
-                  required
-                  placeholder="Ingresa tu apellido"
-                  class="form-input"
-              />
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label for="email">Correo Electrónico *</label>
-            <input
-                id="email"
-                v-model="formData.email"
-                type="email"
-                required
-                placeholder="ejemplo@correo.com"
-                class="form-input"
-            />
-          </div>
-        </div>
-
-        <!-- Address Section -->
-        <div class="form-section">
-          <h2 class="section-title">Dirección</h2>
-
-          <div class="form-row">
-            <div class="form-group" style="flex: 3">
-              <label for="street">Calle *</label>
-              <input
-                  id="street"
-                  v-model="formData.street"
-                  type="text"
-                  required
-                  placeholder="Nombre de la calle"
-                  class="form-input"
-              />
-            </div>
-
-            <div class="form-group" style="flex: 1">
-              <label for="number">Número *</label>
-              <input
-                  id="number"
-                  v-model="formData.number"
-                  type="text"
-                  required
-                  placeholder="123"
-                  class="form-input"
-              />
-            </div>
-          </div>
-
-          <div class="form-row">
-            <div class="form-group">
-              <label for="city">Ciudad *</label>
-              <input
-                  id="city"
-                  v-model="formData.city"
-                  type="text"
-                  required
-                  placeholder="Ciudad"
-                  class="form-input"
-              />
-            </div>
-
-            <div class="form-group">
-              <label for="postalCode">Código Postal *</label>
-              <input
-                  id="postalCode"
-                  v-model="formData.postalCode"
-                  type="text"
-                  required
-                  placeholder="12345"
-                  class="form-input"
-              />
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label for="country">País *</label>
-            <input
-                id="country"
-                v-model="formData.country"
-                type="text"
-                required
-                placeholder="País"
-                class="form-input"
-            />
-          </div>
-        </div>
-
-        <!-- Error Message -->
-        <div v-if="error" class="error-message">
-          {{ error }}
-        </div>
-
-        <!-- Success Message -->
-        <div v-if="successMessage" class="success-message">
-          {{ successMessage }}
-        </div>
-
-        <!-- Action Buttons -->
-        <div class="form-actions">
-          <button
-              type="button"
+    <div class="max-w-4xl mx-auto">
+      <div class="flex justify-content-between align-items-center mb-6">
+        <div class="flex align-items-center gap-3">
+          <pv-button
+              icon="pi pi-arrow-left"
+              :label="$t('common.back')"
+              class="p-button-outlined p-button-sm"
               @click="handleCancel"
-              class="btn btn-secondary"
-              :disabled="loading"
-          >
-            Cancelar
-          </button>
-          <button
-              type="submit"
-              class="btn btn-primary"
-              :disabled="loading"
-          >
-            {{ loading ? 'Creando...' : 'Crear Perfil' }}
-          </button>
+          />
+          <h1 class="text-3xl font-bold text-color m-0">{{ $t('createProfile.title') }}</h1>
         </div>
-      </form>
+        <pv-button
+            :label="currentLocale.toUpperCase()"
+            icon="pi pi-globe"
+            class="p-button-text p-button-rounded language-btn"
+            @click="toggleLanguage"
+            v-tooltip.bottom="$t('common.changeLanguage')"
+        />
+      </div>
+
+      <pv-card class="surface-card shadow-2 border-round-xl">
+        <template #content>
+          <form @submit.prevent="handleSubmit" class="profile-form">
+            <!-- Personal Information Section -->
+            <div class="form-section">
+              <h2 class="section-title">{{ $t('createProfile.personalInfo') }}</h2>
+
+              <div class="grid">
+                <div class="col-12 md:col-6">
+                  <div class="field">
+                    <label for="firstName" class="font-medium text-color">
+                      {{ $t('createProfile.firstName') }} *
+                    </label>
+                    <pv-input-text
+                        id="firstName"
+                        v-model="formData.firstName"
+                        type="text"
+                        required
+                        :placeholder="$t('createProfile.firstNamePlaceholder')"
+                        class="w-full"
+                    />
+                  </div>
+                </div>
+
+                <div class="col-12 md:col-6">
+                  <div class="field">
+                    <label for="lastName" class="font-medium text-color">
+                      {{ $t('createProfile.lastName') }} *
+                    </label>
+                    <pv-input-text
+                        id="lastName"
+                        v-model="formData.lastName"
+                        type="text"
+                        required
+                        :placeholder="$t('createProfile.lastNamePlaceholder')"
+                        class="w-full"
+                    />
+                  </div>
+                </div>
+
+                <div class="col-12">
+                  <div class="field">
+                    <label for="email" class="font-medium text-color">
+                      {{ $t('createProfile.email') }} *
+                    </label>
+                    <pv-input-text
+                        id="email"
+                        v-model="formData.email"
+                        type="email"
+                        required
+                        :placeholder="$t('createProfile.emailPlaceholder')"
+                        class="w-full"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Address Section -->
+            <div class="form-section">
+              <h2 class="section-title">{{ $t('createProfile.address') }}</h2>
+
+              <div class="grid">
+                <div class="col-12 md:col-9">
+                  <div class="field">
+                    <label for="street" class="font-medium text-color">
+                      {{ $t('createProfile.street') }} *
+                    </label>
+                    <pv-input-text
+                        id="street"
+                        v-model="formData.street"
+                        type="text"
+                        required
+                        :placeholder="$t('createProfile.streetPlaceholder')"
+                        class="w-full"
+                    />
+                  </div>
+                </div>
+
+                <div class="col-12 md:col-3">
+                  <div class="field">
+                    <label for="number" class="font-medium text-color">
+                      {{ $t('createProfile.number') }} *
+                    </label>
+                    <pv-input-text
+                        id="number"
+                        v-model="formData.number"
+                        type="text"
+                        required
+                        :placeholder="$t('createProfile.numberPlaceholder')"
+                        class="w-full"
+                    />
+                  </div>
+                </div>
+
+                <div class="col-12 md:col-6">
+                  <div class="field">
+                    <label for="city" class="font-medium text-color">
+                      {{ $t('createProfile.city') }} *
+                    </label>
+                    <pv-input-text
+                        id="city"
+                        v-model="formData.city"
+                        type="text"
+                        required
+                        :placeholder="$t('createProfile.cityPlaceholder')"
+                        class="w-full"
+                    />
+                  </div>
+                </div>
+
+                <div class="col-12 md:col-6">
+                  <div class="field">
+                    <label for="postalCode" class="font-medium text-color">
+                      {{ $t('createProfile.postalCode') }} *
+                    </label>
+                    <pv-input-text
+                        id="postalCode"
+                        v-model="formData.postalCode"
+                        type="text"
+                        required
+                        :placeholder="$t('createProfile.postalCodePlaceholder')"
+                        class="w-full"
+                    />
+                  </div>
+                </div>
+
+                <div class="col-12">
+                  <div class="field">
+                    <label for="country" class="font-medium text-color">
+                      {{ $t('createProfile.country') }} *
+                    </label>
+                    <pv-input-text
+                        id="country"
+                        v-model="formData.country"
+                        type="text"
+                        required
+                        :placeholder="$t('createProfile.countryPlaceholder')"
+                        class="w-full"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex justify-content-end gap-3 mt-5 pt-4 border-top-1 surface-border">
+              <pv-button
+                  type="button"
+                  :label="$t('common.cancel')"
+                  icon="pi pi-times"
+                  @click="handleCancel"
+                  class="p-button-outlined p-button-secondary"
+                  :disabled="loading"
+              />
+              <pv-button
+                  type="submit"
+                  :label="loading ? $t('createProfile.creating') : $t('createProfile.createButton')"
+                  icon="pi pi-check"
+                  class="p-button-primary"
+                  :loading="loading"
+              />
+            </div>
+          </form>
+        </template>
+      </pv-card>
     </div>
   </div>
 </template>
 
-<script>
-import { ref } from 'vue';
+<script setup>
+import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import { useToast } from 'primevue/usetoast';
+import { useI18n } from 'vue-i18n';
 import { useProfileStore } from '../../application/profile.store.js';
 
-export default {
-  name: 'CreateProfile',
+const router = useRouter();
+const toast = useToast();
+const profileStore = useProfileStore();
+const { t, locale } = useI18n();
 
-  setup() {
-    const router = useRouter();
-    const profileStore = useProfileStore();
+const currentLocale = computed(() => locale.value);
 
-    const formData = ref({
-      firstName: '',
-      lastName: '',
-      email: '',
-      street: '',
-      number: '',
-      city: '',
-      postalCode: '',
-      country: ''
+const formData = ref({
+  firstName: '',
+  lastName: '',
+  email: '',
+  street: '',
+  number: '',
+  city: '',
+  postalCode: '',
+  country: ''
+});
+
+const loading = ref(false);
+
+function toggleLanguage() {
+  const newLocale = locale.value === 'en' ? 'es' : 'en';
+  locale.value = newLocale;
+  localStorage.setItem('language', newLocale);
+}
+
+const handleSubmit = async () => {
+  loading.value = true;
+
+  try {
+    const profile = await profileStore.createProfile(formData.value);
+
+    toast.add({
+      severity: 'success',
+      summary: t('createProfile.successTitle'),
+      detail: t('createProfile.successMessage'),
+      life: 3000
     });
 
-    const error = ref(null);
-    const successMessage = ref(null);
-    const loading = ref(false);
-
-    const handleSubmit = async () => {
-      error.value = null;
-      successMessage.value = null;
-      loading.value = true;
-
-      try {
-        const profile = await profileStore.createProfile(formData.value);
-        successMessage.value = 'Perfil creado exitosamente';
-
-        // Redirect to profile detail after 1.5 seconds
-        setTimeout(() => {
-          router.push(`/profiles/${profile.id}`);
-        }, 1500);
-      } catch (err) {
-        error.value = err.message || 'Error al crear el perfil';
-      } finally {
-        loading.value = false;
-      }
-    };
-
-    const handleCancel = () => {
-      router.push('/profiles');
-    };
-
-    return {
-      formData,
-      error,
-      successMessage,
-      loading,
-      handleSubmit,
-      handleCancel
-    };
+    // Redirect to profile detail after a short delay
+    setTimeout(() => {
+      router.push(`/profiles/${profile.id}`);
+    }, 1500);
+  } catch (err) {
+    toast.add({
+      severity: 'error',
+      summary: t('common.error'),
+      detail: err.message || t('createProfile.errorMessage'),
+      life: 3000
+    });
+  } finally {
+    loading.value = false;
   }
 };
+
+const handleCancel = () => {
+  router.push('/profiles');
+};
+
+onMounted(() => {
+  // Load saved language
+  const savedLanguage = localStorage.getItem('language');
+  if (savedLanguage) {
+    locale.value = savedLanguage;
+  }
+});
 </script>
 
 <style scoped>
-.create-profile-container {
-  max-width: 800px;
-  margin: 2rem auto;
-  padding: 0 1rem;
-}
-
-.create-profile-card {
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  padding: 2rem;
-}
-
-.title {
-  font-size: 2rem;
-  font-weight: bold;
-  margin-bottom: 2rem;
-  color: #333;
+.language-btn {
+  min-width: 3rem;
 }
 
 .profile-form {
@@ -248,100 +287,19 @@ export default {
 .section-title {
   font-size: 1.25rem;
   font-weight: 600;
-  color: #555;
-  border-bottom: 2px solid #e0e0e0;
+  color: var(--text-color-secondary);
+  border-bottom: 2px solid var(--surface-border);
   padding-bottom: 0.5rem;
+  margin-bottom: 1rem;
 }
 
-.form-row {
-  display: flex;
-  gap: 1rem;
-}
-
-.form-group {
-  flex: 1;
+.field {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
 }
 
-.form-group label {
+.field label {
   font-weight: 500;
-  color: #555;
-}
-
-.form-input {
-  padding: 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 1rem;
-  transition: border-color 0.3s;
-}
-
-.form-input:focus {
-  outline: none;
-  border-color: #4CAF50;
-}
-
-.error-message {
-  padding: 1rem;
-  background-color: #ffebee;
-  color: #c62828;
-  border-radius: 4px;
-  border-left: 4px solid #c62828;
-}
-
-.success-message {
-  padding: 1rem;
-  background-color: #e8f5e9;
-  color: #2e7d32;
-  border-radius: 4px;
-  border-left: 4px solid #2e7d32;
-}
-
-.form-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 1rem;
-  margin-top: 1rem;
-}
-
-.btn {
-  padding: 0.75rem 2rem;
-  border: none;
-  border-radius: 4px;
-  font-size: 1rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.btn-primary {
-  background-color: #4CAF50;
-  color: white;
-}
-
-.btn-primary:hover:not(:disabled) {
-  background-color: #45a049;
-}
-
-.btn-secondary {
-  background-color: #f5f5f5;
-  color: #333;
-}
-
-.btn-secondary:hover:not(:disabled) {
-  background-color: #e0e0e0;
-}
-
-@media (max-width: 768px) {
-  .form-row {
-    flex-direction: column;
-  }
 }
 </style>

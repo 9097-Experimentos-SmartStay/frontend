@@ -11,7 +11,19 @@
       </template>
       <template #end>
         <div class="flex gap-2">
-          <pv-button label="Volver al Dashboard" icon="pi pi-arrow-left" class="p-button-text" @click="goBack" />
+          <pv-button
+              :label="$t('common.backToDashboard')"
+              icon="pi pi-arrow-left"
+              class="p-button-text"
+              @click="goBack"
+          />
+          <pv-button
+              :label="currentLocale.toUpperCase()"
+              icon="pi pi-globe"
+              class="p-button-text p-button-rounded language-btn"
+              @click="toggleLanguage"
+              v-tooltip.bottom="$t('common.changeLanguage')"
+          />
         </div>
       </template>
     </pv-toolbar>
@@ -20,8 +32,8 @@
 
       <div class="flex flex-column md:flex-row justify-content-between align-items-center mb-5 gap-3">
         <div>
-          <h1 class="text-3xl font-bold text-900 m-0">Habitaciones Disponibles</h1>
-          <p class="text-600 mt-2">Encuentra el espacio perfecto para tu estancia.</p>
+          <h1 class="text-3xl font-bold text-900 m-0">{{ $t('guestRooms.title') }}</h1>
+          <p class="text-600 mt-2">{{ $t('guestRooms.subtitle') }}</p>
         </div>
 
         <div class="w-full md:w-auto flex gap-3">
@@ -35,29 +47,38 @@
                 showClear
                 class="w-full"
             />
-            <label for="roomType">Filtrar por Tipo</label>
+            <label for="roomType">{{ $t('guestRooms.filterByType') }}</label>
           </span>
         </div>
       </div>
 
       <div v-if="roomStore.loading" class="flex flex-column align-items-center justify-content-center h-20rem">
         <pv-progress-spinner />
-        <p class="mt-3 text-gray-500">Buscando las mejores habitaciones...</p>
+        <p class="mt-3 text-gray-500">{{ $t('guestRooms.loadingRooms') }}</p>
       </div>
 
       <div v-else-if="roomStore.error" class="surface-card p-6 border-round-xl text-center shadow-1 border-red-100 border-1">
         <div class="bg-red-50 border-circle w-4rem h-4rem flex align-items-center justify-content-center mx-auto mb-3">
           <i class="pi pi-exclamation-triangle text-2xl text-red-500"></i>
         </div>
-        <h3 class="text-900 font-medium m-0 mb-2">No pudimos cargar las habitaciones</h3>
-        <p class="text-600 mb-4">{{ roomStore.error.message || 'Hubo un problema de conexión.' }}</p>
-        <pv-button label="Reintentar" icon="pi pi-refresh" class="p-button-outlined p-button-danger" @click="fetchData" />
+        <h3 class="text-900 font-medium m-0 mb-2">{{ $t('guestRooms.errorTitle') }}</h3>
+        <p class="text-600 mb-4">{{ roomStore.error.message || $t('guestRooms.errorMessage') }}</p>
+        <pv-button
+            :label="$t('common.retry')"
+            icon="pi pi-refresh"
+            class="p-button-outlined p-button-danger"
+            @click="fetchData"
+        />
       </div>
 
       <div v-else-if="filteredRooms.length === 0" class="surface-card p-6 border-round-xl text-center shadow-1">
         <i class="pi pi-home text-5xl text-gray-300 mb-3"></i>
-        <h3>No hay habitaciones disponibles con este filtro.</h3>
-        <pv-button label="Ver todas" class="p-button-outlined mt-3" @click="selectedRoomType = null" />
+        <h3>{{ $t('guestRooms.noRoomsWithFilter') }}</h3>
+        <pv-button
+            :label="$t('guestRooms.viewAll')"
+            class="p-button-outlined mt-3"
+            @click="selectedRoomType = null"
+        />
       </div>
 
       <div v-else class="grid">
@@ -67,7 +88,7 @@
             <div class="relative h-15rem w-full bg-gray-100 flex align-items-center justify-content-center overflow-hidden">
               <i class="pi pi-image text-5xl text-gray-300"></i>
               <div class="absolute top-0 left-0 m-3">
-                <pv-tag :value="room.roomTypeName || 'Estándar'" severity="info" rounded></pv-tag>
+                <pv-tag :value="room.roomTypeName || $t('guestRooms.standard')" severity="info" rounded></pv-tag>
               </div>
             </div>
 
@@ -75,12 +96,12 @@
               <div>
                 <div class="flex justify-content-between align-items-start mb-2">
                   <h2 class="text-xl font-bold text-900 m-0 group-hover:text-primary transition-colors transition-duration-200">
-                    {{ room.roomTypeName || `Habitación ${room.id}` }}
+                    {{ room.roomTypeName || `${$t('guestRooms.room')} ${room.id}` }}
                   </h2>
                 </div>
 
                 <p class="text-600 line-height-3 text-sm mb-4 h-3rem overflow-hidden text-overflow-ellipsis">
-                  {{ room.description || 'Sin descripción disponible.' }}
+                  {{ room.description || $t('guestRooms.noDescription') }}
                 </p>
 
                 <div class="flex gap-2 flex-wrap mb-4">
@@ -94,7 +115,12 @@
               </div>
 
               <div class="border-top-1 border-200 pt-3 flex justify-content-end align-items-center mt-auto">
-                <pv-button label="Ver Detalles" icon="pi pi-arrow-right" iconPos="right" class="p-button-text p-button-sm" />
+                <pv-button
+                    :label="$t('guestRooms.viewDetails')"
+                    icon="pi pi-arrow-right"
+                    iconPos="right"
+                    class="p-button-text p-button-sm"
+                />
               </div>
             </div>
           </div>
@@ -107,11 +133,21 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import { useRoomStore } from '../../application/room.store.js';
 
 const router = useRouter();
 const roomStore = useRoomStore();
+const { t, locale } = useI18n();
 const selectedRoomType = ref(null);
+
+const currentLocale = computed(() => locale.value);
+
+function toggleLanguage() {
+  const newLocale = locale.value === 'en' ? 'es' : 'en';
+  locale.value = newLocale;
+  localStorage.setItem('language', newLocale);
+}
 
 const fetchData = async () => {
   await Promise.all([
@@ -120,8 +156,14 @@ const fetchData = async () => {
   ]);
 };
 
-onMounted(() => {
-  fetchData();
+onMounted(async () => {
+  // Load saved language
+  const savedLanguage = localStorage.getItem('language');
+  if (savedLanguage) {
+    locale.value = savedLanguage;
+  }
+
+  await fetchData();
 });
 
 const filteredRooms = computed(() => {
@@ -157,4 +199,8 @@ const viewRoomDetails = (roomId) => {
 
 .transition-duration-300 { transition-duration: 300ms; }
 .hover\:shadow-4:hover { box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+
+.language-btn {
+  min-width: 3rem;
+}
 </style>
