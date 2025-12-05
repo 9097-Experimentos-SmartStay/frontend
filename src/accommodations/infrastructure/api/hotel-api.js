@@ -51,6 +51,27 @@ export class HotelApi extends BaseApi {
     }
 
     /**
+     * Updates an existing hotel resource.
+     * PUT /api/v1/hotels/{id}
+     * @param {number} id - The hotel ID.
+     * @param {Object} resource - The updated hotel data.
+     * @returns {Promise<Object>} Axios response.
+     */
+    update(id, resource) {
+        return this.#endpoint.update(id, resource);
+    }
+
+    /**
+     * Deletes a hotel resource.
+     * DELETE /api/v1/hotels/{id}
+     * @param {number} id - The hotel ID.
+     * @returns {Promise<Object>} Axios response.
+     */
+    delete(id) {
+        return this.#endpoint.delete(id);
+    }
+
+    /**
      * Obtiene las amenidades disponibles.
      * GET /api/v1/accommodations/options/amenities
      */
@@ -74,4 +95,5 @@ export class HotelApi extends BaseApi {
     createAmenity(data) {
         return this.http.post('/accommodations/options/amenities', data);
     }
+
 }

@@ -137,6 +137,52 @@ export const useHotelStore = defineStore('hotel', () => {
         }
     }
 
+    /**
+     * Updates an existing hotel.
+     * @param {number} id - The ID of the hotel to update.
+     * @param {Object} hotelData - The updated data (UpdateHotelResource).
+     */
+    async function updateHotel(id, hotelData) {
+        loading.value = true;
+        try {
+            // Validation Logic could go here
+
+            const response = await hotelApi.update(id, hotelData);
+            const updatedHotel = HotelAssembler.toEntityFromResponse(response);
+
+            // Optimistic Update: Update the item in the local list
+            const index = hotels.value.findIndex(h => h.id === id);
+            if (index !== -1 && updatedHotel) {
+                hotels.value[index] = updatedHotel;
+            }
+            return updatedHotel;
+        } catch (err) {
+            console.error(`Error updating hotel ${id}:`, err);
+            throw err;
+        } finally {
+            loading.value = false;
+        }
+    }
+
+    /**
+     * Deletes a hotel.
+     * @param {number} id - The ID of the hotel to delete.
+     */
+    async function deleteHotel(id) {
+        loading.value = true;
+        try {
+            await hotelApi.delete(id);
+
+            // Remove from local state immediately
+            hotels.value = hotels.value.filter(h => h.id !== id);
+        } catch (err) {
+            console.error(`Error deleting hotel ${id}:`, err);
+            throw err;
+        } finally {
+            loading.value = false;
+        }
+    }
+
     return {
         hotels,
         currentHotel,
@@ -149,6 +195,8 @@ export const useHotelStore = defineStore('hotel', () => {
         amenitiesList,
         fetchOptions,
         createCategory,
-        createAmenity
+        createAmenity,
+        updateHotel,
+        deleteHotel
     };
 });

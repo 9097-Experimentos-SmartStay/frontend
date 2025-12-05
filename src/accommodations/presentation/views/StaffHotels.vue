@@ -2,6 +2,8 @@
   <div class="surface-ground min-h-screen p-4 md:p-6">
     <pv-toast position="bottom-right" />
 
+    <pv-confirm-dialog></pv-confirm-dialog>
+
     <div class="surface-card p-4 shadow-2 border-round mb-4 flex justify-content-between align-items-center">
       <div class="flex align-items-center gap-3">
         <pv-button icon="pi pi-arrow-left" class="p-button-text p-button-secondary" @click="goBack" />
@@ -62,10 +64,20 @@
         </pv-column>
 
         <pv-column header="Acciones" style="width: 150px">
-          <template #body>
+          <template #body="{ data }">
             <div class="flex gap-2">
-              <pv-button icon="pi pi-pencil" class="p-button-rounded p-button-text p-button-info" v-tooltip="'Editar'" />
-              <pv-button icon="pi pi-trash" class="p-button-rounded p-button-text p-button-danger" v-tooltip="'Eliminar'" />
+              <pv-button
+                  icon="pi pi-pencil"
+                  class="p-button-rounded p-button-text p-button-info"
+                  v-tooltip="'Editar'"
+                  @click="editHotel(data.id)"
+              />
+              <pv-button
+                  icon="pi pi-trash"
+                  class="p-button-rounded p-button-text p-button-danger"
+                  v-tooltip="'Eliminar'"
+                  @click="confirmDelete(data)"
+              />
             </div>
           </template>
         </pv-column>
@@ -78,10 +90,12 @@
 import { onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useToast } from 'primevue/usetoast';
+import { useConfirm } from 'primevue/useconfirm'; // Importar Confirmación
 import { useHotelStore } from '@/accommodations/application/hotel.store.js';
 
 const router = useRouter();
 const toast = useToast();
+const confirm = useConfirm(); // Instancia de confirmación
 const hotelStore = useHotelStore();
 
 onMounted(async () => {
@@ -96,5 +110,34 @@ const goToCreateHotel = () => {
 
 const onImageError = (event) => {
   event.target.src = 'https://placehold.co/100?text=No+Image';
+};
+
+// --- ACCIONES NUEVAS ---
+
+const editHotel = (hotelId) => {
+  // Redirige a la vista de edición (asegúrate de tener la ruta creada)
+  router.push({ name: 'edit-hotel', params: { hotelId } });
+};
+
+const confirmDelete = (hotel) => {
+  confirm.require({
+    message: `¿Estás seguro de que deseas eliminar "${hotel.name}"? Esta acción borrará todas sus habitaciones asociadas.`,
+    header: 'Confirmar Eliminación',
+    icon: 'pi pi-exclamation-triangle',
+    acceptClass: 'p-button-danger',
+    accept: () => deleteHotel(hotel.id),
+    reject: () => {
+      // Opcional: toast de cancelado
+    }
+  });
+};
+
+const deleteHotel = async (id) => {
+  try {
+    await hotelStore.deleteHotel(id);
+    toast.add({ severity: 'success', summary: 'Eliminado', detail: 'El hotel ha sido eliminado.', life: 3000 });
+  } catch (err) {
+    toast.add({ severity: 'error', summary: 'Error', detail: 'No se pudo eliminar el hotel.', life: 3000 });
+  }
 };
 </script>
