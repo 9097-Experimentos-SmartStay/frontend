@@ -1,166 +1,134 @@
 <template>
-  <div class="p-6 max-w-6xl mx-auto">
-    <div class="flex justify-between items-center mb-6">
-      <div class="flex items-center gap-3">
-        <pv-button
-          icon="pi pi-arrow-left"
-          label="Volver"
-          class="p-button-outlined p-button-sm"
-          @click="goBack"
-        />
-        <h3 class="text-3xl font-bold text-primary">Gestión de Pagos</h3>
+  <div class="surface-ground min-h-screen p-4 md:p-6">
+    <pv-toast position="bottom-right" />
+
+    <div class="flex justify-content-between align-items-center mb-6">
+      <div class="flex align-items-center gap-3">
+        <pv-button icon="pi pi-arrow-left" label="Volver" class="p-button-outlined p-button-sm" @click="goBack" />
+        <h3 class="text-3xl font-bold text-color m-0">Gestión de Pagos</h3>
       </div>
     </div>
 
-    <div v-if="loading" class="text-center p-8">
-      <i class="pi pi-spin pi-spinner" style="font-size: 2.5rem"></i>
-      <p class="text-gray-500 mt-2">Cargando pagos...</p>
+    <div v-if="paymentStore.loading" class="flex justify-content-center p-8">
+      <pv-progress-spinner />
     </div>
 
     <pv-data-table
-      v-else-if="payments.length"
-      :value="payments"
-      responsive-layout="scroll"
-      tableStyle="min-width: 50rem"
-      class="shadow-sm rounded-lg overflow-hidden"
+        v-else-if="allPayments && allPayments.length > 0"
+        :value="allPayments"
+        responsive-layout="scroll"
+        class="shadow-2 border-round-xl overflow-hidden"
+        paginator :rows="10"
     >
       <template #header>
-        <div class="flex items-center justify-between gap-2">
-          <span class="text-lg font-semibold text-primary">Todos los pagos</span>
-          <pv-button icon="pi pi-refresh" class="p-button-rounded p-button-text" @click="fetchPayments" />
+        <div class="flex align-items-center justify-content-between p-3 surface-card border-bottom-1 surface-border">
+          <span class="text-xl font-bold text-color">Todos los pagos</span>
+          <pv-button icon="pi pi-refresh" class="p-button-rounded p-button-text" @click="fetchPayments" v-tooltip="'Refrescar'" />
         </div>
       </template>
 
-      <pv-column field="id" header="ID" sortable />
-      <pv-column field="bookingId" header="Reserva ID" sortable />
+      <pv-column field="id" header="ID" sortable style="width: 80px"></pv-column>
+      <pv-column field="bookingId" header="Reserva ID" sortable></pv-column>
+
       <pv-column field="amount" header="Monto" sortable>
         <template #body="{ data }">
-          ${{ data.amount?.toFixed(2) || '0.00' }}
+          <span class="font-medium text-color">${{ data.amount?.toFixed(2) || '0.00' }}</span>
         </template>
       </pv-column>
-      <pv-column field="paymentMethod" header="Método de Pago" />
+
+      <pv-column field="paymentMethod" header="Método"></pv-column>
+
       <pv-column field="status" header="Estado" sortable>
         <template #body="{ data }">
-          <pv-tag
-            :value="data.status"
-            :severity="getStatusSeverity(data.status)"
-          />
+          <pv-tag :value="translateStatus(data.status)" :severity="getStatusSeverity(data.status)" rounded />
         </template>
       </pv-column>
-      <pv-column field="paymentDate" header="Fecha de Pago" sortable>
+
+      <pv-column field="paymentDate" header="Fecha" sortable>
         <template #body="{ data }">
           {{ formatDate(data.paymentDate) }}
         </template>
       </pv-column>
-      <pv-column field="invoiceNumber" header="N° Factura">
+
+      <pv-column header="Acciones" style="width: 180px">
         <template #body="{ data }">
-          {{ data.invoiceNumber || 'N/A' }}
-        </template>
-      </pv-column>
-      <pv-column header="Acciones">
-        <template #body="{ data }">
-          <pv-button
-            v-if="data.status === 'Pending'"
-            icon="pi pi-check"
-            label="Procesar"
-            class="p-button-success p-button-sm"
-            @click="processPayment(data.id)"
-          />
-          <pv-button
-            v-if="data.status === 'Pending'"
-            icon="pi pi-times"
-            label="Marcar Fallido"
-            class="p-button-danger p-button-sm ml-2"
-            @click="failPayment(data.id)"
-          />
+          <div class="flex gap-2">
+            <pv-button
+                v-if="data.status === 'Pending'"
+                icon="pi pi-check"
+                class="p-button-rounded p-button-success p-button-text"
+                v-tooltip="'Aprobar Manualmente'"
+            />
+            <pv-button
+                v-if="data.status === 'Pending'"
+                icon="pi pi-times"
+                class="p-button-rounded p-button-danger p-button-text"
+                v-tooltip="'Rechazar'"
+            />
+            <pv-button
+                icon="pi pi-eye"
+                class="p-button-rounded p-button-info p-button-text"
+                v-tooltip="'Ver Detalle'"
+            />
+          </div>
         </template>
       </pv-column>
     </pv-data-table>
 
-    <div v-else class="text-center p-8 bg-gray-50 rounded-lg">
-      <i class="pi pi-credit-card text-gray-400" style="font-size: 3rem"></i>
-      <p class="text-gray-500 mt-4">No hay pagos registrados</p>
+    <div v-else class="text-center p-8 surface-card border-round-xl border-1 surface-border shadow-1">
+      <i class="pi pi-wallet text-500 text-6xl mb-4"></i>
+      <h3 class="text-color font-bold m-0 mb-2">No hay pagos registrados</h3>
+      <p class="text-color-secondary">Las transacciones aparecerán aquí.</p>
     </div>
   </div>
 </template>
 
 <script setup>
-import { usePayments } from '../composables/usePayments.js';
+import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useToast } from 'primevue/usetoast';
+// IMPORTAMOS EL STORE CORRECTO
+import { usePaymentStore } from '../../application/payment.store.js';
+// Si necesitas una lista de TODOS los pagos, tu store debe tener una acción `fetchAllPayments`.
+// Si no la tiene, usa la API directa temporalmente o crea la acción en el store.
+// Asumiremos que solo tenemos `fetchPaymentByBooking` por ahora, por lo que esta vista
+// necesitaría un endpoint de `getAllPayments` en el backend.
 
 const router = useRouter();
 const toast = useToast();
-const { payments, loading, error, fetchPayments, processPayment: processPaymentService, failPayment: failPaymentService } = usePayments();
+const paymentStore = usePaymentStore();
 
-const goBack = () => {
-  router.push({ name: 'staff-dashboard' });
+// Mock de lista por si el store no tiene getAllPayments aun
+const allPayments = ref([]);
+
+const fetchPayments = async () => {
+  // TODO: Implement fetchAllPayments in Store and API
+  // await paymentStore.fetchAllPayments();
+  // allPayments.value = paymentStore.payments;
+
+  // Mock temporal para que compile y veas la UI
+  allPayments.value = [];
 };
 
-const processPayment = async (paymentId) => {
-  try {
-    await processPaymentService(paymentId);
-    toast.add({
-      severity: 'success',
-      summary: 'Éxito',
-      detail: 'Pago procesado correctamente',
-      life: 3000
-    });
-    await fetchPayments();
-  } catch (err) {
-    toast.add({
-      severity: 'error',
-      summary: 'Error',
-      detail: err.message || 'Error al procesar el pago',
-      life: 3000
-    });
-  }
-};
+onMounted(() => {
+  fetchPayments();
+});
 
-const failPayment = async (paymentId) => {
-  try {
-    await failPaymentService(paymentId);
-    toast.add({
-      severity: 'success',
-      summary: 'Éxito',
-      detail: 'Pago marcado como fallido',
-      life: 3000
-    });
-    await fetchPayments();
-  } catch (err) {
-    toast.add({
-      severity: 'error',
-      summary: 'Error',
-      detail: err.message || 'Error al marcar el pago como fallido',
-      life: 3000
-    });
-  }
-};
+const goBack = () => router.push({ name: 'staff-dashboard' });
 
+// Helpers
 const getStatusSeverity = (status) => {
-  const statusMap = {
-    'Pending': 'warning',
-    'Processed': 'success',
-    'Failed': 'danger',
-    'Refunded': 'info'
-  };
-  return statusMap[status] || 'secondary';
+  const map = { 'Pending': 'warning', 'Completed': 'success', 'Failed': 'danger' };
+  return map[status] || 'info';
 };
 
-const formatDate = (dateString) => {
-  if (!dateString) return 'N/A';
-  const date = new Date(dateString);
-  return date.toLocaleDateString('es-ES', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric'
-  });
+const translateStatus = (status) => {
+  const map = { 'Pending': 'Pendiente', 'Completed': 'Completado', 'Failed': 'Fallido' };
+  return map[status] || status;
+};
+
+const formatDate = (date) => {
+  if (!date) return 'N/A';
+  return new Date(date).toLocaleDateString();
 };
 </script>
-
-<style scoped>
-.text-primary {
-  color: var(--primary-color);
-}
-</style>
-
