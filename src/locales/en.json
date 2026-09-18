@@ -630,7 +630,7 @@
     "roleDialog": {
       "title": "Change the role of {name}",
       "newRole": "New role",
-      "hint": "The change applies immediately: the person does not need to sign in again.",
+      "hint": "The change applies immediately: we close their open sessions and e-mail them to sign in again with their new permissions.",
       "submit": "Save role",
       "success": "The role of {name} is now {role}."
     },

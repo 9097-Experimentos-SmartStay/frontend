@@ -630,7 +630,7 @@
     "roleDialog": {
       "title": "Cambiar rol de {name}",
       "newRole": "Nuevo rol",
-      "hint": "El cambio se aplica de inmediato: la persona no necesita volver a iniciar sesión.",
+      "hint": "El cambio se aplica de inmediato: cerramos sus sesiones abiertas y le enviamos un correo para que vuelva a iniciar sesión con sus nuevos permisos.",
       "submit": "Guardar rol",
       "success": "El rol de {name} ahora es {role}."
     },
