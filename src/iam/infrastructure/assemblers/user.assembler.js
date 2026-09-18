@@ -26,6 +26,8 @@ export class UserAssembler {
             emailVerified: resource.emailVerified,
             lockedUntil: toDate(resource.lockedUntil),
             createdAt: toDate(resource.createdAt),
+            mfaEnabled: resource.mfaEnabled,
+            mfaEnrollmentRequired: resource.mfaEnrollmentRequired,
         });
     }
 

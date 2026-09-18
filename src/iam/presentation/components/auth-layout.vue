@@ -176,6 +176,11 @@ const { t } = useI18n();
 .auth-form .p-button.w-full {
   width: 100%;
 }
+.auth-form .p-inputotp .p-inputtext {
+  width: 2.75rem;
+  text-align: center;
+  font-size: 1.25rem;
+}
 .auth-form .field-error {
   color: #c62828;
   font-size: 0.85rem;

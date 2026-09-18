@@ -143,6 +143,15 @@ export function canAccessRoute(role, meta = {}) {
 }
 
 /**
+ * Staff accounts protect their sign-in with an authenticator app (US-52); guests do not use MFA.
+ * @param {string|null} role
+ * @returns {boolean}
+ */
+export function requiresSecondFactor(role) {
+    return STAFF_ROLES.includes(role);
+}
+
+/**
  * @param {string|null} actorRole
  * @returns {string[]} Roles the actor may assign to other users (empty for non-administrators).
  */

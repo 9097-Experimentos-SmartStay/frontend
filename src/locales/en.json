@@ -42,11 +42,13 @@
     "reasons": {
       "session-expired": "Your session expired. Please sign in again.",
       "session-revoked": "Your session was closed because your password changed. Please sign in again.",
-      "account-deactivated": "Your account was deactivated. Contact the administrator."
+      "account-deactivated": "Your account was deactivated. Contact the administrator.",
+      "mfa-expired": "For your security, the second step expires after 10 minutes or when the page reloads. Sign in again."
     },
     "notices": {
       "password-updated": "Your password was updated. Sign in with the new password.",
-      "email-verified": "Your email is confirmed. You can sign in now."
+      "email-verified": "Your email is confirmed. You can sign in now.",
+      "signed-out-everywhere": "We signed you out on all your devices. Sign in again."
     },
     "errors": {
       "invalidCredentials": "The email or password is incorrect.",
@@ -103,7 +105,55 @@
       "resend": "Resend link",
       "resent": "We sent you a new confirmation link."
     },
-    "signOut": "Sign out"
+    "signOut": "Sign out",
+    "mfa": {
+      "codeLabel": "6-digit code",
+      "rememberMeKept": "We will keep you signed in on this device, as you chose.",
+      "enrollment": {
+        "title": "Protect your account with an authenticator app",
+        "subtitle": "Your staff account needs a second factor to sign in.",
+        "stepInstall": "Install an authenticator app on your phone (Google Authenticator, Microsoft Authenticator or Authy).",
+        "stepScan": "In the app, add an account and scan this QR code.",
+        "stepCode": "Type the 6-digit code the app shows.",
+        "qrAlt": "QR code to set up the authenticator app",
+        "qrFailed": "We could not show the QR code. Enter the key manually.",
+        "manualEntry": "Can't scan it? Enter this key in the app:",
+        "manualDetails": "Account: {account} · time based · {digits} digits every {period} seconds.",
+        "copySecret": "Copy key",
+        "submit": "Turn on and continue"
+      },
+      "verification": {
+        "title": "Two-step verification",
+        "subtitle": "Enter the code of your authenticator app for {email}.",
+        "codeHint": "The code changes every 30 seconds.",
+        "recoveryCodeLabel": "Recovery code",
+        "recoveryCodePlaceholder": "XXXXX-XXXXX",
+        "recoveryCodeHint": "Each recovery code works only once.",
+        "useRecoveryCode": "Don't have your phone? Use a recovery code",
+        "useAuthenticator": "Use the code of the authenticator app",
+        "submit": "Verify and sign in"
+      },
+      "recovery": {
+        "title": "Save your recovery codes",
+        "subtitle": "Your authenticator app is on.",
+        "warning": "If you lose your phone, you can sign in with one of these codes. Each one works once and we will not show them again.",
+        "listLabel": "Recovery codes",
+        "copy": "Copy codes",
+        "copied": "Copied",
+        "download": "Download .txt",
+        "saved": "I saved my recovery codes in a safe place.",
+        "continue": "Continue",
+        "fileHeader": "SmartStay recovery codes\nAccount: {email}\nGenerated: {date}\nEach code works only once."
+      },
+      "errors": {
+        "codeInvalid": "The code is not valid. Check your authenticator app and try again.",
+        "codeAlreadyUsed": "That code was already used. Wait for the next code of your app.",
+        "recoveryCodeInvalid": "The recovery code is not valid or was already used.",
+        "challengeExpired": "The time to finish the second step ran out. Sign in again.",
+        "enrollmentNotStarted": "Scan the QR code first to set up your app.",
+        "alreadyEnabled": "Your account already has an authenticator app. Sign in again."
+      }
+    }
   },
   "authoring-phrase": {
     "intro": "Made with",
@@ -773,7 +823,9 @@
     "passwordTooShort": "The password must have at least {min} characters.",
     "passwordTooLong": "The password cannot have more than {max} characters.",
     "passwordBreached": "This password appears in data breaches or is too common. Choose another one.",
-    "passwordRejected": "The server rejected the password: {reason}"
+    "passwordRejected": "The server rejected the password: {reason}",
+    "authenticatorCodeFormat": "Enter the 6 digits of your authenticator app.",
+    "recoveryCodeFormat": "A recovery code has 10 letters and digits (XXXXX-XXXXX)."
   },
   "roles": {
     "guest": "Guest",

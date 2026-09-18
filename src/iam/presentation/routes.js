@@ -13,6 +13,18 @@ export default [
         component: () => import('./views/sign-in-form.vue'),
         meta: { guestOnly: true }
     },
+    // Second step of a staff sign-in (US-52). Public: the mfaToken lives in the IAM store (memory only),
+    // and each view sends the user back to /login when there is no pending challenge.
+    {
+        path: '/login/two-factor/setup',
+        name: 'mfa-enrollment',
+        component: () => import('./views/mfa-enrollment.vue'),
+    },
+    {
+        path: '/login/two-factor',
+        name: 'mfa-verification',
+        component: () => import('./views/mfa-verification.vue'),
+    },
     {
         path: '/register',
         name: 'register',

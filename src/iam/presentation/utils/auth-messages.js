@@ -23,6 +23,20 @@ export function authFailureMessage(t, locale, failure) {
             return t('auth.errors.accountDeactivated');
         case AuthFailureReason.EMAIL_NOT_VERIFIED:
             return t('auth.errors.emailNotVerified');
+        case AuthFailureReason.MFA_CODE_INVALID:
+            return t('auth.mfa.errors.codeInvalid');
+        case AuthFailureReason.MFA_CODE_ALREADY_USED:
+            return t('auth.mfa.errors.codeAlreadyUsed');
+        case AuthFailureReason.MFA_RECOVERY_CODE_INVALID:
+            return t('auth.mfa.errors.recoveryCodeInvalid');
+        case AuthFailureReason.MFA_CHALLENGE_EXPIRED:
+            return t('auth.mfa.errors.challengeExpired');
+        case AuthFailureReason.MFA_ENROLLMENT_NOT_STARTED:
+            return t('auth.mfa.errors.enrollmentNotStarted');
+        case AuthFailureReason.MFA_ALREADY_ENABLED:
+            return t('auth.mfa.errors.alreadyEnabled');
+        case AuthFailureReason.WRONG_CURRENT_PASSWORD:
+            return t('security.changePassword.wrongCurrent');
         case AuthFailureReason.EMAIL_ALREADY_REGISTERED:
             return t('auth.errors.emailAlreadyRegistered');
         case AuthFailureReason.RATE_LIMITED:
