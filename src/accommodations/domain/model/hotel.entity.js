@@ -17,8 +17,9 @@ export class Hotel {
      * @param {number} params.basePrice - Lowest room price of the hotel.
      * @param {Array<string>} [params.amenities=[]]
      * @param {number|null} [params.rating] - Null: the backend has no ratings (never invented).
+     * @param {boolean} [params.acceptsBookings=true] - False while the hotel has no payment methods (no bookings).
      */
-    constructor({ id, hostId = null, name, description, location, type, photoUrl, basePrice, amenities, rating = null }) {
+    constructor({ id, hostId = null, name, description, location, type, photoUrl, basePrice, amenities, rating = null, acceptsBookings = true }) {
         this.id = id;
         this.hostId = hostId;
         this.name = name;
@@ -29,6 +30,7 @@ export class Hotel {
         this.basePrice = Number(basePrice ?? 0);
         this.amenities = amenities || [];
         this.rating = rating;
+        this.acceptsBookings = acceptsBookings !== false;
     }
 
     /** @returns {string} "{address}, {city}, {country}". */

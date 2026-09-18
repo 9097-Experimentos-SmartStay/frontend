@@ -23,6 +23,7 @@ export class HotelAssembler {
             basePrice: resource.basePrice,
             amenities: resource.amenities,
             rating: resource.rating ?? null,
+            acceptsBookings: resource.acceptsBookings !== false,
         });
     }
 
