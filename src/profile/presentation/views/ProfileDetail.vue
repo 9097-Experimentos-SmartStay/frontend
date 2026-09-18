@@ -256,15 +256,8 @@ function toggleLanguage() {
 
 const loadProfile = async () => {
   try {
-    let userId = iamStore.currentUserId;
-
-    if (!userId) {
-      const storedId = localStorage.getItem('user_id');
-      if (storedId) {
-        userId = Number(storedId);
-        iamStore.currentUserId = userId;
-      }
-    }
+    // The IAM store restores the session from storage on load.
+    const userId = iamStore.currentUserId;
 
     if (iamStore.users.length === 0) {
       await iamStore.fetchUsers();
