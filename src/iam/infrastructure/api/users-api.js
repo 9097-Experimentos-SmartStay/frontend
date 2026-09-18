@@ -47,6 +47,17 @@ export class UsersApi extends BaseApi {
     }
 
     /**
+     * POST /users/change-password (any role) → 200 {message} | 400 errors.newPassword | 401 wrong current password.
+     * @param {import('../../domain/commands/change-password.command.js').ChangePasswordCommand} command
+     */
+    changePassword(command) {
+        return this.http.post(`${usersPath}/change-password`, {
+            currentPassword: command.currentPassword,
+            newPassword: command.newPassword,
+        }, { checksCredentials: true });
+    }
+
+    /**
      * POST /users/{id}/mfa/reset → 200 {message}. The user sets up the authenticator again at the next sign-in (US-52).
      * @param {number} userId
      */

@@ -1193,5 +1193,22 @@
       "operationNumberRequired": "Enter the operation number.",
       "noteTooLong": "The note cannot exceed {max} characters."
     }
+  },
+  "security": {
+    "title": "Account security",
+    "changePassword": {
+      "title": "Password",
+      "subtitle": "Changing it ends your open sessions and you sign in again.",
+      "open": "Change password",
+      "current": "Current password",
+      "submit": "Save password",
+      "wrongCurrent": "The current password is not correct."
+    },
+    "signOutEverywhere": {
+      "title": "Sign out on all devices",
+      "subtitle": "Use it if you lost a device or signed in on one that is not yours.",
+      "action": "Sign out on all devices",
+      "confirm": "Every session will end, including this browser's, and you will need to sign in again. Continue?"
+    }
   }
 }

@@ -13,7 +13,9 @@ import { ProblemDetails } from '@/shared/infrastructure/http/problem-details.js'
  *   refresh and are retried with the new token, because a refresh token is single use and presenting it
  *   twice revokes the whole session (§2.4).
  * - Any other 401 on an authenticated request ends the session through the handler registered with
- *   {@link configureSessionHandling} (the app clears the IAM state and goes to /login).
+ *   {@link configureSessionHandling} (the app clears the IAM state and goes to /login). A request sent with
+ *   `checksCredentials: true` (change password) gets its "Invalid credentials" 401 back as a normal error:
+ *   it means "wrong current password", not "your session ended".
  *
  * This module does not import the IAM context: IAM registers how to refresh and what to do when
  * the session ends, keeping the dependency direction shared ← iam.
@@ -116,6 +118,10 @@ httpClient.interceptors.response.use(
 
         const problem = ProblemDetails.fromError(error);
         const session = loadSession();
+
+        if (config.checksCredentials && problem.detail === 'Invalid credentials') {
+            return Promise.reject(error);
+        }
 
         if (!config._authRetried && problem.detailIncludes('expired') && isRemembered(session)) {
             config._authRetried = true;

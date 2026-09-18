@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
 import { AuthenticationApi } from '../infrastructure/api/authentication-api.js';
+import { UsersApi } from '../infrastructure/api/users-api.js';
 import { SessionAssembler } from '../infrastructure/assemblers/session.assembler.js';
 import { MfaAssembler } from '../infrastructure/assemblers/mfa.assembler.js';
 import { AuthFailure, AuthFailureReason } from './auth-failure.js';
@@ -10,6 +11,7 @@ import { reportError } from '@/shared/infrastructure/logging/report-error.js';
 import { ProblemDetails } from '@/shared/infrastructure/http/problem-details.js';
 
 const authenticationApi = new AuthenticationApi();
+const usersApi = new UsersApi();
 
 /** Result of opening the link of the verification e-mail (US-01). */
 export const EmailVerificationResult = Object.freeze({
@@ -296,6 +298,23 @@ const useIamStore = defineStore('iam', () => {
         persist(null);
     }
 
+    /**
+     * Changes the password of the signed-in user. The backend bumps the session generation, so the session of
+     * this browser ends too and the user signs in again with the new password.
+     * @param {import('../domain/commands/change-password.command.js').ChangePasswordCommand} command - Already validated.
+     * @returns {Promise<void>}
+     * @throws {AuthFailure} wrongCurrentPassword | invalidData (errors.newPassword, policy §2.0) | rateLimited | ...
+     */
+    async function changePassword(command) {
+        try {
+            // Its 401 "Invalid credentials" is the wrong current password (the HTTP client leaves it to us).
+            await usersApi.changePassword(command);
+        } catch (error) {
+            throw AuthFailure.from(error, { 401: AuthFailureReason.WRONG_CURRENT_PASSWORD });
+        }
+        persist(null);
+    }
+
     /** Ends the session locally when the API rejected it (401). Nothing to revoke. */
     function endSession() {
         persist(null);
@@ -395,6 +414,7 @@ const useIamStore = defineStore('iam', () => {
         verifySecondFactor,
         abandonSecondFactor,
         signOutEverywhere,
+        changePassword,
         signUp,
         refreshSession,
         signOut,
