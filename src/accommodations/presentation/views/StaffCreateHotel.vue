@@ -137,7 +137,6 @@
 import { ref, reactive, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useToast } from 'primevue/usetoast';
-import axios from 'axios';
 
 // Domain Stores
 import { useHotelStore } from '@/accommodations/application/hotel.store.js';
@@ -200,32 +199,18 @@ const onImageError = (event) => {
 };
 
 /**
- * Uploads an image file to Cloudinary via unsigned upload.
+ * Uploads the selected image through the hotel store.
  * @param {Object} event - The PrimeVue FileUpload event containing the file.
  */
 const onUploadImage = async (event) => {
   const file = event.files[0];
-  const formData = new FormData();
-  formData.append('file', file);
-  formData.append('upload_preset', import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET);
-  const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
 
   try {
     toast.add({ severity: 'info', summary: 'Uploading', detail: 'Processing image...', life: 2000 });
-
-    // Direct call to Cloudinary API (bypass backend for performance)
-    const response = await axios.post(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, formData);
-
-    if (response.data && response.data.secure_url) {
-      form.imageUrl = response.data.secure_url;
-      toast.add({ severity: 'success', summary: 'Uploaded', detail: 'Image uploaded successfully.', life: 3000 });
-    } else {
-      throw new Error("Invalid response from Cloudinary");
-    }
-
+    form.imageUrl = await hotelStore.uploadHotelImage(file);
+    toast.add({ severity: 'success', summary: 'Uploaded', detail: 'Image uploaded successfully.', life: 3000 });
   } catch (error) {
-    console.error("Upload Error:", error);
-    toast.add({ severity: 'error', summary: 'Upload Failed', detail: 'Could not upload image. Check console.', life: 3000 });
+    toast.add({ severity: 'error', summary: 'Upload Failed', detail: 'Could not upload image.', life: 3000 });
   }
 };
 
@@ -276,7 +261,6 @@ const submitForm = async () => {
     setTimeout(() => router.push({ name: 'staff-hotels' }), 1000);
 
   } catch (err) {
-    console.error(err);
     toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to create hotel.', life: 3000 });
   } finally {
     isSaving.value = false;

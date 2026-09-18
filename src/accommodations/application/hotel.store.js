@@ -1,9 +1,12 @@
 ﻿import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { HotelApi } from '../infrastructure/api/hotel-api.js';
+import { AccommodationOptionsApi } from '../infrastructure/api/accommodation-options-api.js';
 import { HotelAssembler } from '../infrastructure/hotel.assembler.js';
+import { uploadImage } from '@/shared/infrastructure/services/image-upload.service.js';
 
 const hotelApi = new HotelApi();
+const optionsApi = new AccommodationOptionsApi();
 
 /**
  * Pinia Store for Hotel Management.
@@ -123,10 +126,10 @@ export const useHotelStore = defineStore('hotel', () => {
     async function fetchOptions() {
         try {
             const [catResponse, amResponse] = await Promise.all([
-                hotelApi.getHotelCategories(),
-                hotelApi.getAmenities()
+                optionsApi.getCategories(),
+                optionsApi.getAmenities()
             ]);
-            // El backend devuelve array de strings directo: ["Hotel", "Resort"]
+            // The backend returns plain string arrays: ["Hotel", "Resort"]
             categories.value = catResponse.data;
             amenitiesList.value = amResponse.data;
         } catch (err) {
@@ -141,11 +144,8 @@ export const useHotelStore = defineStore('hotel', () => {
      */
     async function createCategory(name) {
         try {
-            // Asumiendo que tienes un endpoint POST /api/v1/accommodations/options/categories
-            // Si no lo tienes, el backend fallará. Asegúrate de crearlo.
-            await hotelApi.createCategory({ name });
-
-            // Recargamos la lista para que aparezca en el select
+            await optionsApi.createCategory({ name });
+            // Reload so the new category shows up in the select
             await fetchOptions();
         } catch (err) {
             console.error('Error creating category:', err);
@@ -160,7 +160,7 @@ export const useHotelStore = defineStore('hotel', () => {
      */
     async function createAmenity(name) {
         try {
-            await hotelApi.createAmenity({ name });
+            await optionsApi.createAmenity({ name });
             // Refresh options to show the new amenity immediately
             await fetchOptions();
         } catch (err) {
@@ -217,6 +217,15 @@ export const useHotelStore = defineStore('hotel', () => {
         }
     }
 
+    /**
+     * Uploads a hotel photo and returns its public URL.
+     * @param {File} file - The image file selected by the user.
+     * @returns {Promise<string>} The image URL to store in the hotel.
+     */
+    async function uploadHotelImage(file) {
+        return uploadImage(file);
+    }
+
     return {
         hotels,
         currentHotel,
@@ -231,6 +240,7 @@ export const useHotelStore = defineStore('hotel', () => {
         createCategory,
         createAmenity,
         updateHotel,
-        deleteHotel
+        deleteHotel,
+        uploadHotelImage
     };
 });
