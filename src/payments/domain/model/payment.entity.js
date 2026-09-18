@@ -17,15 +17,17 @@ export class Payment {
      * @param {string} params.transactionId
      * @param {number} params.amount - Charged by the backend.
      * @param {string} params.status - One of {@link PaymentStatus}.
-     * @param {string} params.cardNumberMasked - "**** **** **** 1111".
+     * @param {string|null} [params.method] - How it was paid (Yape, Plin, transfer, cash, card).
+     * @param {string|null} [params.cardNumberMasked] - Only for card payments.
      * @param {Date|null} params.paymentDate
      */
-    constructor({ id, bookingId, transactionId, amount, status, cardNumberMasked, paymentDate }) {
+    constructor({ id, bookingId, transactionId, amount, status, method = null, cardNumberMasked = null, paymentDate }) {
         this.id = id;
         this.bookingId = bookingId;
         this.transactionId = transactionId;
         this.amount = Number(amount ?? 0);
         this.status = status;
+        this.method = method;
         this.cardNumberMasked = cardNumberMasked;
         this.paymentDate = paymentDate;
     }
