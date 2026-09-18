@@ -856,7 +856,9 @@
       "Active": "Activo",
       "Inactive": "Inactivo",
       "locked": "Bloqueado",
-      "unverified": "Correo sin confirmar"
+      "unverified": "Correo sin confirmar",
+      "mfaEnabled": "Verificación en dos pasos",
+      "mfaPending": "Verificación pendiente"
     },
     "you": "Tú",
     "changeRole": "Cambiar rol",
@@ -899,6 +901,12 @@
       "hotelRequired": "Selecciona el hotel al que pertenece el usuario.",
       "forbiddenRole": "No puedes asignar ese rol.",
       "notFound": "El usuario ya no existe o está fuera de tu alcance."
+    },
+    "resetMfa": "Restablecer verificación en dos pasos",
+    "confirmResetMfa": {
+      "header": "Restablecer verificación en dos pasos",
+      "message": "{name} perdió su app de autenticación y sus códigos de recuperación. Se cerrarán sus sesiones y deberá configurar la app de nuevo en su próximo inicio de sesión. La acción queda registrada en la auditoría. ¿Deseas continuar?",
+      "success": "Restablecimos la verificación en dos pasos de {name}. La configurará de nuevo al iniciar sesión."
     }
   },
   "audit": {
@@ -942,7 +950,13 @@
       "UserCreated": "Usuario creado",
       "RoleChanged": "Rol cambiado",
       "UserDeactivated": "Usuario desactivado",
-      "UserActivated": "Usuario activado"
+      "UserActivated": "Usuario activado",
+      "MfaEnabled": "Verificación en dos pasos activada",
+      "MfaVerified": "Segundo paso verificado",
+      "MfaFailed": "Segundo paso fallido",
+      "MfaRecoveryCodeUsed": "Código de recuperación usado",
+      "MfaReset": "Verificación en dos pasos restablecida",
+      "SignedOutEverywhere": "Cierre de sesión en todos los dispositivos"
     },
     "errors": {
       "load": "No pudimos cargar la auditoría."

@@ -47,6 +47,14 @@ export class UsersApi extends BaseApi {
     }
 
     /**
+     * POST /users/{id}/mfa/reset → 200 {message}. The user sets up the authenticator again at the next sign-in (US-52).
+     * @param {number} userId
+     */
+    resetMfa(userId) {
+        return this.http.post(`${usersPath}/${userId}/mfa/reset`);
+    }
+
+    /**
      * GET /audit-logs with filters and pagination (§3.1).
      * @param {Record<string, string|number>} params - Built by AuditLogAssembler.toQueryParams.
      */
