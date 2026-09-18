@@ -1044,6 +1044,8 @@
     "header": "Cancelar la reserva {code}",
     "message": "La habitación se liberará de inmediato y enviaremos un correo al huésped. ¿Deseas cancelarla?",
     "messagePaid": "Esta reserva ya está pagada: al cancelarla, el pago queda como reembolsado y el hotel devuelve el dinero por el mismo medio. La habitación se liberará y enviaremos un correo al huésped. ¿Deseas cancelarla?",
+    "guestMessage": "La habitación se liberará de inmediato y te enviaremos un correo de confirmación. ¿Deseas cancelarla?",
+    "guestMessagePaid": "Tu reserva ya está pagada: al cancelarla, el hotel te devolverá el dinero por el mismo medio de pago. La habitación se liberará y te enviaremos un correo de confirmación. ¿Deseas cancelarla?",
     "accept": "Cancelar reserva",
     "keep": "Mantener reserva",
     "done": "La reserva {code} fue cancelada y la habitación quedó libre.",

@@ -8,9 +8,10 @@ import { failureMessageKey } from '@/shared/presentation/utils/failure-message.j
  * Cancellation with the policy of §8.4 (guest: own bookings, US-51; staff: bookings of the hotel, US-07 scenario 4):
  * a confirmation dialog that says whether the booking was paid (its payment becomes Refunded), then the request.
  * The page must render <pv-confirm-dialog /> and <pv-toast />.
+ * @param {{ byGuest?: boolean }} [options] byGuest: the guest cancels their own booking (the dialog talks to them).
  * @returns {{confirmCancel: (booking: import('../../domain/model/booking.entity.js').Booking, onDone?: Function) => void}}
  */
-export function useBookingCancellation() {
+export function useBookingCancellation({ byGuest = false } = {}) {
     const { t } = useI18n();
     const confirm = useConfirm();
     const toast = useToast();
@@ -19,7 +20,7 @@ export function useBookingCancellation() {
     function confirmCancel(booking, onDone = () => {}) {
         confirm.require({
             header: t('bookingCancellation.header', { code: booking.reference }),
-            message: booking.isConfirmed() ? t('bookingCancellation.messagePaid') : t('bookingCancellation.message'),
+            message: t(`bookingCancellation.${byGuest ? 'guestMessage' : 'message'}${booking.isConfirmed() ? 'Paid' : ''}`),
             icon: 'pi pi-exclamation-triangle',
             acceptProps: { label: t('bookingCancellation.accept'), severity: 'danger' },
             rejectProps: { label: t('bookingCancellation.keep'), severity: 'secondary', outlined: true },

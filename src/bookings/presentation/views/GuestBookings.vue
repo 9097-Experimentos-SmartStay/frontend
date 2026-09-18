@@ -92,7 +92,7 @@ const router = useRouter();
 const { t, locale } = useI18n();
 const bookingStore = useBookingStore();
 const hotelStore = useHotelStore();
-const { confirmCancel } = useBookingCancellation();
+const { confirmCancel } = useBookingCancellation({ byGuest: true });
 
 const hotelName = (hotelId) => hotelStore.hotels.find((hotel) => hotel.id === hotelId)?.name ?? '';
 const openBooking = (booking) => router.push({ name: 'guest-booking-detail', params: { bookingId: booking.id } });

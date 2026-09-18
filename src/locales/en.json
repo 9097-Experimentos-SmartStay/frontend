@@ -1044,6 +1044,8 @@
     "header": "Cancel booking {code}",
     "message": "The room will be released at once and we will e-mail the guest. Cancel it?",
     "messagePaid": "This booking is already paid: if you cancel it, the payment is marked as refunded and the hotel returns the money through the same method. The room will be released and we will e-mail the guest. Cancel it?",
+    "guestMessage": "The room will be released at once and we will e-mail you a confirmation. Cancel it?",
+    "guestMessagePaid": "Your booking is already paid: if you cancel it, the hotel returns your money through the same payment method. The room will be released and we will e-mail you a confirmation. Cancel it?",
     "accept": "Cancel booking",
     "keep": "Keep booking",
     "done": "Booking {code} was cancelled and the room is free.",
