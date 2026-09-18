@@ -1,36 +1,28 @@
-import { BaseApi } from "@/shared/infrastructure/services/base-api.js";
-import { endpoints } from "@/shared/infrastructure/config/api-config.js";
+import { BaseApi } from '@/shared/infrastructure/services/base-api.js';
+import { endpoints } from '@/shared/infrastructure/config/api-config.js';
 
-const paymentsEndpointPath = endpoints.payments;
-const registrationEndpointPath = endpoints.paymentRegistration;
+const bookingsPath = endpoints.bookings;
+const paymentsPath = endpoints.payments;
 
 /**
- * Payments (§9). Guests no longer pay with a card inside the app: reception registers the payment.
+ * Payments (§9). The hotel registers the payments it receives; the API never receives card data.
  */
 export class PaymentApi extends BaseApi {
-    /** @returns {boolean} True when the payment registration endpoint is configured (contract pending). */
-    get supportsRegistration() {
-        return !!registrationEndpointPath;
-    }
-
     /**
-     * Registers a payment made by Yape, Plin, transfer, cash or card at reception.
-     * @param {Object} resource - Built by PaymentAssembler.toRegisterResource.
-     * @returns {Promise<Object>} Axios response.
-     */
-    registerPayment(resource) {
-        if (!registrationEndpointPath) {
-            return Promise.reject(new Error('Payment registration endpoint is not configured'));
-        }
-        return this.http.post(registrationEndpointPath, resource);
-    }
-
-    /**
-     * GET /payments/booking/{bookingId}: the completed payment, or the latest attempt. 404 = none yet.
+     * POST /bookings/{bookingId}/payments {method, operationNumber?, note?} → 201 PaymentResource; the booking
+     * becomes Confirmed. 409 already paid / not pending, 403 booking of another hotel.
      * @param {number} bookingId
-     * @returns {Promise<Object>} Axios response.
+     * @param {Object} resource - Built by PaymentAssembler.toRegisterResource.
+     */
+    registerPayment(bookingId, resource) {
+        return this.http.post(`${bookingsPath}/${bookingId}/payments`, resource);
+    }
+
+    /**
+     * GET /payments/booking/{bookingId}: the completed (or refunded) payment, or the latest attempt. 404 = none yet.
+     * @param {number} bookingId
      */
     getPaymentByBookingId(bookingId) {
-        return this.http.get(`${paymentsEndpointPath}/booking/${bookingId}`);
+        return this.http.get(`${paymentsPath}/booking/${bookingId}`);
     }
 }

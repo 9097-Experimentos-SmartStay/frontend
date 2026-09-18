@@ -4,14 +4,17 @@ import { PaymentMethod, requiresOperationNumber } from '../model/payment-method.
 export const RegisterPaymentRuleError = Object.freeze({
     METHOD_REQUIRED: 'methodRequired',
     OPERATION_NUMBER_REQUIRED: 'operationNumberRequired',
+    OPERATION_NUMBER_TOO_LONG: 'operationNumberTooLong',
     NOTE_TOO_LONG: 'noteTooLong',
 });
 
-export const PAYMENT_NOTE_MAX_LENGTH = 500;
+export const OPERATION_NUMBER_MAX_LENGTH = 50;
+export const PAYMENT_NOTE_MAX_LENGTH = 300;
 
 /**
- * Reception (or an administrator) registers the payment of a booking. There is no amount:
- * the backend computes it (room price per night × nights) and the booking becomes Confirmed.
+ * Reception (or an administrator) registers the payment of a Pending booking (US-07 scenario 5,
+ * POST /bookings/{id}/payments). There is no amount: it is always the booking total, and the booking
+ * becomes Confirmed in the same transaction.
  */
 export class RegisterPaymentCommand {
     /**
@@ -30,15 +33,18 @@ export class RegisterPaymentCommand {
     }
 
     /**
-     * @returns {Record<string, string>} {@link RegisterPaymentRuleError} per invalid field (empty when valid).
+     * @returns {Record<string, {code: string, params?: Object}>} Violation per invalid field (empty when valid).
      */
     validate() {
         const errors = {};
-        if (!Object.values(PaymentMethod).includes(this.method)) errors.method = RegisterPaymentRuleError.METHOD_REQUIRED;
-        if (requiresOperationNumber(this.method) && !this.operationNumber) {
-            errors.operationNumber = RegisterPaymentRuleError.OPERATION_NUMBER_REQUIRED;
+        if (!Object.values(PaymentMethod).includes(this.method)) errors.method = { code: RegisterPaymentRuleError.METHOD_REQUIRED };
+        if (requiresOperationNumber(this.method)) {
+            if (!this.operationNumber) errors.operationNumber = { code: RegisterPaymentRuleError.OPERATION_NUMBER_REQUIRED };
+            else if (this.operationNumber.length > OPERATION_NUMBER_MAX_LENGTH) {
+                errors.operationNumber = { code: RegisterPaymentRuleError.OPERATION_NUMBER_TOO_LONG, params: { max: OPERATION_NUMBER_MAX_LENGTH } };
+            }
         }
-        if (this.note.length > PAYMENT_NOTE_MAX_LENGTH) errors.note = RegisterPaymentRuleError.NOTE_TOO_LONG;
+        if (this.note.length > PAYMENT_NOTE_MAX_LENGTH) errors.note = { code: RegisterPaymentRuleError.NOTE_TOO_LONG, params: { max: PAYMENT_NOTE_MAX_LENGTH } };
         return errors;
     }
 }
