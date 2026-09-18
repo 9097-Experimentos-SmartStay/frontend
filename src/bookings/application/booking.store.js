@@ -102,6 +102,23 @@ export const useBookingStore = defineStore('booking', () => {
         }
     }
 
+    /**
+     * Confirms a booking by ID.
+     * @param {number} id - The unique identifier of the booking to confirm.
+     * @returns {Promise<void>}
+     */
+    async function confirmBooking(id) {
+        loading.value = true;
+        try {
+            await bookingApi.confirmBooking(id);
+        } catch (err) {
+            error.value = err;
+            throw err;
+        } finally {
+            loading.value = false;
+        }
+    }
+
     return {
         bookings,
         currentBooking,
@@ -109,6 +126,7 @@ export const useBookingStore = defineStore('booking', () => {
         error,
         fetchAllBookings,
         createBooking,
+        confirmBooking,
         cancelBooking
     };
 });

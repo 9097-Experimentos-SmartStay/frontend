@@ -2,12 +2,14 @@
 import { ref } from 'vue';
 import { RoomApi } from '../infrastructure/api/room-api.js';
 import { RoomTypeApi } from '../infrastructure/api/room-type-api.js';
+import { AccommodationOptionsApi } from '../infrastructure/api/accommodation-options-api.js';
 import { RoomAssembler } from '../infrastructure/room.assembler.js';
 import { RoomTypeAssembler } from '../infrastructure/room-type.assembler.js';
 
 // Infrastructure Services
 const roomApi = new RoomApi();
 const roomTypeApi = new RoomTypeApi();
+const optionsApi = new AccommodationOptionsApi();
 
 /**
  * Pinia Store for Room Management within the Accommodations Bounded Context.
@@ -91,13 +93,11 @@ export const useRoomStore = defineStore('room', () => {
 
     /**
      * Fetches the catalog of available amenities.
-     * Uses the shared options endpoint via the configured HTTP client.
      * @returns {Promise<void>}
      */
     async function fetchAmenities() {
         try {
-            // Accessing the Master Data endpoint via the configured http client
-            const response = await roomApi.http.get('/accommodations/options/amenities');
+            const response = await optionsApi.getAmenities();
             amenitiesList.value = response.data;
         } catch (err) {
             console.error('Error fetching amenities:', err);
@@ -168,8 +168,7 @@ export const useRoomStore = defineStore('room', () => {
     async function createAmenity(name) {
         loading.value = true;
         try {
-            // Post to the shared options endpoint
-            await roomApi.http.post('/accommodations/options/amenities', { name });
+            await optionsApi.createAmenity({ name });
             // Refresh the list to make it available immediately
             await fetchAmenities();
         } catch (err) {

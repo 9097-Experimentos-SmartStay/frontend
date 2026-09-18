@@ -93,15 +93,11 @@
 import { onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useToast } from 'primevue/usetoast';
-// 1. IMPORTAMOS EL STORE CORRECTO
 import { useBookingStore } from '../../application/booking.store.js';
-// 2. IMPORTAMOS LA API DIRECTAMENTE (Solo para confirmar, ya que esa acción no estaba en el store)
-import { BookingApi } from '../../infrastructure/api/booking-api.js';
 
 const router = useRouter();
 const toast = useToast();
 const bookingStore = useBookingStore();
-const bookingApi = new BookingApi();
 
 const fetchData = async () => {
   await bookingStore.fetchAllBookings();
@@ -117,9 +113,7 @@ const goBack = () => {
 
 const confirmBooking = async (bookingId) => {
   try {
-    // Usamos la API directa porque el Store básico no tenía confirm()
-    // Idealmente, deberías agregar confirmBooking() al Store también.
-    await bookingApi.confirmBooking(bookingId);
+    await bookingStore.confirmBooking(bookingId);
 
     toast.add({ severity: 'success', summary: 'Confirmada', detail: 'Reserva confirmada exitosamente.', life: 3000 });
     await fetchData(); // Recargamos para ver el cambio
