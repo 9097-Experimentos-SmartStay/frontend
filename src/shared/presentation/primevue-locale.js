@@ -1,0 +1,42 @@
+/**
+ * Texts that PrimeVue components render by themselves (DatePicker month and day names, "Today", "Clear"...),
+ * per UI language. The app follows the vue-i18n locale (see app.vue).
+ */
+export const primeVueLocales = Object.freeze({
+    es: {
+        firstDayOfWeek: 1,
+        dayNames: ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'],
+        dayNamesShort: ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'],
+        dayNamesMin: ['D', 'L', 'M', 'X', 'J', 'V', 'S'],
+        monthNames: ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'],
+        monthNamesShort: ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'],
+        today: 'Hoy',
+        clear: 'Limpiar',
+        dateFormat: 'dd/mm/yy',
+        weekHeader: 'Sem',
+        chooseDate: 'Elige una fecha',
+        emptyMessage: 'Sin opciones',
+        emptySearchMessage: 'No hay resultados',
+        emptyFilterMessage: 'No hay resultados',
+        accept: 'Sí',
+        reject: 'No',
+    },
+    en: {
+        firstDayOfWeek: 1,
+        dayNames: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+        dayNamesShort: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+        dayNamesMin: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'],
+        monthNames: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+        monthNamesShort: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+        today: 'Today',
+        clear: 'Clear',
+        dateFormat: 'mm/dd/yy',
+        weekHeader: 'Wk',
+        chooseDate: 'Choose a date',
+        emptyMessage: 'No options',
+        emptySearchMessage: 'No results',
+        emptyFilterMessage: 'No results',
+        accept: 'Yes',
+        reject: 'No',
+    },
+});

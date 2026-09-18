@@ -5,8 +5,18 @@
 </template>
 
 <script setup>
-// No necesitas lógica aquí por ahora.
-// El router se encarga de renderizar las vistas de cada bounded context.
+import { watch } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { usePrimeVue } from 'primevue/config';
+import { primeVueLocales } from './shared/presentation/primevue-locale.js';
+
+// The router renders the views of each bounded context. Here only the PrimeVue texts follow the UI language.
+const { locale } = useI18n();
+const primevue = usePrimeVue();
+
+watch(locale, (value) => {
+  Object.assign(primevue.config.locale, primeVueLocales[value] ?? primeVueLocales.es);
+}, { immediate: true });
 </script>
 
 <style>
@@ -26,4 +36,3 @@
   min-height: 100vh;
 }
 </style>
-
