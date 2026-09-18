@@ -1,4 +1,5 @@
 import { CalendarDate } from '@/shared/domain/calendar-date.js';
+import { Money } from '@/shared/domain/money.js';
 
 const STYLES = Object.freeze({
     short: { year: 'numeric', month: 'short', day: 'numeric' },
@@ -30,11 +31,11 @@ export function formatDateTime(value, locale) {
 }
 
 /**
- * @param {number|null|undefined} amount
+ * @param {Money|number|null|undefined} amount
  * @param {string} locale
- * @returns {string} The amount with two decimals (the API does not model the currency).
+ * @returns {string} The amount in soles ("S/ 255.00"); '—' when missing.
  */
 export function formatMoney(amount, locale) {
-    const value = Number(amount ?? 0);
-    return new Intl.NumberFormat(locale, { style: 'currency', currency: 'USD' }).format(value);
+    const money = Money.from(amount);
+    return money ? money.format(locale) : '—';
 }

@@ -93,7 +93,7 @@
             <div class="surface-card shadow-2 p-3 border-round-xl border-bottom-3 border-blue-500 h-full">
               <span class="block text-500 font-medium mb-3">{{ t('staffPanel.kpi.revenue') }}</span>
               <div class="text-color font-bold text-2xl">
-                {{ analyticsStore.loading ? '…' : (analyticsStore.metrics?.formattedRevenue || '$0.00') }}
+                {{ analyticsStore.loading ? '…' : formatMoney(analyticsStore.metrics?.totalRevenue ?? 0, locale) }}
               </div>
               <span class="text-500 text-sm">{{ t('staffPanel.kpi.currentMonth') }}</span>
             </div>
@@ -170,6 +170,7 @@ import { Capability, canRegisterHotel } from '@/iam/domain/user-role.js';
 import EmailVerificationBanner from '@/iam/presentation/components/email-verification-banner.vue';
 import LanguageSwitcher from '@/shared/presentation/components/language-switcher.vue';
 import { useAnalyticsStore } from '@/analytics/application/analytics.store.js';
+import { formatMoney } from '@/shared/presentation/utils/formatters.js';
 
 /**
  * Staff area home for reception, housekeeping, maintenance, admin and chain_admin.
