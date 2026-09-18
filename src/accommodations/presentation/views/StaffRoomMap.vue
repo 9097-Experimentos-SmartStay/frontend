@@ -26,6 +26,8 @@
       </div>
     </div>
 
+    <PaymentSettingsBanner />
+
     <pv-message v-if="errorMessage" severity="warn" class="mb-4">{{ errorMessage }}</pv-message>
 
     <template v-if="store.roomMap">
@@ -73,6 +75,7 @@
 </template>
 
 <script setup>
+import PaymentSettingsBanner from '../components/PaymentSettingsBanner.vue';
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';

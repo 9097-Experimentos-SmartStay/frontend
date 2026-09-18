@@ -17,6 +17,8 @@
       </div>
     </div>
 
+    <PaymentSettingsBanner />
+
     <div class="surface-card p-4 shadow-2 border-round">
       <pv-data-table :value="roomStore.rooms" :loading="roomStore.loading" responsive-layout="scroll" paginator :rows="10" class="p-datatable-sm">
         <template #empty>{{ t('staffRooms.empty') }}</template>
@@ -87,6 +89,7 @@
 </template>
 
 <script setup>
+import PaymentSettingsBanner from '../components/PaymentSettingsBanner.vue';
 import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useToast } from 'primevue/usetoast';
