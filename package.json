@@ -1,8 +1,8 @@
 {
-  "name": "pc17454u20221e617",
+  "name": "smartstay-frontend",
   "private": true,
   "version": "1.0.0",
-  "description": "cambiar a la descripción del proyecto",
+  "description": "Aplicación web de SmartStay (Vue 3 + Vite) para la gestión hotelera: hoteles, habitaciones, reservas, pagos y analítica, para personal y huéspedes.",
   "author": "Italo Sebastian Verona Flores",
   "license": "MIT",
   "type": "module",
@@ -21,6 +21,7 @@
     "primeflex": "^4.0.0",
     "primeicons": "^7.0.0",
     "primevue": "^4.3.9",
+    "qrcode": "^1.5.4",
     "vue": "^3.5.21",
     "vue-i18n": "^11.1.12",
     "vue-router": "^4.5.1"
@@ -28,7 +29,6 @@
   "devDependencies": {
     "@vitejs/plugin-vue": "^6.0.1",
     "jsdoc": "^4.0.5",
-    "json-server": "^0.17.4",
     "vite": "^7.1.7"
   }
 }

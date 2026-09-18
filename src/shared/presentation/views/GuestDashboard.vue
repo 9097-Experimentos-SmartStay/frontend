@@ -24,7 +24,7 @@
               icon="pi pi-globe"
               class="p-button-text p-button-rounded language-btn"
               @click="toggleLanguage"
-              v-tooltip.bottom="'Cambiar idioma / Change language'"
+              v-tooltip.bottom="$t('common.changeLanguage')"
           />
 
           <!-- Profile Menu Dropdown -->
@@ -40,7 +40,7 @@
                   class="bg-primary text-white font-bold"
                   style="width: 2.5rem; height: 2.5rem"
               />
-              <span class="font-medium hidden lg:block user-name">{{ currentUser?.username || 'Guest' }}</span>
+              <span class="font-medium hidden lg:block user-name">{{ currentUser?.displayName }}</span>
               <i :class="['pi', isProfileMenuOpen ? 'pi-chevron-up' : 'pi-chevron-down', 'text-600']"></i>
             </button>
 
@@ -52,8 +52,8 @@
                   style="min-width: 220px; z-index: 1000;"
               >
                 <div class="p-3 border-bottom-1 surface-border">
-                  <div class="font-semibold text-900">{{ getUserName() }}</div>
-                  <div class="text-sm text-600">{{ currentUser?.username }}</div>
+                  <div class="font-semibold text-900">{{ currentUser?.displayName }}</div>
+                  <div class="text-sm text-600">{{ currentUser?.email }}</div>
                 </div>
 
                 <div class="py-2">
@@ -85,6 +85,7 @@
     </pv-toolbar>
 
     <div class="flex-1 p-4 md:p-6 w-full max-w-7xl mx-auto">
+      <EmailVerificationBanner />
 
       <div v-if="loading" class="flex flex-column align-items-center justify-content-center h-20rem">
         <pv-progress-spinner />
@@ -94,7 +95,7 @@
       <div v-else>
         <div class="surface-card p-5 shadow-2 border-round-2xl mb-5 relative overflow-hidden">
           <div class="relative z-2">
-            <h1 class="text-4xl font-bold text-900 mb-2">{{ $t('guestDashboard.title', { name: getUserName() }) }} 👋</h1>
+            <h1 class="text-4xl font-bold text-900 mb-2">{{ $t('guestDashboard.title', { name: currentUser?.firstName || currentUser?.displayName }) }} 👋</h1>
             <p class="text-lg text-600 m-0 max-w-30rem">{{ $t('guestDashboard.subtitle') }}</p>
           </div>
           <i class="pi pi-star-fill absolute text-yellow-100" style="font-size: 15rem; right: -3rem; bottom: -5rem; z-index: 1; opacity: 0.5;"></i>
@@ -121,27 +122,27 @@
                     <div class="flex-1 flex flex-column justify-content-between">
                       <div>
                         <div class="flex justify-content-between align-items-start mb-2">
-                          <h2 class="text-2xl font-bold m-0 text-900">Habitación #{{ upcomingBookings[0].roomId }}</h2>
-                          <pv-tag :value="translateBookingStatus(upcomingBookings[0].status)" :severity="getStatusSeverity(upcomingBookings[0].status)" rounded />
+                          <h2 class="text-2xl font-bold m-0 text-900">{{ $t('guestDashboard.roomNumber', { id: upcomingBookings[0].roomLabel }) }}</h2>
+                          <BookingStatusTag :booking="upcomingBookings[0]" />
                         </div>
                         <div class="text-500 flex align-items-center gap-2">
-                          <i class="pi pi-map-marker text-primary"></i> SmartStay Hotel Central
+                          <i class="pi pi-map-marker text-primary"></i> {{ hotelLabelFor(upcomingBookings[0]) }}
                         </div>
                       </div>
 
                       <div class="grid mt-4">
                         <div class="col-6 border-right-1 border-100">
                           <span class="text-xs text-500 uppercase font-bold block mb-1">{{ $t('bookings.checkIn') }}</span>
-                          <span class="text-xl font-medium text-900">{{ formatDate(upcomingBookings[0].checkInDate) }}</span>
+                          <span class="text-xl font-medium text-900">{{ formatDay(upcomingBookings[0].checkInDate, locale, 'medium') }}</span>
                         </div>
                         <div class="col-6 pl-3">
                           <span class="text-xs text-500 uppercase font-bold block mb-1">{{ $t('bookings.checkOut') }}</span>
-                          <span class="text-xl font-medium text-900">{{ formatDate(upcomingBookings[0].checkOutDate) }}</span>
+                          <span class="text-xl font-medium text-900">{{ formatDay(upcomingBookings[0].checkOutDate, locale, 'medium') }}</span>
                         </div>
                       </div>
 
                       <div class="flex justify-content-end gap-2 mt-4 pt-3 border-top-1 border-100">
-                        <pv-button v-if="canCancel(upcomingBookings[0])" :label="$t('common.cancel')" class="p-button-danger p-button-text p-button-sm" icon="pi pi-times" @click="cancelBooking(upcomingBookings[0])" />
+                        <pv-button v-if="upcomingBookings[0].canBeCancelled()" :label="$t('common.cancel')" class="p-button-danger p-button-text p-button-sm" icon="pi pi-times" @click="cancelBooking(upcomingBookings[0])" />
                         <pv-button :label="$t('guestDashboard.manageBooking')" class="p-button-sm" icon="pi pi-cog" @click="openBooking(upcomingBookings[0])" />
                       </div>
                     </div>
@@ -161,34 +162,31 @@
 
             <div>
               <span class="text-xl font-bold text-900 block mb-3">{{ $t('guestDashboard.recommendationsTitle') }}</span>
-              <pv-carousel
-                  :value="recommendations"
-                  :numVisible="2"
-                  :numScroll="1"
-                  :responsiveOptions="responsiveOptions"
-                  circular
-                  :autoplayInterval="6000">
-                <template #item="slotProps">
-                  <div class="border-1 surface-border border-round-xl m-2 p-3 hover:shadow-4 transition-duration-300 cursor-pointer bg-white h-full flex flex-column" @click="goToRoom(slotProps.data.id)">
-                    <div class="relative w-full">
-                      <div class="bg-gray-100 border-round-lg h-12rem w-full flex align-items-center justify-content-center mb-3">
-                        <i class="pi pi-home text-4xl text-gray-300"></i>
-                      </div>
-                      <pv-tag value="Premium" severity="warning" class="absolute shadow-1" style="top: 10px; left: 10px" />
-                    </div>
-                    <div class="flex-1">
-                      <div class="font-bold text-lg mb-2 text-900">{{ slotProps.data.roomTypeName || 'Suite Exclusiva' }}</div>
-                      <p class="text-600 text-sm line-height-3 m-0 text-overflow-ellipsis overflow-hidden h-3rem">
-                        {{ slotProps.data.description || 'Confort garantizado.' }}
-                      </p>
-                    </div>
-                    <div class="mt-3 pt-3 border-top-1 border-100 flex align-items-center justify-content-between">
-                      <span class="text-primary font-bold text-sm uppercase tracking-wide">{{ $t('accommodations.viewDetails') }}</span>
-                      <i class="pi pi-arrow-right text-primary"></i>
-                    </div>
-                  </div>
-                </template>
-              </pv-carousel>
+              <div v-if="recommendations.length" class="grid">
+                <div v-for="room in recommendations" :key="room.id" class="col-12 md:col-6">
+                  <button
+                      type="button"
+                      class="recommendation-card w-full text-left border-1 surface-border border-round-xl p-3 hover:shadow-4 transition-duration-300 cursor-pointer bg-white h-full flex flex-column"
+                      @click="goToRoom(room.id)"
+                  >
+                    <span class="relative w-full block">
+                      <span class="bg-gray-100 border-round-lg h-10rem w-full flex align-items-center justify-content-center mb-3">
+                        <i class="pi pi-home text-4xl text-gray-300" aria-hidden="true"></i>
+                      </span>
+                      <pv-tag :value="formatMoney(room.price, locale)" severity="warn" class="absolute shadow-1" style="top: 10px; left: 10px" />
+                    </span>
+                    <span class="flex-1 block">
+                      <span class="font-bold text-lg mb-2 text-900 block">{{ room.roomTypeName }}</span>
+                      <span class="text-600 text-sm line-height-3 block text-overflow-ellipsis overflow-hidden h-3rem">{{ room.description }}</span>
+                    </span>
+                    <span class="mt-3 pt-3 border-top-1 border-100 flex align-items-center justify-content-between w-full">
+                      <span class="text-primary font-bold text-sm">{{ $t('accommodations.viewDetails') }}</span>
+                      <i class="pi pi-arrow-right text-primary" aria-hidden="true"></i>
+                    </span>
+                  </button>
+                </div>
+              </div>
+              <p v-else class="text-600 m-0">{{ $t('guestDashboard.noRecommendations') }}</p>
             </div>
           </div>
 
@@ -197,7 +195,7 @@
               <div class="col-6">
                 <div class="surface-card shadow-1 p-3 border-round-xl text-center h-full flex flex-column justify-content-center">
                   <span class="block text-500 font-medium text-sm mb-1">{{ $t('guestDashboard.myBookings') }}</span>
-                  <div class="text-900 font-bold text-3xl text-primary">{{ upcomingBookings.length }}</div>
+                  <div class="text-900 font-bold text-3xl text-primary">{{ stats.upcoming }}</div>
                 </div>
               </div>
               <div class="col-6">
@@ -217,28 +215,15 @@
                     <span class="text-800 font-medium">{{ $t('guestDashboard.newBooking') }}</span>
                     <i class="pi pi-angle-right text-400 ml-auto"></i>
                   </li>
-                  <li class="flex align-items-center py-3 border-bottom-1 surface-border cursor-pointer hover:bg-gray-50 px-2 border-round transition-duration-200" @click="goToHotels">
+                  <li class="flex align-items-center py-3 cursor-pointer hover:bg-gray-50 px-2 border-round transition-duration-200" @click="goToHotels">
                     <div class="flex align-items-center justify-content-center bg-purple-100 border-round mr-3" style="width: 2.5rem; height: 2.5rem"><i class="pi pi-map text-purple-600 text-lg"></i></div>
                     <span class="text-800 font-medium">{{ $t('guestDashboard.viewHotels') }}</span>
-                    <i class="pi pi-angle-right text-400 ml-auto"></i>
-                  </li>
-                  <li class="flex align-items-center py-3 cursor-pointer hover:bg-gray-50 px-2 border-round transition-duration-200" @click="contactSupport">
-                    <div class="flex align-items-center justify-content-center bg-green-100 border-round mr-3" style="width: 2.5rem; height: 2.5rem"><i class="pi pi-whatsapp text-green-600 text-lg"></i></div>
-                    <span class="text-800 font-medium">{{ $t('guestDashboard.support247') }}</span>
                     <i class="pi pi-angle-right text-400 ml-auto"></i>
                   </li>
                 </ul>
               </template>
             </pv-card>
 
-            <div class="surface-card shadow-2 p-4 border-round-xl relative overflow-hidden bg-gray-900 text-white">
-              <div class="relative z-2">
-                <div class="font-bold text-xl mb-2">{{ $t('guestDashboard.vipTransport') }}</div>
-                <p class="m-0 mb-3 text-gray-300 text-sm line-height-3">{{ $t('guestDashboard.vipTransportDesc') }}</p>
-                <pv-button :label="$t('guestDashboard.requestService')" class="p-button-warning p-button-sm w-full font-bold" @click="requestService" />
-              </div>
-              <div class="absolute top-0 left-0 w-full h-full opacity-30" style="background: radial-gradient(circle at top right, var(--primary-color), transparent);"></div>
-            </div>
           </div>
         </div>
       </div>
@@ -247,66 +232,63 @@
 </template>
 
 <script setup>
+import { reportError } from '@/shared/infrastructure/logging/report-error.js';
 import { ref, onMounted, computed, onBeforeUnmount } from 'vue';
 import { useRouter } from 'vue-router';
 import { useToast } from 'primevue/usetoast';
 import { useI18n } from 'vue-i18n';
 
-// --- STORES (ARQUITECTURA LIMPIA) ---
 import useIamStore from '@/iam/application/iam.store.js';
+import EmailVerificationBanner from '@/iam/presentation/components/email-verification-banner.vue';
 import { useRoomStore } from '@/accommodations/application/room.store.js';
+import { useHotelStore } from '@/accommodations/application/hotel.store.js';
 import { useBookingStore } from '@/bookings/application/booking.store.js';
+import BookingStatusTag from '@/bookings/presentation/components/BookingStatusTag.vue';
+import { formatDay, formatMoney } from '@/shared/presentation/utils/formatters.js';
+import { failureMessageKey } from '@/shared/presentation/utils/failure-message.js';
 
+/**
+ * Guest area home. The signed-in user comes from the session (GET /users is admin-only),
+ * and GET /bookings already returns only the guest's own bookings.
+ */
 const router = useRouter();
 const toast = useToast();
 const { t, locale } = useI18n();
 
-// Instancias de Stores
 const iamStore = useIamStore();
 const roomStore = useRoomStore();
+const hotelStore = useHotelStore();
 const bookingStore = useBookingStore();
 
-// State
 const loading = ref(true);
-const upcomingBookings = ref([]);
 const recommendations = ref([]);
-const stats = ref({ upcoming: 0, nights: 0 });
-const currentUser = ref(null);
 const isProfileMenuOpen = ref(false);
 
-const responsiveOptions = [
-  { breakpoint: '1024px', numVisible: 2, numScroll: 1 },
-  { breakpoint: '768px', numVisible: 1, numScroll: 1 }
-];
-
-const userInitials = computed(() => {
-  const name = currentUser.value?.username || 'Guest';
-  return name.substring(0, 2).toUpperCase();
-});
-
-// Computed para el idioma actual
+const currentUser = computed(() => iamStore.currentUser);
+const userInitials = computed(() => currentUser.value?.initials ?? '');
 const currentLocale = computed(() => locale.value);
 
-// NUEVA FUNCIÓN: Cambiar idioma
+/** Active bookings not finished yet, nearest first. */
+const upcomingBookings = computed(() => bookingStore.bookings
+    .filter((booking) => booking.isUpcoming())
+    .sort((a, b) => a.checkInDate.daysUntil(b.checkInDate) * -1));
+
+const stats = computed(() => ({
+  upcoming: upcomingBookings.value.length,
+  nights: bookingStore.bookings.filter((booking) => booking.isActive()).reduce((sum, booking) => sum + booking.nights, 0),
+}));
+
 function toggleLanguage() {
-  const newLocale = locale.value === 'en' ? 'es' : 'en';
-  locale.value = newLocale;
-  localStorage.setItem('language', newLocale);
-
-  toast.add({
-    severity: 'success',
-    summary: newLocale === 'es' ? 'Idioma cambiado' : 'Language changed',
-    detail: newLocale === 'es' ? 'Idioma cambiado a Español' : 'Language changed to English',
-    life: 2000
-  });
+  locale.value = locale.value === 'en' ? 'es' : 'en';
+  localStorage.setItem('language', locale.value);
 }
 
-function getUserName() {
-  if (currentUser.value?.name) return currentUser.value.name;
-  return currentUser.value?.username?.split('@')[0] || 'Huésped';
+/** Hotel of the booked room (Room → Hotel), instead of a made-up name. */
+function hotelLabelFor(booking) {
+  const hotel = hotelStore.hotels.find((h) => h.id === booking.hotelId);
+  return hotel ? `${hotel.name} · ${hotel.location}` : t('common.notAvailable');
 }
 
-// Profile Menu Functions
 function toggleProfileMenu() {
   isProfileMenuOpen.value = !isProfileMenuOpen.value;
 }
@@ -316,18 +298,14 @@ function closeProfileMenu() {
 }
 
 function handleClickOutside(event) {
-  if (isProfileMenuOpen.value) {
-    const wrapper = event.target.closest('.profile-menu-wrapper');
-    if (!wrapper) {
-      closeProfileMenu();
-    }
+  if (isProfileMenuOpen.value && !event.target.closest('.profile-menu-wrapper')) {
+    closeProfileMenu();
   }
 }
 
 function goToProfile() {
   closeProfileMenu();
-  const userId = currentUser.value?.id || iamStore.currentUserId || 1;
-  router.push({ name: 'profile-detail', params: { id: userId } });
+  router.push({ name: 'profile-detail' });
 }
 
 function handleLogout() {
@@ -338,119 +316,55 @@ function handleLogout() {
 async function loadDashboard() {
   loading.value = true;
   try {
-    // 1. Recuperar Sesión
-    let userId = iamStore.currentUserId;
-    if (!userId) {
-      const storedId = localStorage.getItem('user_id');
-      if (storedId) {
-        iamStore.currentUserId = Number(storedId);
-        userId = Number(storedId);
-      } else {
-        throw new Error("Sesión no válida. Por favor, inicia sesión de nuevo.");
-      }
-    }
-
-    if (iamStore.users.length === 0) await iamStore.fetchUsers();
-    currentUser.value = iamStore.users.find(u => u.id === userId);
-
-    if (!currentUser.value) {
-      if(iamStore.currentUsername) {
-        currentUser.value = { id: userId, username: iamStore.currentUsername };
-      } else {
-        throw new Error("No se pudo cargar la información del usuario.");
-      }
-    }
-
-    // 2. Cargar Datos usando STORES (Paralelo)
     await Promise.all([
-      bookingStore.fetchAllBookings(),
-      roomStore.fetchAllRooms()
+      bookingStore.fetchBookings(),
+      roomStore.fetchAllRooms(),
+      hotelStore.fetchAllHotels()
     ]);
-
-    const allBookings = bookingStore.bookings;
-    const allRooms = roomStore.rooms;
-
-    // 3. Filtrar Reservas del Usuario
-    const userBookings = allBookings.filter(b => {
-      const guestEmail = (b.guestEmail || '').toLowerCase();
-      const userEmail = (currentUser.value.username || '').toLowerCase();
-      return guestEmail === userEmail;
-    });
-
-    upcomingBookings.value = userBookings.sort((a, b) => new Date(a.checkInDate) - new Date(b.checkInDate));
-
-    // Stats
-    let totalNights = 0;
-    userBookings.forEach(b => {
-      if(b.status !== 'Cancelled') {
-        const start = new Date(b.checkInDate);
-        const end = new Date(b.checkOutDate);
-        const diff = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
-        totalNights += diff > 0 ? diff : 0;
-      }
-    });
-    stats.value.nights = totalNights;
-
-    // 4. Recomendaciones
-    const bookedRoomIds = new Set(userBookings.map(b => b.roomId));
-    recommendations.value = allRooms
-        .filter(r => !bookedRoomIds.has(r.id))
-        .slice(0, 5);
-
-    stats.value.upcoming = upcomingBookings.value.filter(b => b.status === 'Confirmed' || b.status === 'Pending').length;
-
+    recommendations.value = recommendRooms(roomStore.rooms, bookingStore.bookings);
   } catch (err) {
-    console.error("❌ Error loading dashboard:", err);
-    if (err.message.includes("Sesión no válida")) {
-      logout();
-      return;
-    }
-    toast.add({ severity: "error", summary: "Error", detail: "No pudimos cargar toda tu información." });
+    reportError('Error loading dashboard', err);
+    toast.add({ severity: 'error', summary: t('common.error'), detail: t('guestDashboard.loadError'), life: 4000 });
   } finally {
     loading.value = false;
   }
 }
 
-// --- Navigation & Actions ---
+/**
+ * Up to four rooms the guest has not booked, one per hotel and room type, so no two cards look the same.
+ * @param {Array} rooms
+ * @param {Array} bookings
+ */
+function recommendRooms(rooms, bookings) {
+  const bookedRoomIds = new Set(bookings.map((booking) => booking.roomId));
+  const seen = new Set();
+  const picked = [];
+  for (const room of rooms) {
+    const kind = `${room.hotelId}:${room.roomTypeId ?? room.roomTypeName}`;
+    if (bookedRoomIds.has(room.id) || seen.has(kind)) continue;
+    seen.add(kind);
+    picked.push(room);
+    if (picked.length === 4) break;
+  }
+  return picked;
+}
 
 function goToRooms() { router.push({ name: 'guest-rooms' }); }
 function goToHotels() { router.push({ name: 'guest-hotels' }); }
 function goToBookings() { router.push({ name: 'guest-bookings' }); }
 function goToRoom(roomId) { router.push({ name: 'guest-room-detail', params: { roomId } }); }
-function logout() { iamStore.signOut(router); }
 
-function formatDate(dateString) {
-  if (!dateString) return 'N/A';
-  return new Date(dateString).toLocaleDateString(locale.value === 'es' ? 'es-ES' : 'en-US', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' });
-}
-
-function translateBookingStatus(status) {
-  const map = {
-    'Pending': t('bookings.statusPending'),
-    'Confirmed': t('bookings.statusConfirmed'),
-    'Cancelled': t('bookings.statusCancelled')
-  };
-  return map[status] || status;
-}
-
-function getStatusSeverity(status) {
-  if (status === 'Confirmed') return 'success';
-  if (status === 'Cancelled') return 'danger';
-  if (status === 'Pending') return 'warning';
-  return 'info';
-}
-
-function canCancel(booking) {
-  return booking.status === 'Pending' || booking.status === 'Confirmed';
+async function logout() {
+  await iamStore.signOut();
+  router.push({ name: 'login' });
 }
 
 async function cancelBooking(booking) {
   try {
     await bookingStore.cancelBooking(booking.id);
-    toast.add({ severity: 'success', summary: t('common.success'), detail: t('bookings.bookingCancelled') });
-    loadDashboard();
-  } catch (e) {
-    toast.add({ severity: 'error', summary: t('errors.occurred'), detail: 'No se pudo cancelar' });
+    toast.add({ severity: 'success', summary: t('common.success'), detail: t('bookings.bookingCancelled'), life: 3000 });
+  } catch (err) {
+    toast.add({ severity: 'error', summary: t('common.error'), detail: t(failureMessageKey(err, { checkInDayReached: 'bookingCancellation.checkInDayReachedError', notChangeable: 'bookingCancellation.notCancellable' })), life: 5000 });
   }
 }
 
@@ -458,22 +372,7 @@ function openBooking(booking) {
   router.push({ name: 'guest-booking-detail', params: { bookingId: booking.id } });
 }
 
-function requestService() {
-  toast.add({ severity: 'info', summary: 'Hoteles', detail: 'Explora nuestros hoteles asociados.' });
-  goToHotels();
-}
-
-function contactSupport() {
-  toast.add({ severity: 'success', summary: 'WhatsApp', detail: 'Abriendo chat de soporte...' });
-}
-
 onMounted(() => {
-  // Cargar idioma guardado
-  const savedLanguage = localStorage.getItem('language');
-  if (savedLanguage) {
-    locale.value = savedLanguage;
-  }
-
   loadDashboard();
   document.addEventListener('click', handleClickOutside);
 });
@@ -484,6 +383,11 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
+.recommendation-card {
+  font: inherit;
+  color: inherit;
+}
+
 /* Adaptive Toolbar */
 .adaptive-toolbar {
   background-color: #ffffff;

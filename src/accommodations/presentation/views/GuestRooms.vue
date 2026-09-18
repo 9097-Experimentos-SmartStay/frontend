@@ -62,7 +62,7 @@
           <i class="pi pi-exclamation-triangle text-2xl text-red-500"></i>
         </div>
         <h3 class="text-900 font-medium m-0 mb-2">{{ $t('guestRooms.errorTitle') }}</h3>
-        <p class="text-600 mb-4">{{ roomStore.error.message || $t('guestRooms.errorMessage') }}</p>
+        <p class="text-600 mb-4">{{ $t('guestRooms.errorMessage') }}</p>
         <pv-button
             :label="$t('common.retry')"
             icon="pi pi-refresh"
@@ -96,7 +96,7 @@
               <div>
                 <div class="flex justify-content-between align-items-start mb-2">
                   <h2 class="text-xl font-bold text-900 m-0 group-hover:text-primary transition-colors transition-duration-200">
-                    {{ room.roomTypeName || `${$t('guestRooms.room')} ${room.id}` }}
+                    {{ $t('guestRooms.roomNumber', { number: room.label }) }}
                   </h2>
                 </div>
 
@@ -114,7 +114,11 @@
                 </div>
               </div>
 
-              <div class="border-top-1 border-200 pt-3 flex justify-content-end align-items-center mt-auto">
+              <div class="border-top-1 border-200 pt-3 flex justify-content-between align-items-center mt-auto">
+                <div>
+                  <span class="text-xs text-500 block">{{ $t('hotels.pricePerNight') }}</span>
+                  <span class="text-xl font-bold text-900">{{ formatMoney(room.price, locale) }}</span>
+                </div>
                 <pv-button
                     :label="$t('guestRooms.viewDetails')"
                     icon="pi pi-arrow-right"
@@ -135,6 +139,7 @@ import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { useRoomStore } from '../../application/room.store.js';
+import { formatMoney } from '@/shared/presentation/utils/formatters.js';
 
 const router = useRouter();
 const roomStore = useRoomStore();

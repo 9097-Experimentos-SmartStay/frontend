@@ -1,7 +1,8 @@
 ﻿import { BaseApi } from "@/shared/infrastructure/services/base-api.js";
 import { BaseEndpoint } from "@/shared/infrastructure/services/base-endpoint.js";
+import { endpoints } from "@/shared/infrastructure/config/api-config.js";
 
-const hotelsEndpointPath = import.meta.env.VITE_HOTELS_ENDPOINT_PATH;
+const hotelsEndpointPath = endpoints.hotels;
 
 /**
  * HotelApi class.
@@ -43,16 +44,6 @@ export class HotelApi extends BaseApi {
     }
 
     /**
-     * Gets the available hotel categories.
-     * GET /api/v1/accommodations/options/categories
-     * @returns {Promise<Object>} Axios response.
-     */
-    getHotelCategories() {
-        // Ajusta la ruta según definimos el controller
-        return this.http.get('/accommodations/options/categories');
-    }
-
-    /**
      * Updates an existing hotel resource.
      * PUT /api/v1/hotels/{id}
      * @param {number} id - The hotel ID.
@@ -74,33 +65,23 @@ export class HotelApi extends BaseApi {
     }
 
     /**
-     * Gets the available amenities.
-     * GET /api/v1/accommodations/options/amenities
+     * Payment methods of a hotel (admin or reception of the hotel, chain_admin).
+     * GET /api/v1/hotels/{id}/payment-settings
+     * @param {number} id - The hotel ID.
      * @returns {Promise<Object>} Axios response.
      */
-    getAmenities() {
-        return this.http.get('/accommodations/options/amenities');
+    getPaymentSettings(id) {
+        return this.http.get(`${hotelsEndpointPath}/${id}/payment-settings`);
     }
 
     /**
-     * Creates a new category.
-     * POST /api/v1/accommodations/options/categories
-     * @param {Object} data - The category data.
+     * Replaces the payment methods of a hotel (admin of the hotel, chain_admin).
+     * PUT /api/v1/hotels/{id}/payment-settings
+     * @param {number} id - The hotel ID.
+     * @param {Object} resource - See HotelPaymentSettingsAssembler.toUpdateResource.
      * @returns {Promise<Object>} Axios response.
      */
-    createCategory(data) {
-        return this.http.post('/accommodations/options/categories', data);
+    updatePaymentSettings(id, resource) {
+        return this.http.put(`${hotelsEndpointPath}/${id}/payment-settings`, resource);
     }
-
-    /**
-     * Creates a new amenity option.
-     * POST /api/v1/accommodations/options/amenities
-     * @param {Object} data - { name: string }
-     * @param {string} data.name - The name of the amenity.
-     * @returns {Promise<Object>} Axios response.
-     */
-    createAmenity(data) {
-        return this.http.post('/accommodations/options/amenities', data);
-    }
-
 }

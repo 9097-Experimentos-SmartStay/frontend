@@ -1,161 +1,187 @@
 <template>
-  <div class="login-page-container">
-    <div class="top-right-controls">
-      <LanguageSwitcher class="mr-2" />
-      <router-link to="/register">
+  <AuthLayout :title="t('auth.signInTitle')" :headline="t('login.title')">
+    <template #actions>
+      <router-link :to="{ name: 'register' }">
         <pv-button :label="t('nav.register')" class="p-button-secondary p-button-outlined" />
       </router-link>
-    </div>
+    </template>
 
-    <div class="login-content-wrapper">
-      <div class="form-section">
-        <h1 class="welcome-text">{{ t('login.title') }}</h1>
-        <AuthForm :start-in-login-mode="true" />
+    <pv-message v-if="noticeKey" severity="success" class="mb-3">{{ t(noticeKey) }}</pv-message>
+    <pv-message v-if="reasonKey && !failure" severity="warn" class="mb-3">{{ t(reasonKey) }}</pv-message>
+
+    <form class="auth-form" novalidate @submit.prevent="submit">
+      <div class="field">
+        <label for="email">{{ t('auth.emailLabel') }}</label>
+        <pv-input-text
+            id="email"
+            v-model="form.email"
+            type="email"
+            autocomplete="username"
+            :placeholder="t('auth.emailPlaceholder')"
+            :invalid="!!errors.email"
+            aria-describedby="email-error"
+        />
+        <small v-if="errors.email" id="email-error" class="field-error">{{ errors.email }}</small>
       </div>
 
-      <div class="logo-section">
-        <img :src="logoImage" :alt="t('login.logoAlt')" class="logo-image" />
+      <div class="field">
+        <label for="password">{{ t('auth.passwordLabel') }}</label>
+        <pv-password
+            v-model="form.password"
+            input-id="password"
+            toggle-mask
+            :feedback="false"
+            autocomplete="current-password"
+            :placeholder="t('auth.passwordPlaceholder')"
+            :invalid="!!errors.password"
+        />
+        <small v-if="errors.password" class="field-error">{{ errors.password }}</small>
       </div>
+
+      <div class="field flex align-items-start gap-2">
+        <pv-checkbox v-model="form.rememberMe" input-id="rememberMe" binary />
+        <div>
+          <label for="rememberMe" class="m-0 cursor-pointer">{{ t('auth.rememberMe') }}</label>
+          <small class="field-hint">{{ t('auth.rememberMeHint') }}</small>
+        </div>
+      </div>
+
+      <pv-message v-if="failure" severity="error" class="mb-3">
+        {{ failureText }}
+        <router-link
+            v-if="isLocked"
+            :to="{ name: 'forgot-password', query: { email: form.email } }"
+            class="block mt-2 font-semibold"
+        >{{ t('auth.resetPasswordAction') }}</router-link>
+        <template v-if="needsVerification">
+          <span v-if="verificationSent" class="block mt-2 font-semibold">{{ t('auth.verifyEmail.resent') }}</span>
+          <pv-button
+              v-else
+              :label="t('auth.verificationBanner.resend')"
+              icon="pi pi-envelope"
+              class="p-button-sm p-button-outlined mt-2"
+              :loading="resending"
+              @click="resendVerification"
+          />
+        </template>
+      </pv-message>
+
+      <pv-button type="submit" :label="t('auth.signInButton')" class="w-full" :loading="loading" />
+    </form>
+
+    <div class="auth-links">
+      <router-link :to="{ name: 'forgot-password', query: form.email ? { email: form.email } : {} }">
+        {{ t('auth.forgotPasswordLink') }}
+      </router-link>
+      <router-link :to="{ name: 'register' }">{{ t('auth.registerLink') }}</router-link>
     </div>
-  </div>
+  </AuthLayout>
 </template>
 
 <script setup>
+import { computed, reactive, ref } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
-import PvButton from 'primevue/button';
-import logoImage from '../../../assets/logo-modo-oscuro.png';
+import AuthLayout from '../components/auth-layout.vue';
+import useIamStore, { SignInStatus } from '../../application/iam.store.js';
+import { AuthFailure, AuthFailureReason } from '../../application/auth-failure.js';
+import { SignInCommand } from '../../domain/commands/sign-in.command.js';
+import { AccountRuleError, collectErrors, validateEmail, validatePasswordPresent } from '../../domain/model/account-rules.js';
+import { authFailureMessage, serverFieldMessages, validationMessages } from '../utils/auth-messages.js';
+import { safeRedirect } from '../utils/safe-redirect.js';
 
-// --- Import Shared Components ---
-import LanguageSwitcher from '../../../shared/presentation/components/language-switcher.vue';
-// --- Import the actual form component ---
-import AuthForm from '../components/auth-form.vue';
+const { t, locale } = useI18n();
+const route = useRoute();
+const router = useRouter();
+const iamStore = useIamStore();
 
-// --- Initialize i18n ---
-const { t } = useI18n();
+const form = reactive({ email: '', password: '', rememberMe: false });
+const errors = ref({});
+const failure = ref(null);
+const loading = ref(false);
+
+const SESSION_END_REASONS = [
+  'session-expired',
+  'session-revoked',
+  'permissions-changed',
+  'password-changed',
+  'signed-out-everywhere',
+  'mfa-reset',
+  'account-deactivated',
+  'mfa-expired',
+];
+
+/** Why the user landed here: session ended by the API (?reason=) or a finished flow (?notice=). */
+const reasonKey = computed(() => {
+  const reason = route.query.reason;
+  return SESSION_END_REASONS.includes(reason) ? `auth.reasons.${reason}` : null;
+});
+const noticeKey = computed(() => {
+  const notice = route.query.notice;
+  return ['password-updated', 'email-verified', 'signed-out-everywhere'].includes(notice) ? `auth.notices.${notice}` : null;
+});
+
+const isLocked = computed(() => failure.value?.reason === AuthFailureReason.ACCOUNT_LOCKED);
+const needsVerification = computed(() => failure.value?.reason === AuthFailureReason.EMAIL_NOT_VERIFIED);
+const resending = ref(false);
+const verificationSent = ref(false);
+const failureText = computed(() => (failure.value ? authFailureMessage(t, locale.value, failure.value) : ''));
+
+function validate() {
+  const codes = collectErrors({
+    email: () => validateEmail(form.email),
+    password: () => validatePasswordPresent(form.password),
+  });
+  errors.value = validationMessages(t, codes);
+  return Object.keys(codes).length === 0;
+}
+
+
+/** Sign-in requires a verified e-mail: offer a new verification link right there. */
+async function resendVerification() {
+  resending.value = true;
+  try {
+    await iamStore.resendVerification(form.email.trim());
+    verificationSent.value = true;
+  } catch (error) {
+    failure.value = AuthFailure.from(error);
+  } finally {
+    resending.value = false;
+  }
+}
+
+async function submit() {
+  failure.value = null;
+  verificationSent.value = false;
+  if (!validate()) return;
+
+  loading.value = true;
+  try {
+    const outcome = await iamStore.signIn(new SignInCommand(form));
+    const redirect = safeRedirect(route.query.redirect);
+    if (outcome.status === SignInStatus.SECOND_FACTOR_REQUIRED) {
+      // Staff (US-52): set up the authenticator app the first time, enter a code afterwards.
+      await router.push({
+        name: outcome.challenge.requiresEnrollment ? 'mfa-enrollment' : 'mfa-verification',
+        query: redirect ? { redirect } : {},
+      });
+      return;
+    }
+    // The guard sends a redirect the role cannot open back to the role's own dashboard.
+    await router.push(redirect ?? { name: 'dashboard' });
+  } catch (error) {
+    const authFailure = AuthFailure.from(error);
+    const fieldMessages = serverFieldMessages(t, authFailure, {
+      email: { code: AccountRuleError.EMAIL_FORMAT },
+      password: { code: AccountRuleError.REQUIRED },
+    });
+    if (Object.keys(fieldMessages).length > 0) {
+      errors.value = fieldMessages;
+    } else {
+      failure.value = authFailure;
+    }
+  } finally {
+    loading.value = false;
+  }
+}
 </script>
-
-<style scoped>
-/* Styles remain unchanged */
-.login-page-container {
-  min-height: 100vh;
-  width: 100%;
-  background-color: #0d2a4f; /* Dark blue */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  overflow: hidden;
-  box-sizing: border-box;
-}
-
-.login-page-container::before {
-  content: '';
-  position: absolute;
-  top: -60%;
-  left: -70%;
-  width: 200%;
-  height: 180%;
-  background-color: #f5f0e1; /* Cream */
-  border-radius: 50%;
-  z-index: 1;
-}
-
-.top-right-controls {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  z-index: 3;
-  display: flex;
-  align-items: center;
-}
-
-.login-content-wrapper {
-  display: flex;
-  width: 100%;
-  max-width: 1200px;
-  z-index: 2;
-  align-items: center;
-  justify-content: space-around;
-  padding: 3rem;
-  box-sizing: border-box;
-}
-
-.form-section {
-  flex: 1;
-  min-width: 300px;
-  max-width: 500px;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  padding-right: 2rem;
-  box-sizing: border-box;
-  position: relative;
-  z-index: 2;
-}
-
-.welcome-text {
-  color: #e67e22; /* Orange */
-  font-size: clamp(1.25rem, 3vw, 1.75rem);
-  font-weight: 600;
-  margin-bottom: 2rem;
-  text-align: left;
-  width: 100%;
-}
-
-.logo-section {
-  flex: 1;
-  min-width: 300px;
-  max-width: 500px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding-left: 2rem;
-  box-sizing: border-box;
-  z-index: 2;
-}
-
-.logo-image {
-  max-width: 80%;
-  height: auto;
-}
-
-@media (max-width: 992px) {
-  .login-content-wrapper {
-    justify-content: center;
-    flex-direction: column;
-    padding: 2rem;
-  }
-  .form-section {
-    padding-right: 0;
-    align-items: center;
-    margin-bottom: 3rem;
-    max-width: 450px;
-    order: 2;
-  }
-  .welcome-text {
-    text-align: center;
-    order: 1;
-  }
-  .logo-section {
-    padding-left: 0;
-    max-width: 300px;
-    order: 3;
-    margin-top: 2rem;
-  }
-  .login-page-container::before {
-    top: -40%;
-    left: -80%;
-    width: 220%;
-    height: 120%;
-  }
-}
-
-@media (max-width: 576px) {
-  .welcome-text {
-    font-size: clamp(1.1rem, 5vw, 1.5rem);
-  }
-  .login-content-wrapper {
-    padding: 1rem;
-  }
-}
-</style>

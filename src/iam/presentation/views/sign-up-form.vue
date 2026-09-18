@@ -1,160 +1,192 @@
 <template>
-  <div class="register-page-container">
-    <div class="top-right-controls">
-      <LanguageSwitcher class="mr-2" />
-      <router-link to="/login">
+  <AuthLayout
+      :title="registeredEmail ? t('auth.register.successTitle') : t('auth.registerTitle')"
+      :subtitle="registeredEmail ? '' : t('auth.requiredFieldsNote')"
+      :headline="t('register.title')"
+  >
+    <template #actions>
+      <router-link :to="{ name: 'login' }">
         <pv-button :label="t('nav.login')" class="p-button-secondary p-button-outlined" />
       </router-link>
-    </div>
-    <div class="register-content-wrapper">
-      <div class="form-section">
-        <h1 class="welcome-text">{{ t('register.title') }}</h1>
-        <AuthForm :start-in-login-mode="false" />
+    </template>
+
+    <!-- US-01 scenario 1: account created, confirmation e-mail sent -->
+    <div v-if="registeredEmail" class="auth-form">
+      <div class="flex align-items-start gap-3 mb-3">
+        <i class="pi pi-envelope text-primary text-4xl"></i>
+        <p class="m-0 line-height-3">{{ t('auth.register.successMessage', { email: registeredEmail }) }}</p>
       </div>
-      <div class="logo-section">
-        <img :src="logoImage" :alt="t('register.logoAlt')" class="logo-image" />
-      </div>
+      <p class="text-600 mt-0">{{ t('auth.register.successSignIn') }}</p>
+      <pv-message v-if="resent" severity="success" class="mb-3">{{ t('auth.register.resent') }}</pv-message>
+      <pv-message v-if="resendError" severity="error" class="mb-3">{{ resendError }}</pv-message>
+      <pv-button
+          :label="t('auth.register.resendButton')"
+          icon="pi pi-refresh"
+          class="p-button-outlined w-full mb-2"
+          :loading="resending"
+          @click="resend"
+      />
+      <pv-button :label="t('auth.goToLogin')" class="w-full" @click="router.push({ name: 'login' })" />
     </div>
-  </div>
+
+    <form v-else class="auth-form" novalidate @submit.prevent="submit">
+      <div class="grid">
+        <div class="col-12 sm:col-6 field">
+          <label for="firstName">{{ t('auth.firstNameLabel') }} *</label>
+          <pv-input-text
+              id="firstName"
+              v-model="form.firstName"
+              autocomplete="given-name"
+              :placeholder="t('auth.firstNamePlaceholder')"
+              :invalid="!!errors.firstName"
+          />
+          <small v-if="errors.firstName" class="field-error">{{ errors.firstName }}</small>
+        </div>
+        <div class="col-12 sm:col-6 field">
+          <label for="lastName">{{ t('auth.lastNameLabel') }} *</label>
+          <pv-input-text
+              id="lastName"
+              v-model="form.lastName"
+              autocomplete="family-name"
+              :placeholder="t('auth.lastNamePlaceholder')"
+              :invalid="!!errors.lastName"
+          />
+          <small v-if="errors.lastName" class="field-error">{{ errors.lastName }}</small>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="email">{{ t('auth.emailLabel') }} *</label>
+        <pv-input-text
+            id="email"
+            v-model="form.email"
+            type="email"
+            autocomplete="email"
+            :placeholder="t('auth.emailPlaceholder')"
+            :invalid="!!errors.email"
+        />
+        <small v-if="errors.email" class="field-error">{{ errors.email }}</small>
+      </div>
+
+      <PasswordField
+          :email="form.email"
+          v-model="form.password"
+          v-model:confirmation="form.confirmation"
+          :min-length="passwordRequirements.minLength"
+          :max-length="passwordRequirements.maxLength"
+          :error="errors.password"
+          :confirmation-error="errors.confirmation"
+          :label="t('auth.passwordLabel')"
+      />
+
+      <!-- US-01 scenario 2: e-mail already registered → suggest password recovery -->
+      <pv-message v-if="failure" severity="error" class="mb-3">
+        {{ failureText }}
+        <router-link
+            v-if="isEmailTaken"
+            :to="{ name: 'forgot-password', query: { email: form.email } }"
+            class="block mt-2 font-semibold"
+        >{{ t('auth.recoverPasswordSuggestion') }}</router-link>
+      </pv-message>
+
+      <pv-button type="submit" :label="t('auth.registerButton')" class="w-full" :loading="loading" />
+    </form>
+
+    <div v-if="!registeredEmail" class="auth-links">
+      <router-link :to="{ name: 'login' }">{{ t('auth.signInLink') }}</router-link>
+    </div>
+  </AuthLayout>
 </template>
 
 <script setup>
+import { computed, reactive, ref } from 'vue';
+import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
-import PvButton from 'primevue/button';
-import logoImage from '../../../assets/logo-modo-oscuro.png';
+import AuthLayout from '../components/auth-layout.vue';
+import PasswordField from '@/shared/presentation/components/password-field.vue';
+import useIamStore from '../../application/iam.store.js';
+import { AuthFailure, AuthFailureReason } from '../../application/auth-failure.js';
+import { SignUpCommand } from '../../domain/commands/sign-up.command.js';
+import { UserRole } from '../../domain/user-role.js';
+import { passwordRequirementsFor } from '../../domain/model/password-policy.js';
+import {
+  AccountRuleError,
+  collectErrors,
+  validateEmail,
+  validateNewPassword,
+  validatePasswordConfirmation,
+  validatePersonName,
+} from '../../domain/model/account-rules.js';
+import { authFailureMessage, serverFieldMessages, validationMessages } from '../utils/auth-messages.js';
 
-// --- Import Shared Components ---
-import LanguageSwitcher from '../../../shared/presentation/components/language-switcher.vue';
-// --- Import the actual form component ---
-import AuthForm from '../components/auth-form.vue';
+const { t, locale } = useI18n();
+const router = useRouter();
+const iamStore = useIamStore();
 
-// --- Initialize i18n ---
-const { t } = useI18n();
+/** Self sign-up always creates a guest, so the guest password policy applies. */
+const passwordRequirements = passwordRequirementsFor(UserRole.GUEST);
+
+const form = reactive({ firstName: '', lastName: '', email: '', password: '', confirmation: '' });
+const errors = ref({});
+const failure = ref(null);
+const loading = ref(false);
+const registeredEmail = ref('');
+const resending = ref(false);
+const resent = ref(false);
+const resendError = ref('');
+
+const isEmailTaken = computed(() => failure.value?.reason === AuthFailureReason.EMAIL_ALREADY_REGISTERED);
+const failureText = computed(() => (failure.value ? authFailureMessage(t, locale.value, failure.value) : ''));
+
+/** US-01 scenarios 3 and 4: every missing or malformed field is highlighted at once. */
+function validate() {
+  const codes = collectErrors({
+    firstName: () => validatePersonName(form.firstName),
+    lastName: () => validatePersonName(form.lastName),
+    email: () => validateEmail(form.email),
+    password: () => validateNewPassword(form.password, passwordRequirements, form.email),
+    confirmation: () => validatePasswordConfirmation(form.password, form.confirmation),
+  });
+  errors.value = validationMessages(t, codes);
+  return Object.keys(codes).length === 0;
+}
+
+async function submit() {
+  failure.value = null;
+  if (!validate()) return;
+
+  loading.value = true;
+  try {
+    const result = await iamStore.signUp(new SignUpCommand(form));
+    registeredEmail.value = result.email;
+  } catch (error) {
+    const authFailure = AuthFailure.from(error);
+    const fieldMessages = serverFieldMessages(t, authFailure, {
+      firstName: { code: AccountRuleError.NAME_FORMAT },
+      lastName: { code: AccountRuleError.NAME_FORMAT },
+      email: { code: AccountRuleError.EMAIL_FORMAT },
+      password: { code: AccountRuleError.PASSWORD_TOO_SHORT, params: { min: passwordRequirements.minLength } },
+    });
+    if (Object.keys(fieldMessages).length > 0) {
+      errors.value = fieldMessages;
+    } else {
+      failure.value = authFailure;
+    }
+  } finally {
+    loading.value = false;
+  }
+}
+
+async function resend() {
+  resending.value = true;
+  resendError.value = '';
+  try {
+    await iamStore.resendVerification(registeredEmail.value);
+    resent.value = true;
+  } catch (error) {
+    resendError.value = authFailureMessage(t, locale.value, error);
+  } finally {
+    resending.value = false;
+  }
+}
 </script>
-
-<style scoped>
-/* Styles can be reused from LoginView or defined separately */
-/* Using the same styles as LoginView for consistency */
-.register-page-container {
-  min-height: 100vh;
-  width: 100%;
-  background-color: #0d2a4f; /* Dark blue */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  overflow: hidden;
-  box-sizing: border-box;
-}
-
-.register-page-container::before {
-  content: '';
-  position: absolute;
-  top: -60%;
-  left: -70%;
-  width: 200%;
-  height: 180%;
-  background-color: #f5f0e1; /* Cream */
-  border-radius: 50%;
-  z-index: 1;
-}
-
-.top-right-controls {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  z-index: 3;
-  display: flex;
-  align-items: center;
-}
-
-.register-content-wrapper {
-  display: flex;
-  width: 100%;
-  max-width: 1200px;
-  z-index: 2;
-  align-items: center;
-  justify-content: space-around;
-  padding: 3rem;
-  box-sizing: border-box;
-}
-
-.form-section {
-  flex: 1;
-  min-width: 300px;
-  max-width: 500px;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  padding-right: 2rem;
-  box-sizing: border-box;
-  position: relative;
-  z-index: 2;
-}
-
-.welcome-text {
-  color: #e67e22; /* Orange */
-  font-size: clamp(1.25rem, 3vw, 1.75rem);
-  font-weight: 600;
-  margin-bottom: 2rem;
-  text-align: left;
-  width: 100%;
-}
-
-.logo-section {
-  flex: 1;
-  min-width: 300px;
-  max-width: 500px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding-left: 2rem;
-  box-sizing: border-box;
-  z-index: 2;
-}
-
-.logo-image {
-  max-width: 80%;
-  height: auto;
-}
-
-@media (max-width: 992px) {
-  .register-content-wrapper {
-    justify-content: center;
-    flex-direction: column;
-    padding: 2rem;
-  }
-  .form-section {
-    padding-right: 0;
-    align-items: center;
-    margin-bottom: 3rem;
-    max-width: 450px;
-    order: 2;
-  }
-  .welcome-text {
-    text-align: center;
-    order: 1;
-  }
-  .logo-section {
-    padding-left: 0;
-    max-width: 300px;
-    order: 3;
-    margin-top: 2rem;
-  }
-  .register-page-container::before {
-    top: -40%;
-    left: -80%;
-    width: 220%;
-    height: 120%;
-  }
-}
-
-@media (max-width: 576px) {
-  .welcome-text {
-    font-size: clamp(1.1rem, 5vw, 1.5rem);
-  }
-  .register-content-wrapper {
-    padding: 1rem;
-  }
-}
-</style>

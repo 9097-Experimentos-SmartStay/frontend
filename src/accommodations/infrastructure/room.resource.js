@@ -11,6 +11,7 @@
  * @property {number} price - The price per night.
  * @property {string} description - Description of the room.
  * @property {string[]} amenities - List of amenities (e.g., "Wifi", "TV").
+ * @property {string} status - Available | Occupied | Cleaning | Maintenance (US-29).
  */
 
 export {}; // Exportamos vacío para que sea un módulo válido

@@ -1,75 +1,35 @@
-﻿<template>
+<template>
   <div class="surface-ground min-h-screen p-4 md:p-6 flex flex-column align-items-center">
     <pv-toast position="bottom-right" />
 
     <div class="w-full max-w-5xl">
-      <div class="flex justify-content-between align-items-center mb-6">
-        <div class="flex align-items-center gap-3">
-          <pv-button icon="pi pi-arrow-left" label="Cancelar" class="p-button-outlined p-button-sm" @click="goBack" />
-          <h1 class="text-3xl font-bold text-color m-0">Editar Habitación #{{ roomId }}</h1>
-        </div>
+      <div class="flex align-items-center gap-3 mb-6">
+        <pv-button icon="pi pi-arrow-left" :label="t('common.cancel')" class="p-button-outlined p-button-sm" @click="goBack" />
+        <h1 class="text-3xl font-bold text-color m-0">{{ t('staffRooms.editTitle', { number: roomStore.currentRoom?.label ?? '' }) }}</h1>
       </div>
 
       <div v-if="loadingData" class="flex justify-content-center p-8">
         <pv-progress-spinner />
       </div>
 
+      <pv-message v-else-if="!roomStore.currentRoom" severity="error">{{ t('staffRooms.notFound') }}</pv-message>
+      <pv-message v-else-if="!allowed" severity="warn">{{ t('staffHotels.outOfScope') }}</pv-message>
+
       <pv-card v-else class="surface-card shadow-2 border-round-xl">
         <template #content>
-          <div class="grid p-fluid formgrid">
-
-            <div class="col-12 md:col-6 mb-4">
-              <label class="font-bold text-color block mb-2">Hotel / Propiedad</label>
-              <pv-select
-                  v-model="form.hotelId"
-                  :options="hotelStore.hotels"
-                  optionLabel="name"
-                  optionValue="id"
-                  class="w-full"
-              />
-            </div>
-
-            <div class="col-12 md:col-6 mb-4">
-              <label class="font-bold text-color block mb-2">Tipo de Habitación</label>
-              <pv-select
-                  v-model="form.roomTypeId"
-                  :options="roomStore.roomTypes"
-                  optionLabel="name"
-                  optionValue="id"
-                  class="w-full"
-              />
-            </div>
-
-            <div class="col-12 md:col-4 mb-4">
-              <label class="font-bold text-color block mb-2">Precio por Noche</label>
-              <pv-input-number
-                  v-model="form.price"
-                  mode="currency"
-                  currency="USD"
-                  locale="en-US"
-              />
-            </div>
-
-            <div class="col-12 md:col-8 mb-4">
-              <label class="font-bold text-color block mb-2">Descripción</label>
-              <pv-textarea v-model="form.description" rows="1" autoResize />
-            </div>
-
-            <div class="col-12 mb-4">
-              <label class="font-bold text-color block mb-2">Comodidades</label>
-              <div class="flex gap-3 flex-wrap">
-                <div v-for="opt in roomStore.amenitiesList" :key="opt" class="field-checkbox">
-                  <pv-checkbox :inputId="'room-'+opt" name="roomAmenity" :value="opt" v-model="form.amenities" />
-                  <label :for="'room-'+opt" class="ml-2 text-color-secondary cursor-pointer">{{ opt }}</label>
-                </div>
-              </div>
-            </div>
-
-            <div class="col-12 mt-2 flex justify-content-end gap-2 border-top-1 surface-border pt-4">
-              <pv-button label="Descartar" icon="pi pi-times" class="p-button-text p-button-secondary" @click="goBack" />
-              <pv-button label="Guardar Cambios" icon="pi pi-check" class="p-button-primary" :loading="isSaving" @click="submitForm" />
-            </div>
-
+          <RoomForm
+              :form="form"
+              :errors="errors"
+              :hotels="hotelStore.hotels"
+              :room-types="roomStore.roomTypes"
+              :amenities="roomStore.amenitiesList"
+              hotel-locked
+              price-note
+          />
+          <pv-message v-if="errorMessage" severity="error" class="mb-3">{{ errorMessage }}</pv-message>
+          <div class="flex justify-content-end gap-2 border-top-1 surface-border pt-4">
+            <pv-button :label="t('staffHotels.discard')" icon="pi pi-times" class="p-button-text p-button-secondary" @click="goBack" />
+            <pv-button :label="t('staffHotels.saveChanges')" icon="pi pi-check" :loading="isSaving" @click="submitForm" />
           </div>
         </template>
       </pv-card>
@@ -78,92 +38,77 @@
 </template>
 
 <script setup>
-/**
- * @file StaffEditRoom.vue
- * @description View component for updating existing Room Resources.
- */
-
-import { ref, reactive, onMounted } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
+import { computed, onMounted, reactive, ref } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import { useToast } from 'primevue/usetoast';
+import { useI18n } from 'vue-i18n';
 import { useRoomStore } from '@/accommodations/application/room.store.js';
 import { useHotelStore } from '@/accommodations/application/hotel.store.js';
+import { validateRoomForm } from '@/accommodations/domain/room-rules.js';
+import useIamStore from '@/iam/application/iam.store.js';
+import { canManageHotel } from '@/iam/domain/user-role.js';
+import { failureMessageKey, violationMessages } from '@/shared/presentation/utils/failure-message.js';
+import RoomForm from '../components/RoomForm.vue';
 
+/**
+ * Edit a room. The hotel is read-only: PUT /rooms does not accept `hotelId`.
+ */
 const router = useRouter();
 const route = useRoute();
 const toast = useToast();
+const { t } = useI18n();
 const roomStore = useRoomStore();
 const hotelStore = useHotelStore();
+const iamStore = useIamStore();
 
 const roomId = Number(route.params.roomId);
 const loadingData = ref(true);
 const isSaving = ref(false);
+const errors = ref({});
+const errorMessage = ref('');
+const form = reactive({ hotelId: null, number: '', roomTypeId: null, price: null, description: '', amenities: [] });
 
-const form = reactive({
-  hotelId: null,
-  roomTypeId: null,
-  price: null,
-  description: '',
-  amenities: []
-});
+const allowed = computed(() => canManageHotel(iamStore.currentUser, form.hotelId));
 
 onMounted(async () => {
-  try {
-    // Fetch all necessary data in parallel
-    await Promise.all([
-      roomStore.fetchAllRoomTypes(),
-      roomStore.fetchAmenities(),
-      hotelStore.fetchAllHotels(),
-      roomStore.fetchRoomById(roomId)
-    ]);
-
-    // Populate form
-    const room = roomStore.currentRoom;
-    if (room) {
-      form.hotelId = room.hotelId;
-      form.roomTypeId = room.roomTypeId;
-      form.price = room.price;
-      form.description = room.description;
-      form.amenities = room.amenities ? [...room.amenities] : [];
-    } else {
-      throw new Error("Room not found");
-    }
-  } catch (e) {
-    toast.add({ severity: 'error', summary: 'Error', detail: 'No se pudieron cargar los datos.', life: 3000 });
-    goBack();
-  } finally {
-    loadingData.value = false;
+  await Promise.all([
+    roomStore.fetchAllRoomTypes(),
+    roomStore.fetchAmenities(),
+    hotelStore.fetchAllHotels(),
+    roomStore.fetchRoomById(roomId),
+  ]);
+  const room = roomStore.currentRoom;
+  if (room) {
+    Object.assign(form, {
+      hotelId: room.hotelId,
+      number: room.number ?? '',
+      roomTypeId: room.roomTypeId,
+      price: room.price,
+      description: room.description,
+      amenities: [...room.amenities],
+    });
   }
+  loadingData.value = false;
 });
 
 const goBack = () => router.push({ name: 'staff-rooms' });
 
-const submitForm = async () => {
-  if (!form.hotelId || !form.roomTypeId || !form.price || !form.description) {
-    toast.add({ severity: 'error', summary: 'Error', detail: 'Completa los campos requeridos.', life: 3000 });
-    return;
-  }
+async function submitForm() {
+  errorMessage.value = '';
+  const invalid = validateRoomForm(form);
+  errors.value = violationMessages(t, invalid, 'staffRooms.rules');
+  if (Object.keys(invalid).length > 0) return;
 
   isSaving.value = true;
   try {
-    const payload = {
-      roomTypeId: form.roomTypeId,
-      price: Number(form.price),
-      description: form.description,
-      amenities: form.amenities
-    };
-
-    await roomStore.updateRoom(roomId, payload);
-
-    toast.add({ severity: 'success', summary: 'Actualizado', detail: 'Cambios guardados.', life: 3000 });
-    setTimeout(() => {
-      router.push({ name: 'staff-rooms' });
-    }, 1000);
-
+    await roomStore.updateRoom(roomId, form);
+    toast.add({ severity: 'success', summary: t('common.success'), detail: t('staffRooms.updated'), life: 3000 });
+    router.push({ name: 'staff-rooms' });
   } catch (err) {
-    toast.add({ severity: 'error', summary: 'Error', detail: 'No se pudo actualizar.', life: 3000 });
+    if (err.hasFieldViolations) errors.value = violationMessages(t, err.fieldViolations, 'staffRooms.rules');
+    else errorMessage.value = t(failureMessageKey(err, { forbidden: 'staffHotels.outOfScope', notFound: 'staffRooms.notFound' }));
   } finally {
     isSaving.value = false;
   }
-};
+}
 </script>

@@ -1,8 +1,9 @@
 import { BaseApi } from "@/shared/infrastructure/services/base-api.js";
 import { BaseEndpoint } from "@/shared/infrastructure/services/base-endpoint.js";
+import { endpoints } from "@/shared/infrastructure/config/api-config.js";
 
 // Swagger Path: /api/v1/rooms
-const roomsEndpointPath = import.meta.env.VITE_ROOMS_ENDPOINT_PATH;
+const roomsEndpointPath = endpoints.rooms;
 
 /**
  * RoomApi class.
@@ -74,5 +75,34 @@ export class RoomApi extends BaseApi {
      */
     delete(id) {
         return this.#endpoint.delete(id);
+    }
+
+    /**
+     * GET /rooms/map (US-06): every room of a hotel with its status. Staff of a hotel may omit `hotelId`
+     * (their own hotel); a chain_admin must send it.
+     * @param {number|null} hotelId
+     * @returns {Promise<Object>} Axios response.
+     */
+    getMap(hotelId) {
+        return this.http.get(`${roomsEndpointPath}/map`, { params: hotelId ? { hotelId } : {} });
+    }
+
+    /**
+     * PATCH /rooms/{id}/status → 200 RoomResource | 409 transition not allowed.
+     * @param {number} id
+     * @param {string} status
+     * @returns {Promise<Object>} Axios response.
+     */
+    changeStatus(id, status) {
+        return this.http.patch(`${roomsEndpointPath}/${id}/status`, { status });
+    }
+
+    /**
+     * GET /rooms/{id}/status-history → RoomStatusChangeResource[] (newest first, max 100).
+     * @param {number} id
+     * @returns {Promise<Object>} Axios response.
+     */
+    getStatusHistory(id) {
+        return this.http.get(`${roomsEndpointPath}/${id}/status-history`);
     }
 }

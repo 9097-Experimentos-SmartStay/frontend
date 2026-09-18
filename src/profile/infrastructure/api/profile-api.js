@@ -1,72 +1,39 @@
-import axios from 'axios';
-import { ProfileResource, CreateProfileResource } from '../profile.resource.js';
+import { BaseApi } from '@/shared/infrastructure/services/base-api.js';
+import { endpoints } from '@/shared/infrastructure/config/api-config.js';
 
-const API_BASE_URL = 'http://localhost:5192/api/v1';
+const guestsPath = endpoints.guests;
+const staffPath = endpoints.staff;
 
 /**
- * Profile API Service
- * Handles all HTTP requests related to profiles
+ * Profiles live in two resources (§11, §12): /guests (guest profiles) and /staff (staff profiles).
  */
-export class ProfileApi {
+export class ProfileApi extends BaseApi {
     /**
-     * Gets a profile by its ID
-     * @param {number} profileId - Profile unique identifier
-     * @returns {Promise<ProfileResource>} Profile resource
+     * GET /guests/user/{userId}. 404 when the user has no profile (or it is not theirs).
+     * @param {number} userId
      */
-    static async getProfileById(profileId) {
-        try {
-            const response = await axios.get(`${API_BASE_URL}/profiles/${profileId}`);
-            return ProfileResource.fromJSON(response.data);
-        } catch (error) {
-            console.error('Error fetching profile by ID:', error);
-            throw error;
-        }
+    getGuestProfileByUserId(userId) {
+        return this.http.get(`${guestsPath}/user/${userId}`);
+    }
+
+    /** GET /guests (reception, admin, chain_admin). */
+    getGuestProfiles() {
+        return this.http.get(guestsPath);
     }
 
     /**
-     * Gets all profiles
-     * @returns {Promise<ProfileResource[]>} Array of profile resources
+     * POST /guests. For a guest the owner is the caller (no `userId`).
+     * @param {Object} resource
      */
-    static async getAllProfiles() {
-        try {
-            const response = await axios.get(`${API_BASE_URL}/profiles`);
-            return response.data.map(profile => ProfileResource.fromJSON(profile));
-        } catch (error) {
-            console.error('Error fetching all profiles:', error);
-            throw error;
-        }
+    createGuestProfile(resource) {
+        return this.http.post(guestsPath, resource);
     }
 
     /**
-     * Creates a new profile
-     * @param {CreateProfileResource} createProfileResource - Profile data to create
-     * @returns {Promise<ProfileResource>} Created profile resource
+     * GET /staff/user/{userId} (admin, chain_admin only).
+     * @param {number} userId
      */
-    static async createProfile(createProfileResource) {
-        try {
-            const response = await axios.post(
-                `${API_BASE_URL}/profiles`,
-                createProfileResource.toJSON()
-            );
-            return ProfileResource.fromJSON(response.data);
-        } catch (error) {
-            console.error('Error creating profile:', error);
-            throw error;
-        }
-    }
-
-    /**
-     * Gets a profile by email address
-     * @param {string} email - Email address
-     * @returns {Promise<ProfileResource|null>} Profile resource or null if not found
-     */
-    static async getProfileByEmail(email) {
-        try {
-            const profiles = await this.getAllProfiles();
-            return profiles.find(profile => profile.email === email) || null;
-        } catch (error) {
-            console.error('Error fetching profile by email:', error);
-            throw error;
-        }
+    getStaffProfileByUserId(userId) {
+        return this.http.get(`${staffPath}/user/${userId}`);
     }
 }

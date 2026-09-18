@@ -7,6 +7,8 @@ import 'primeflex/primeflex.css';
 import 'primeicons/primeicons.css';
 import router from "./router.js";
 import pinia from "./pinia.js";
+import { configureSessionHandling, SessionEndReason } from './shared/infrastructure/http/http-client.js';
+import useIamStore from './iam/application/iam.store.js';
 import Carousel from 'primevue/carousel';
 
 import ConfirmationService from 'primevue/confirmationservice';
@@ -44,9 +46,12 @@ import Chart from 'primevue/chart';
 import ProgressSpinner from 'primevue/progressspinner';
 import InputMask from 'primevue/inputmask';
 import Skeleton from 'primevue/skeleton';
+import Message from 'primevue/message';
+import InputOtp from 'primevue/inputotp';
+import DatePicker from 'primevue/datepicker';
 
 // noinspection JSCheckFunctionSignatures
-createApp(App)
+const app = createApp(App)
     .use(i18n)
     .use(PrimeVue, { theme: { preset: Aura}, ripple: true })
     .use(ConfirmationService)
@@ -85,7 +90,26 @@ createApp(App)
     .component('pv-progress-spinner', ProgressSpinner)
     .component('pv-input-mask', InputMask)
     .component('pv-skeleton', Skeleton)
+    .component('pv-message', Message)
+    .component('pv-input-otp', InputOtp)
+    .component('pv-date-picker', DatePicker)
     .directive('tooltip', Tooltip)
     .use(router)
-    .use(pinia)
-    .mount('#app')
+    .use(pinia);
+
+// Session lifecycle: the HTTP client renews remembered sessions through IAM and, when the API
+// rejects the session (401), IAM clears it and the app goes to the login with the reason.
+configureSessionHandling({
+    refreshSession: () => useIamStore(pinia).refreshSession(),
+    onSessionEnded: (reason) => {
+        useIamStore(pinia).endSession();
+        const current = router.currentRoute.value;
+        if (current.meta.requiresAuth) {
+            // With new permissions the current page may not be allowed any more: start from the new home.
+            const query = reason === SessionEndReason.PERMISSIONS_CHANGED ? { reason } : { reason, redirect: current.fullPath };
+            router.push({ name: 'login', query });
+        }
+    },
+});
+
+app.mount('#app');

@@ -1,4 +1,6 @@
-﻿import { Room } from '../domain/model/room.entity.js';
+import { Room } from '../domain/model/room.entity.js';
+import { normalizeRoomNumber } from '../domain/model/room-number.js';
+import { toRoomStatus } from '../domain/model/room-status.js';
 
 /**
  * Assembler to convert between Room Resources (Infrastructure) and Room Entities (Domain).
@@ -28,7 +30,9 @@ export class RoomAssembler {
             roomTypeName: resource.roomTypeName,
             price: resource.price,
             description: resource.description,
-            amenities: resource.amenities
+            amenities: resource.amenities,
+            status: toRoomStatus(resource.status),
+            number: resource.number ?? null
         });
     }
 
@@ -52,5 +56,37 @@ export class RoomAssembler {
     static toEntityFromResponse(response) {
         if (!response.data) return null;
         return RoomAssembler.toEntityFromResource(response.data);
+    }
+
+    /**
+     * Body of POST /rooms. The number is sent upper case, as the backend stores it.
+     * @param {{hotelId: number, number: string, roomTypeId: number, price: number, description: string, amenities: string[]}} form
+     * @returns {Object}
+     */
+    static toCreateResource(form) {
+        return {
+            hotelId: form.hotelId,
+            number: normalizeRoomNumber(form.number),
+            roomTypeId: form.roomTypeId,
+            price: Number(form.price),
+            description: form.description.trim(),
+            amenities: [...form.amenities],
+        };
+    }
+
+    /**
+     * Body of PUT /rooms/{id}. `hotelId` is not part of it: a room cannot move to another hotel.
+     * The price only applies to new bookings (existing ones keep their snapshot).
+     * @param {{number: string, roomTypeId: number, price: number, description: string, amenities: string[]}} form
+     * @returns {Object}
+     */
+    static toUpdateResource(form) {
+        return {
+            number: normalizeRoomNumber(form.number),
+            roomTypeId: form.roomTypeId,
+            price: Number(form.price),
+            description: form.description.trim(),
+            amenities: [...form.amenities],
+        };
     }
 }

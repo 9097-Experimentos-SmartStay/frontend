@@ -71,7 +71,7 @@
                   :alt="hotel.name"
                   class="w-full h-full object-cover"
               />
-              <div class="absolute top-0 right-0 m-3">
+              <div v-if="hotel.rating != null" class="absolute top-0 right-0 m-3">
                 <pv-tag :value="hotel.rating + ' ★'" severity="warning" rounded></pv-tag>
               </div>
             </div>
@@ -104,7 +104,7 @@
               <div class="border-top-1 border-200 pt-3 flex justify-content-between align-items-center mt-auto">
                 <div>
                   <span class="text-xs text-500 block">{{ $t('hotels.pricePerNight') }}</span>
-                  <span class="text-xl font-bold text-900">${{ hotel.basePrice }}</span>
+                  <span class="text-xl font-bold text-900">{{ formatMoney(hotel.basePrice, locale) }}</span>
                 </div>
                 <pv-button icon="pi pi-arrow-right" class="p-button-rounded p-button-outlined" />
               </div>
@@ -123,6 +123,7 @@ import { useI18n } from 'vue-i18n';
 import { useToast } from 'primevue/usetoast';
 // Import the store created previously
 import { useHotelStore } from '../../application/hotel.store.js';
+import { formatMoney } from '@/shared/presentation/utils/formatters.js';
 
 const router = useRouter();
 const hotelStore = useHotelStore();
@@ -165,10 +166,11 @@ onMounted(async () => {
 const filteredHotels = computed(() => {
   if (!searchQuery.value) return hotelStore.hotels;
   const lowerQuery = searchQuery.value.toLowerCase();
+  // Hotel has no city/country today; every field is optional so the search never crashes.
   return hotelStore.hotels.filter(h =>
-      h.name.toLowerCase().includes(lowerQuery) ||
-      h.city.toLowerCase().includes(lowerQuery) ||
-      h.country.toLowerCase().includes(lowerQuery)
+      [h.name, h.location, h.city, h.country]
+          .filter(Boolean)
+          .some(value => String(value).toLowerCase().includes(lowerQuery))
   );
 });
 
@@ -185,9 +187,8 @@ function goHome() {
  * @param {number} hotelId - The ID of the hotel to view.
  */
 function viewHotelDetails(hotelId) {
-  // Logic to go to rooms of this hotel (Future implementation)
+  // Hotel detail is not implemented yet (future: rooms of this hotel).
   // router.push({ name: 'hotel-rooms', params: { hotelId } });
-  console.log("Navigating to hotel:", hotelId);
 }
 
 /**

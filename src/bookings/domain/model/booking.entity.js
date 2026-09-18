@@ -1,93 +1,183 @@
+import { CalendarDate } from '@/shared/domain/calendar-date.js';
+import { Money } from '@/shared/domain/money.js';
+import { BookingStatus, CancellationReason, CHANGEABLE_BOOKING_STATUSES, ACTIVE_BOOKING_STATUSES } from './booking-status.js';
+import { StayPeriod } from './stay-period.js';
+
+export { BookingStatus, CancellationReason };
+
+/** Why a booking cannot be cancelled now (§8.4). */
+export const CancellationBlock = Object.freeze({
+    /** Only Pending or Confirmed bookings can be cancelled. */
+    STATUS: 'status',
+    /** Not on or after the check-in day (hotel calendar). */
+    CHECK_IN_DAY_REACHED: 'checkInDayReached',
+});
+
 /**
- * Booking Domain Entity.
- * Represents a booking in the business domain.
- * @class
+ * A booking (BookingResource, §8): who stays in which room, which nights, for how much and in which state.
+ *
+ * - `pricePerNight` and `total` are the snapshot taken when it was made: a later room price change does not
+ *   touch them, and a registered payment is always `total`.
+ * - A Pending booking holds the room until `paymentDueAt` (24 h); unpaid, it is cancelled automatically
+ *   (reason PaymentNotReceived, shown as "Vencida").
  */
 export class Booking {
     /**
-     * Creates an instance of Booking.
-     * @param {Object} params - The parameters for creating the booking.
-     * @param {number} params.id - The unique identifier of the booking.
-     * @param {number} params.roomId - The identifier of the room being booked.
-     * @param {string} params.guestName - The name of the guest.
-     * @param {string} params.guestEmail - The email of the guest.
-     * @param {Date} params.checkInDate - The check-in date.
-     * @param {Date} params.checkOutDate - The check-out date.
-     * @param {string} [params.status='Pending'] - The status of the booking.
+     * @param {Object} params
+     * @param {number} params.id
+     * @param {import('./booking-code.js').BookingCode|null} params.code
+     * @param {number|null} params.hotelId
+     * @param {number} params.roomId
+     * @param {string|null} params.roomNumber - The number people see (US-53).
+     * @param {string} params.guestName
+     * @param {string} params.guestEmail
+     * @param {string|null} [params.guestPhone]
+     * @param {StayPeriod} params.stay
+     * @param {Money|null} [params.pricePerNight]
+     * @param {Money|null} [params.total]
+     * @param {string} params.status - One of {@link BookingStatus}.
+     * @param {Date|null} [params.createdAt]
+     * @param {Date|null} [params.paymentDueAt]
+     * @param {Date|null} [params.confirmedAt] - Set when the payment was registered.
+     * @param {Date|null} [params.cancelledAt]
+     * @param {string|null} [params.cancellationReason] - One of {@link CancellationReason}.
+     * @param {number|null} [params.userId] - Guest account (null for a desk booking of a guest without account).
+     * @param {import('./payment-instructions.js').PaymentInstructions|null} [params.paymentInstructions] - The
+     *   hotel's payment methods; only for a Pending booking read by id or just created.
      */
-    constructor({ id, roomId, guestName, guestEmail, checkInDate, checkOutDate, status }) {
-        /**
-         * @property {number} id - The unique identifier of the booking.
-         */
+    constructor({
+        id, code = null, hotelId = null, roomId, roomNumber = null, guestName, guestEmail, guestPhone = null, stay,
+        pricePerNight = null, total = null, status, createdAt = null, paymentDueAt = null, confirmedAt = null,
+        cancelledAt = null, cancellationReason = null, userId = null, paymentInstructions = null,
+    }) {
         this.id = id;
-        /**
-         * @property {number} roomId - The identifier of the room being booked.
-         */
+        this.code = code;
+        this.hotelId = hotelId;
         this.roomId = roomId;
-        /**
-         * @property {string} guestName - The name of the guest.
-         */
-        this.guestName = guestName;
-        /**
-         * @property {string} guestEmail - The email of the guest.
-         */
-        this.guestEmail = guestEmail;
-        // La entidad espera recibir objetos Date ya instanciados, no strings
-        /**
-         * @property {Date} checkInDate - The check-in date.
-         */
-        this.checkInDate = checkInDate;
-        /**
-         * @property {Date} checkOutDate - The check-out date.
-         */
-        this.checkOutDate = checkOutDate;
-        /**
-         * @property {string} status - The status of the booking.
-         */
-        this.status = status || 'Pending';
+        this.roomNumber = roomNumber;
+        this.guestName = guestName ?? '';
+        this.guestEmail = guestEmail ?? '';
+        this.guestPhone = guestPhone;
+        this.stay = stay ?? new StayPeriod(null, null);
+        this.pricePerNight = pricePerNight;
+        this.total = total ?? (pricePerNight ? pricePerNight.times(this.stay.nights) : null);
+        this.status = status || BookingStatus.PENDING;
+        this.createdAt = createdAt;
+        this.paymentDueAt = paymentDueAt;
+        this.confirmedAt = confirmedAt;
+        this.cancelledAt = cancelledAt;
+        this.cancellationReason = cancellationReason;
+        this.userId = userId;
+        this.paymentInstructions = paymentInstructions;
+        Object.freeze(this);
     }
 
-    /**
-     * Calculates the duration of the booking in days.
-     * @returns {number} Duration in days.
-     */
-    get durationInDays() {
-        if (!this.checkInDate || !this.checkOutDate) {
-            return 0;
-        }
-        const diffTime = Math.abs(this.checkOutDate - this.checkInDate);
-        return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    /** @returns {CalendarDate|null} */
+    get checkInDate() {
+        return this.stay.checkIn;
     }
 
-    /**
-     * Checks if the booking is pending.
-     * @returns {boolean} True if the status is 'Pending'.
-     */
+    /** @returns {CalendarDate|null} */
+    get checkOutDate() {
+        return this.stay.checkOut;
+    }
+
+    /** @returns {number} */
+    get nights() {
+        return this.stay.nights;
+    }
+
+    /** @returns {string} The booking code, or "#id" for data without one. */
+    get reference() {
+        return this.code?.value ?? `#${this.id}`;
+    }
+
+    /** @returns {string} The room number; "#roomId" only while the API does not send it. */
+    get roomLabel() {
+        return this.roomNumber ?? `#${this.roomId}`;
+    }
+
+    /** @returns {boolean} */
     isPending() {
-        return this.status === 'Pending';
+        return this.status === BookingStatus.PENDING;
     }
 
-    /**
-     * Checks if the booking is confirmed.
-     * @returns {boolean} True if the status is 'Confirmed'.
-     */
+    /** @returns {boolean} */
     isConfirmed() {
-        return this.status === 'Confirmed';
+        return this.status === BookingStatus.CONFIRMED;
     }
 
-    /**
-     * Checks if the booking is cancelled.
-     * @returns {boolean} True if the status is 'Cancelled'.
-     */
+    /** @returns {boolean} */
     isCancelled() {
-        return this.status === 'Cancelled';
+        return this.status === BookingStatus.CANCELLED;
+    }
+
+    /** @returns {boolean} Pending, Confirmed or CheckedIn: it holds the room. */
+    isActive() {
+        return ACTIVE_BOOKING_STATUSES.includes(this.status);
+    }
+
+    /** @returns {boolean} Cancelled automatically because nobody paid before the deadline. */
+    get isExpired() {
+        return this.isCancelled() && this.cancellationReason === CancellationReason.PAYMENT_NOT_RECEIVED;
+    }
+
+    /** @returns {boolean} A payment was registered at some point (confirmedAt is set). */
+    get wasPaid() {
+        return !!this.confirmedAt;
+    }
+
+    /** @returns {boolean} Cancelled after being paid: its payment was marked Refunded (§8.4). */
+    get isRefunded() {
+        return this.isCancelled() && this.wasPaid;
     }
 
     /**
-     * Checks if the booking is completed.
-     * @returns {boolean} True if the status is 'Completed'.
+     * Cancellation policy (§8.4, US-07 scenario 4): only Pending or Confirmed, and before the check-in day.
+     * @param {CalendarDate} [today] - Today in the hotel calendar.
+     * @returns {string|null} A {@link CancellationBlock}, or null when it can be cancelled.
      */
-    isCompleted() {
-        return this.status === 'Completed';
+    cancellationBlock(today = CalendarDate.today()) {
+        if (!CHANGEABLE_BOOKING_STATUSES.includes(this.status)) return CancellationBlock.STATUS;
+        if (this.checkInDate && !today.isBefore(this.checkInDate)) return CancellationBlock.CHECK_IN_DAY_REACHED;
+        return null;
+    }
+
+    /**
+     * @param {CalendarDate} [today]
+     * @returns {boolean}
+     */
+    canBeCancelled(today = CalendarDate.today()) {
+        return this.cancellationBlock(today) === null;
+    }
+
+    /**
+     * Only Pending or Confirmed bookings can change dates or room (§8.3); the new dates are validated apart.
+     * @returns {boolean}
+     */
+    canBeChanged() {
+        return CHANGEABLE_BOOKING_STATUSES.includes(this.status);
+    }
+
+    /** @returns {boolean} Payment is registered while the booking is Pending (the payment confirms it). */
+    canBePaid() {
+        return this.isPending();
+    }
+
+    /**
+     * @param {Date} [now]
+     * @returns {number|null} Milliseconds left to pay a Pending booking (≤ 0 when the deadline passed).
+     */
+    paymentTimeLeft(now = new Date()) {
+        if (!this.isPending() || !this.paymentDueAt) return null;
+        return this.paymentDueAt.getTime() - now.getTime();
+    }
+
+    /**
+     * @param {CalendarDate} [today]
+     * @returns {boolean} Active and not finished yet (check-out today or later).
+     */
+    isUpcoming(today = CalendarDate.today()) {
+        return this.isActive() && !!this.checkOutDate && !this.checkOutDate.isBefore(today);
     }
 }
