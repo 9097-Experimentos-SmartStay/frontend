@@ -47,6 +47,8 @@ import ProgressSpinner from 'primevue/progressspinner';
 import InputMask from 'primevue/inputmask';
 import Skeleton from 'primevue/skeleton';
 import Message from 'primevue/message';
+import InputOtp from 'primevue/inputotp';
+import DatePicker from 'primevue/datepicker';
 
 // noinspection JSCheckFunctionSignatures
 const app = createApp(App)
@@ -89,6 +91,8 @@ const app = createApp(App)
     .component('pv-input-mask', InputMask)
     .component('pv-skeleton', Skeleton)
     .component('pv-message', Message)
+    .component('pv-input-otp', InputOtp)
+    .component('pv-date-picker', DatePicker)
     .directive('tooltip', Tooltip)
     .use(router)
     .use(pinia);

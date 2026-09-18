@@ -42,11 +42,13 @@
     "reasons": {
       "session-expired": "Tu sesión expiró. Inicia sesión de nuevo.",
       "session-revoked": "Tu sesión se cerró porque cambió tu contraseña. Inicia sesión de nuevo.",
-      "account-deactivated": "Tu cuenta fue desactivada. Contacta al administrador."
+      "account-deactivated": "Tu cuenta fue desactivada. Contacta al administrador.",
+      "mfa-expired": "Por seguridad, el segundo paso vence a los 10 minutos o al recargar la página. Inicia sesión de nuevo."
     },
     "notices": {
       "password-updated": "Tu contraseña se actualizó. Inicia sesión con la nueva contraseña.",
-      "email-verified": "Tu correo quedó confirmado. Ya puedes iniciar sesión."
+      "email-verified": "Tu correo quedó confirmado. Ya puedes iniciar sesión.",
+      "signed-out-everywhere": "Cerramos tu sesión en todos tus dispositivos. Inicia sesión de nuevo."
     },
     "errors": {
       "invalidCredentials": "El correo o la contraseña no son correctos.",
@@ -103,7 +105,55 @@
       "resend": "Reenviar enlace",
       "resent": "Te enviamos un nuevo enlace de confirmación."
     },
-    "signOut": "Cerrar sesión"
+    "signOut": "Cerrar sesión",
+    "mfa": {
+      "codeLabel": "Código de 6 dígitos",
+      "rememberMeKept": "Mantendremos tu sesión abierta en este dispositivo, como elegiste.",
+      "enrollment": {
+        "title": "Protege tu cuenta con una app de autenticación",
+        "subtitle": "Tu cuenta del personal necesita un segundo factor para ingresar.",
+        "stepInstall": "Instala una app de autenticación en tu celular (Google Authenticator, Microsoft Authenticator o Authy).",
+        "stepScan": "En la app, agrega una cuenta y escanea este código QR.",
+        "stepCode": "Escribe el código de 6 dígitos que muestra la app.",
+        "qrAlt": "Código QR para configurar la app de autenticación",
+        "qrFailed": "No pudimos mostrar el código QR. Ingresa la clave manualmente.",
+        "manualEntry": "¿No puedes escanear? Ingresa esta clave en la app:",
+        "manualDetails": "Cuenta: {account} · basada en tiempo · {digits} dígitos cada {period} segundos.",
+        "copySecret": "Copiar clave",
+        "submit": "Activar y continuar"
+      },
+      "verification": {
+        "title": "Verificación en dos pasos",
+        "subtitle": "Ingresa el código de tu app de autenticación para {email}.",
+        "codeHint": "El código cambia cada 30 segundos.",
+        "recoveryCodeLabel": "Código de recuperación",
+        "recoveryCodePlaceholder": "XXXXX-XXXXX",
+        "recoveryCodeHint": "Cada código de recuperación se puede usar una sola vez.",
+        "useRecoveryCode": "¿No tienes tu celular? Usa un código de recuperación",
+        "useAuthenticator": "Usar el código de la app de autenticación",
+        "submit": "Verificar e ingresar"
+      },
+      "recovery": {
+        "title": "Guarda tus códigos de recuperación",
+        "subtitle": "Tu app de autenticación quedó activada.",
+        "warning": "Si pierdes tu celular, podrás ingresar con uno de estos códigos. Cada uno sirve una sola vez y no los volveremos a mostrar.",
+        "listLabel": "Códigos de recuperación",
+        "copy": "Copiar códigos",
+        "copied": "Copiados",
+        "download": "Descargar .txt",
+        "saved": "Guardé mis códigos de recuperación en un lugar seguro.",
+        "continue": "Continuar",
+        "fileHeader": "Códigos de recuperación de SmartStay\nCuenta: {email}\nGenerados: {date}\nCada código sirve una sola vez."
+      },
+      "errors": {
+        "codeInvalid": "El código no es válido. Revisa tu app de autenticación e inténtalo de nuevo.",
+        "codeAlreadyUsed": "Ese código ya se usó. Espera el siguiente código de tu app.",
+        "recoveryCodeInvalid": "El código de recuperación no es válido o ya se usó.",
+        "challengeExpired": "El tiempo para completar el segundo paso venció. Inicia sesión de nuevo.",
+        "enrollmentNotStarted": "Primero escanea el código QR para configurar tu app.",
+        "alreadyEnabled": "Tu cuenta ya tiene una app de autenticación. Inicia sesión de nuevo."
+      }
+    }
   },
   "authoring-phrase": {
     "intro": "Hecho con",
@@ -773,7 +823,9 @@
     "passwordTooShort": "La contraseña debe tener al menos {min} caracteres.",
     "passwordTooLong": "La contraseña no puede tener más de {max} caracteres.",
     "passwordBreached": "Esta contraseña aparece en filtraciones o es muy común. Elige otra.",
-    "passwordRejected": "El servidor rechazó la contraseña: {reason}"
+    "passwordRejected": "El servidor rechazó la contraseña: {reason}",
+    "authenticatorCodeFormat": "Ingresa los 6 dígitos de tu app de autenticación.",
+    "recoveryCodeFormat": "Un código de recuperación tiene 10 letras y números (XXXXX-XXXXX)."
   },
   "roles": {
     "guest": "Huésped",

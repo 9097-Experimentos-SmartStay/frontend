@@ -83,11 +83,12 @@ import { computed, reactive, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import AuthLayout from '../components/auth-layout.vue';
-import useIamStore from '../../application/iam.store.js';
+import useIamStore, { SignInStatus } from '../../application/iam.store.js';
 import { AuthFailure, AuthFailureReason } from '../../application/auth-failure.js';
 import { SignInCommand } from '../../domain/commands/sign-in.command.js';
 import { AccountRuleError, collectErrors, validateEmail, validatePasswordPresent } from '../../domain/model/account-rules.js';
 import { authFailureMessage, serverFieldMessages, validationMessages } from '../utils/auth-messages.js';
+import { safeRedirect } from '../utils/safe-redirect.js';
 
 const { t, locale } = useI18n();
 const route = useRoute();
@@ -102,11 +103,11 @@ const loading = ref(false);
 /** Why the user landed here: session ended by the API (?reason=) or a finished flow (?notice=). */
 const reasonKey = computed(() => {
   const reason = route.query.reason;
-  return ['session-expired', 'session-revoked', 'account-deactivated'].includes(reason) ? `auth.reasons.${reason}` : null;
+  return ['session-expired', 'session-revoked', 'account-deactivated', 'mfa-expired'].includes(reason) ? `auth.reasons.${reason}` : null;
 });
 const noticeKey = computed(() => {
   const notice = route.query.notice;
-  return ['password-updated', 'email-verified'].includes(notice) ? `auth.notices.${notice}` : null;
+  return ['password-updated', 'email-verified', 'signed-out-everywhere'].includes(notice) ? `auth.notices.${notice}` : null;
 });
 
 const isLocked = computed(() => failure.value?.reason === AuthFailureReason.ACCOUNT_LOCKED);
@@ -124,11 +125,6 @@ function validate() {
   return Object.keys(codes).length === 0;
 }
 
-/** Only same-app paths are followed after sign-in (never an absolute URL from the query string). */
-function safeRedirect() {
-  const target = route.query.redirect;
-  return typeof target === 'string' && target.startsWith('/') && !target.startsWith('//') ? target : null;
-}
 
 /** Sign-in requires a verified e-mail: offer a new verification link right there. */
 async function resendVerification() {
@@ -150,9 +146,18 @@ async function submit() {
 
   loading.value = true;
   try {
-    await iamStore.signIn(new SignInCommand(form));
+    const outcome = await iamStore.signIn(new SignInCommand(form));
+    const redirect = safeRedirect(route.query.redirect);
+    if (outcome.status === SignInStatus.SECOND_FACTOR_REQUIRED) {
+      // Staff (US-52): set up the authenticator app the first time, enter a code afterwards.
+      await router.push({
+        name: outcome.challenge.requiresEnrollment ? 'mfa-enrollment' : 'mfa-verification',
+        query: redirect ? { redirect } : {},
+      });
+      return;
+    }
     // The guard sends a redirect the role cannot open back to the role's own dashboard.
-    await router.push(safeRedirect() ?? { name: 'dashboard' });
+    await router.push(redirect ?? { name: 'dashboard' });
   } catch (error) {
     const authFailure = AuthFailure.from(error);
     const fieldMessages = serverFieldMessages(t, authFailure, {

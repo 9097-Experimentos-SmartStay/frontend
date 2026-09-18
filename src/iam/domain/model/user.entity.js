@@ -1,4 +1,4 @@
-import { normalizeRole } from '../user-role.js';
+import { normalizeRole, requiresSecondFactor } from '../user-role.js';
 
 /** Account status strings of the API. */
 export const UserStatus = Object.freeze({
@@ -24,8 +24,10 @@ export class User {
      * @param {boolean} [params.emailVerified]
      * @param {Date|null} [params.lockedUntil] - End of the last temporary lock.
      * @param {Date|null} [params.createdAt]
+     * @param {boolean} [params.mfaEnabled] - Authenticator app set up (US-52; only in UserResource).
+     * @param {boolean} [params.mfaEnrollmentRequired] - Staff account that must set it up at the next sign-in.
      */
-    constructor({ id, email, firstName = null, lastName = null, role, status = UserStatus.ACTIVE, hotelId = null, chainId = null, emailVerified = false, lockedUntil = null, createdAt = null }) {
+    constructor({ id, email, firstName = null, lastName = null, role, status = UserStatus.ACTIVE, hotelId = null, chainId = null, emailVerified = false, lockedUntil = null, createdAt = null, mfaEnabled = false, mfaEnrollmentRequired = false }) {
         this.id = id;
         this.email = email;
         this.firstName = firstName;
@@ -37,6 +39,13 @@ export class User {
         this.emailVerified = !!emailVerified;
         this.lockedUntil = lockedUntil;
         this.createdAt = createdAt;
+        this.mfaEnabled = !!mfaEnabled;
+        this.mfaEnrollmentRequired = !!mfaEnrollmentRequired;
+    }
+
+    /** @returns {boolean} Staff accounts use a second factor (US-52); guests do not. */
+    get usesSecondFactor() {
+        return requiresSecondFactor(this.role);
     }
 
     /** @returns {string} "First Last", or the part of the e-mail before "@" for legacy accounts. */

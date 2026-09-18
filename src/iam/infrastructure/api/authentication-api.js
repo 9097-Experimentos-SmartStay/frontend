@@ -7,6 +7,14 @@ const basePath = endpoints.authentication;
 const anonymous = Object.freeze({ skipAuth: true });
 
 /**
+ * The MFA endpoints take the `mfaToken` of the sign-in as bearer, never the access token (§2.6).
+ * `skipAuth` keeps the HTTP client from replacing the header or ending the session on their 401s
+ * (a wrong code is not an expired session).
+ * @param {string} mfaToken
+ */
+const withMfaToken = (mfaToken) => ({ skipAuth: true, headers: { Authorization: `Bearer ${mfaToken}` } });
+
+/**
  * Anonymous account endpoints (EP-01: US-01, US-02, US-04), contract §2.
  * Each method returns the axios response; assemblers turn bodies into domain objects.
  */
@@ -50,6 +58,41 @@ export class AuthenticationApi extends BaseApi {
      */
     signOut(refreshToken) {
         return this.http.post(`${basePath}/sign-out`, { refreshToken }, anonymous);
+    }
+
+    /**
+     * POST /authentication/sign-out-all → 204. Ends every session of the user (all devices), including this one.
+     * Authenticated with the normal access token.
+     */
+    signOutEverywhere() {
+        return this.http.post(`${basePath}/sign-out-all`);
+    }
+
+    /**
+     * POST /authentication/mfa/enrollment → 200 {secret, otpAuthUri, issuer, accountName, digits, period, algorithm}.
+     * Calling it again replaces the secret.
+     * @param {string} mfaToken
+     */
+    startMfaEnrollment(mfaToken) {
+        return this.http.post(`${basePath}/mfa/enrollment`, null, withMfaToken(mfaToken));
+    }
+
+    /**
+     * POST /authentication/mfa/enrollment/confirm → 200 sign-in body with `token` and `recoveryCodes`.
+     * @param {string} mfaToken
+     * @param {string} code - 6 digits of the authenticator app.
+     */
+    confirmMfaEnrollment(mfaToken, code) {
+        return this.http.post(`${basePath}/mfa/enrollment/confirm`, { code }, withMfaToken(mfaToken));
+    }
+
+    /**
+     * POST /authentication/mfa/verify with exactly one of `code` or `recoveryCode` → 200 sign-in body with `token`.
+     * @param {string} mfaToken
+     * @param {{code?: string, recoveryCode?: string}} body
+     */
+    verifyMfa(mfaToken, body) {
+        return this.http.post(`${basePath}/mfa/verify`, body, withMfaToken(mfaToken));
     }
 
     /**
