@@ -1,6 +1,6 @@
-
-
 import { createRouter, createWebHistory } from "vue-router";
+import { clearSession, getRole, hasSession } from "./shared/infrastructure/session/session-storage.js";
+import { hasRequiredRole, isKnownRole } from "./iam/domain/user-role.js";
 
 // --- 1. Import Route Definitions ---
 import authRoutes from './shared/presentation/routes/auth-routes.js';
@@ -44,45 +44,29 @@ const router = createRouter({
     routes,
 });
 
-router.beforeEach((to, from, next) => {
-    console.log("--- AUTH_GUARD (INICIO) ---");
-    console.log("localStorage 'user_token' ES:", localStorage.getItem('user_token'));
-
-    // Compatibilidad: buscar token en ambos lugares
-    const isAuthenticated = !!(localStorage.getItem('user_token') || localStorage.getItem('token'));
-    const userRole = localStorage.getItem('user_role');
+router.beforeEach((to) => {
+    const isAuthenticated = hasSession();
+    const userRole = getRole();
     const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
-    const requiredRoles = to.meta.roles; // Roles específicos requeridos por la ruta
+    const requiredRoles = to.meta.roles;
     const publicOnly = to.matched.some(record => record.meta.publicOnly);
 
-    console.log(`[Global Guard] Navigating to: ${String(to.name) || to.path}, Auth: ${isAuthenticated}, Role: ${userRole}, RequiresAuth: ${requiresAuth}, RequiredRoles: ${requiredRoles}, PublicOnly: ${publicOnly}`);
-
+    // A token without a role is a broken session: clear it to avoid redirect loops.
     if (isAuthenticated && !userRole) {
-        console.log('[Global Guard] Token found but No Role. Clearing session to avoid loop.');
-        localStorage.clear();
-        next({ name: 'login' });
-        return;
+        clearSession();
+        return to.name === 'login' ? true : { name: 'login' };
     }
     if (requiresAuth && !isAuthenticated) {
-        console.log('[Global Guard] Auth required, redirecting to login.');
-        next({ name: 'login' });
-    } else if (publicOnly && isAuthenticated) {
-        console.log('[Global Guard] PublicOnly route accessed while logged in, redirecting to dashboard.');
-        next({ name: 'dashboard' });
-    } else if (requiresAuth && requiredRoles && !requiredRoles.includes(userRole)) {
-        // 3. Necesita rol específico, no lo tiene -> va a su propio dashboard (o a 'No Autorizado')
-        console.log(`[Global Guard] Role mismatch. Required: ${requiredRoles}, User has: ${userRole}. Redirecting to dashboard.`);
-        // Solo redirige si el usuario tiene un rol válido (guest o staff)
-        if (userRole === 'guest' || userRole === 'staff') {
-            next({ name: 'dashboard' }); // Redirige a su dashboard correcto
-        } else {
-            next({ name: 'login' }); // Si no tiene rol válido, va a login
-        }
-    } else {
-        // 4. Permitido (ruta pública, o logueado con rol correcto)
-        console.log('[Global Guard] Allowing navigation.');
-        next();
+        return { name: 'login' };
     }
+    if (publicOnly && isAuthenticated) {
+        return { name: 'dashboard' };
+    }
+    if (requiresAuth && !hasRequiredRole(userRole, requiredRoles)) {
+        // Known role: back to its own dashboard. Unknown role: login.
+        return isKnownRole(userRole) ? { name: 'dashboard' } : { name: 'login' };
+    }
+    return true;
 });
 
 // --- 6. Export Router Instance ---
