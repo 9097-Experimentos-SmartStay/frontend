@@ -51,6 +51,12 @@ export default [
         meta: staff(Capability.VIEW_ROOMS)
     },
     {
+        path: '/staff/rooms/map',
+        name: 'staff-room-map',
+        component: () => import('./views/StaffRoomMap.vue'),
+        meta: staff(Capability.VIEW_ROOM_MAP)
+    },
+    {
         path: '/staff/rooms/new',
         name: 'create-room',
         component: () => import('./views/StaffCreateRoom.vue'),

@@ -995,7 +995,8 @@
       "payments": "Pagos",
       "guests": "Huéspedes",
       "users": "Usuarios",
-      "audit": "Auditoría"
+      "audit": "Auditoría",
+      "roomMap": "Mapa de habitaciones"
     },
     "navHint": {
       "hotels": "Propiedades y sus datos",
@@ -1004,7 +1005,8 @@
       "payments": "Cobros por reserva",
       "guests": "Perfiles de huéspedes",
       "users": "Cuentas y roles del personal",
-      "audit": "Historial de accesos"
+      "audit": "Historial de accesos",
+      "roomMap": "Estado de cada habitación en vivo"
     },
     "kpi": {
       "revenue": "Ingresos",
@@ -1248,5 +1250,43 @@
     "descriptionPlaceholder": "Ej. Habitación amplia con cama king y vista a la ciudad",
     "created": "Tipo «{name}» creado.",
     "empty": "Aún no hay tipos de habitación."
+  },
+  "duration": {
+    "daysHours": "{days} d {hours} h",
+    "hoursMinutes": "{hours} h {minutes} min",
+    "minutes": "{minutes} min"
+  },
+  "roomMap": {
+    "open": "Mapa de habitaciones",
+    "title": "Mapa de habitaciones",
+    "subtitle": "Estado de las habitaciones de tu hotel.",
+    "chooseHotel": "Elige un hotel",
+    "chooseHotelHint": "Elige un hotel para ver su mapa de habitaciones.",
+    "legend": "Leyenda de estados",
+    "overdue": "+24 h",
+    "overdueCount": "{count} en mantenimiento hace más de 24 h | {count} en mantenimiento hace más de 24 h",
+    "overdueDetail": "Esta habitación lleva más de 24 horas en mantenimiento. El administrador del hotel recibió una alerta por correo.",
+    "updatedAt": "Actualizado: {time}",
+    "tileLabel": "Habitación {number}, {status}",
+    "empty": "Este hotel aún no tiene habitaciones.",
+    "dialogTitle": "Habitación {number}",
+    "since": "Desde {time} ({duration})",
+    "changeTo": "Cambiar estado a",
+    "noTransitions": "No hay cambios de estado disponibles.",
+    "notifyHint": "Avisaremos por correo al personal a cargo del nuevo estado (limpieza, mantenimiento o recepción).",
+    "history": "Historial de cambios",
+    "historyEmpty": "Aún no hay cambios registrados.",
+    "historyWhen": "Fecha y hora",
+    "historyChange": "Cambio",
+    "historyWho": "Responsable",
+    "system": "Sistema",
+    "origins": {
+      "CheckIn": "Por check-in",
+      "Staff": "Personal"
+    },
+    "changed": "La habitación {number} ahora está en {status}.",
+    "invalidTransition": "Ese cambio de estado ya no es posible: alguien actualizó la habitación. Revisa su estado actual.",
+    "forbidden": "Solo puedes ver y cambiar las habitaciones de tu hotel.",
+    "noHotel": "No tienes un hotel asignado. Pide a tu administrador que te asigne uno."
   }
 }

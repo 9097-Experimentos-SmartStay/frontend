@@ -6,4 +6,6 @@ export const AccommodationFailureReason = Object.freeze({
     HAS_ACTIVE_BOOKINGS: 'hasActiveBookings',
     /** 409: an admin manages a single hotel and already has one (D2). */
     HOTEL_ALREADY_REGISTERED: 'hotelAlreadyRegistered',
+    /** 409: the room cannot move from its current status to the requested one (US-29, US-06). */
+    INVALID_STATUS_TRANSITION: 'invalidStatusTransition',
 });

@@ -192,6 +192,7 @@ const canViewAnalytics = computed(() => iamStore.can(Capability.VIEW_ANALYTICS))
 /** Sections of the staff area, filtered by capability. */
 const navItems = computed(() => [
   { route: 'staff-hotels', icon: 'pi pi-building', capability: Capability.VIEW_HOTELS, key: 'hotels' },
+  { route: 'staff-room-map', icon: 'pi pi-th-large', capability: Capability.VIEW_ROOM_MAP, key: 'roomMap' },
   { route: 'staff-rooms', icon: 'pi pi-key', capability: Capability.VIEW_ROOMS, key: 'rooms' },
   { route: 'staff-bookings', icon: 'pi pi-calendar', capability: Capability.VIEW_BOOKINGS, key: 'bookings' },
   { route: 'staff-payments', icon: 'pi pi-wallet', capability: Capability.VIEW_PAYMENTS, key: 'payments' },
