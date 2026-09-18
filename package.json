@@ -1,8 +1,8 @@
 {
-  "name": "pc17454u20221e617",
+  "name": "smartstay-frontend",
   "private": true,
   "version": "1.0.0",
-  "description": "cambiar a la descripción del proyecto",
+  "description": "Aplicación web de SmartStay (Vue 3 + Vite) para la gestión hotelera: hoteles, habitaciones, reservas, pagos y analítica, para personal y huéspedes.",
   "author": "Italo Sebastian Verona Flores",
   "license": "MIT",
   "type": "module",
