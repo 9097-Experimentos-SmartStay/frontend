@@ -1,5 +1,5 @@
 <template>
-  <div class="surface-ground min-h-screen p-4 md:p-6">
+  <div class="p-4 md:p-6">
     <pv-toast position="bottom-right" />
     <pv-confirm-dialog />
 

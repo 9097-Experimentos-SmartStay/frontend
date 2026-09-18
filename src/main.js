@@ -50,10 +50,12 @@ import Message from 'primevue/message';
 import InputOtp from 'primevue/inputotp';
 import DatePicker from 'primevue/datepicker';
 
+// Single light theme: `darkModeSelector: false` stops PrimeVue from switching its tokens (and `color-scheme`, which
+// drives PrimeFlex's light-dark() classes) when the OS prefers dark, which left light-gray text on white cards.
 // noinspection JSCheckFunctionSignatures
 const app = createApp(App)
     .use(i18n)
-    .use(PrimeVue, { theme: { preset: Aura}, ripple: true })
+    .use(PrimeVue, { theme: { preset: Aura, options: { darkModeSelector: false } }, ripple: true })
     .use(ConfirmationService)
     .use(DialogService)
     .use(ToastService)

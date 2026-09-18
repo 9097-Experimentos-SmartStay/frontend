@@ -1,5 +1,5 @@
 <template>
-  <div class="surface-ground min-h-screen p-4 md:p-6 flex flex-column align-items-center">
+  <div class="p-4 md:p-6 flex flex-column align-items-center">
     <pv-toast position="bottom-right" />
 
     <div class="w-full max-w-4xl">

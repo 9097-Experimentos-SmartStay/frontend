@@ -1,12 +1,11 @@
 <template>
-  <div class="surface-ground min-h-screen p-4 md:p-6">
+  <div class="p-4 md:p-6">
     <pv-toast position="bottom-right" />
     <pv-confirm-dialog />
 
     <div class="max-w-5xl mx-auto">
       <div class="flex justify-content-between align-items-center mb-3">
         <pv-button :label="t('common.back')" icon="pi pi-arrow-left" class="p-button-outlined p-button-secondary p-button-sm" @click="handleBack" />
-        <LanguageSwitcher />
       </div>
 
       <div v-if="profileStore.loading" class="flex flex-column align-items-center justify-content-center h-20rem">
@@ -122,7 +121,6 @@ import useIamStore from '@/iam/application/iam.store.js';
 import { UserRole } from '@/iam/domain/user-role.js';
 import EmailVerificationBanner from '@/iam/presentation/components/email-verification-banner.vue';
 import AccountSecurityCard from '@/iam/presentation/components/account-security-card.vue';
-import LanguageSwitcher from '@/shared/presentation/components/language-switcher.vue';
 import { apiErrorKey } from '@/shared/presentation/utils/api-error.js';
 
 /**

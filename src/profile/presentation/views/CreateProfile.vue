@@ -1,5 +1,5 @@
 <template>
-  <div class="surface-ground min-h-screen p-4 md:p-6">
+  <div class="p-4 md:p-6">
     <pv-toast position="bottom-right" />
 
     <div class="max-w-4xl mx-auto">
@@ -8,7 +8,6 @@
           <pv-button icon="pi pi-arrow-left" :label="t('common.back')" class="p-button-outlined p-button-sm" @click="handleCancel" />
           <h1 class="text-3xl font-bold text-color m-0">{{ t('createProfile.title') }}</h1>
         </div>
-        <LanguageSwitcher />
       </div>
 
       <pv-card class="surface-card shadow-2 border-round-xl">
@@ -94,7 +93,6 @@ import { useProfileStore } from '../../application/profile.store.js';
 import { CreateGuestProfileCommand } from '../../domain/commands/create-guest-profile.command.js';
 import { DocumentType } from '../../domain/model/guest-profile.entity.js';
 import useIamStore from '@/iam/application/iam.store.js';
-import LanguageSwitcher from '@/shared/presentation/components/language-switcher.vue';
 import { apiErrorKey } from '@/shared/presentation/utils/api-error.js';
 
 /**

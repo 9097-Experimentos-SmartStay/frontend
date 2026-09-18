@@ -1,5 +1,5 @@
 <template>
-  <div class="surface-ground min-h-screen p-4 md:p-6">
+  <div class="p-4 md:p-6">
     <pv-toast position="bottom-right" />
 
     <div class="surface-card p-4 shadow-2 border-round mb-4 flex flex-wrap gap-3 justify-content-between align-items-center">

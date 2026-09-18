@@ -1,5 +1,5 @@
 <template>
-  <div class="surface-ground min-h-screen p-4 md:p-6">
+  <div class="p-4 md:p-6">
     <pv-toast position="bottom-right" />
 
     <div class="w-full max-w-6xl mx-auto">
@@ -8,7 +8,6 @@
           <pv-button icon="pi pi-arrow-left" :label="t('common.back')" class="p-button-outlined p-button-sm" @click="router.push({ name: 'guest-bookings' })" />
           <h1 class="text-3xl font-bold text-color m-0">{{ t('guestSearch.title') }}</h1>
         </div>
-        <LanguageSwitcher />
       </div>
 
       <!-- Scenario 1 and 4: hotel + dates, validated before searching -->
@@ -139,7 +138,6 @@ import { CreateBookingCommand } from '../../domain/commands/create-booking.comma
 import { StayPeriod } from '../../domain/model/stay-period.js';
 import StayPicker from '../components/StayPicker.vue';
 import { useHotelStore } from '@/accommodations/application/hotel.store.js';
-import LanguageSwitcher from '@/shared/presentation/components/language-switcher.vue';
 import { CalendarDate } from '@/shared/domain/calendar-date.js';
 import { formatDay, formatMoney } from '@/shared/presentation/utils/formatters.js';
 import { failureMessageKey } from '@/shared/presentation/utils/failure-message.js';

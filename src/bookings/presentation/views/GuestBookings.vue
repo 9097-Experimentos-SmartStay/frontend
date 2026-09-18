@@ -1,5 +1,5 @@
 <template>
-  <div class="surface-ground min-h-screen p-4 md:p-6">
+  <div class="p-4 md:p-6">
     <pv-toast position="bottom-right" />
     <pv-confirm-dialog />
 
@@ -12,7 +12,6 @@
         <div class="flex align-items-center gap-2">
           <pv-button icon="pi pi-refresh" class="p-button-rounded p-button-text" :aria-label="t('common.refresh')" v-tooltip="t('common.refresh')" @click="load" />
           <pv-button :label="t('guestBookings.newBooking')" icon="pi pi-plus" @click="router.push({ name: 'guest-create-booking' })" />
-          <LanguageSwitcher />
         </div>
       </div>
 
@@ -80,7 +79,6 @@ import PaymentDeadline from '../components/PaymentDeadline.vue';
 import { useBookingCancellation } from '../composables/use-booking-cancellation.js';
 import { cancellationBlockText, cancellationReasonText } from '../utils/booking-status.js';
 import { useHotelStore } from '@/accommodations/application/hotel.store.js';
-import LanguageSwitcher from '@/shared/presentation/components/language-switcher.vue';
 import { formatDay, formatMoney } from '@/shared/presentation/utils/formatters.js';
 import { failureMessageKey } from '@/shared/presentation/utils/failure-message.js';
 

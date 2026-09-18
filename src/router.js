@@ -10,6 +10,7 @@ import bookingsRoutes from './bookings/presentation/routes.js';
 import paymentsRoutes from './payments/presentation/routes.js';
 import profileRoutes from './profile/presentation/routes.js';
 
+const AppLayout = () => import('./shared/presentation/layouts/app-layout.vue');
 const PageNotFound = () => import('./shared/presentation/views/page-not-found.vue');
 
 /**
@@ -18,16 +19,30 @@ const PageNotFound = () => import('./shared/presentation/views/page-not-found.vu
  * - `guestOnly`: public page that a signed-in user skips (login, register, forgot-password).
  * - `area`: 'guest' | 'staff' (AppArea); `capability`: a Capability of user-role.js.
  */
-const routes = [
+const featureRoutes = [
     ...iamRoutes,
     ...dashboardRoutes,
     ...accommodationsRoutes,
     ...bookingsRoutes,
     ...paymentsRoutes,
     ...profileRoutes,
+];
+
+/** A page that needs a session belongs to the signed-in app, so it renders inside the app layout (header + nav). */
+const needsSession = (route) => route.meta?.requiresAuth === true;
+
+const routes = [
+    // Public pages (sign-in, sign-up, e-mail verification, password recovery, MFA): their own minimal layout.
+    ...featureRoutes.filter((route) => !needsSession(route)),
     {
+        // Signed-in app: the children keep their absolute paths; this record only adds the layout and the auth meta.
         path: '/',
-        redirect: '/login'
+        component: AppLayout,
+        meta: { requiresAuth: true },
+        children: [
+            { path: '', redirect: { name: 'login' } },
+            ...featureRoutes.filter(needsSession),
+        ],
     },
     {
         path: '/:pathMatch(.*)*', // Catch-all 404

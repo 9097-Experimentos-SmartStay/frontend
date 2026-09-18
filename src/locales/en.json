@@ -6,7 +6,19 @@
   },
   "nav": {
     "login": "Login",
-    "register": "Register"
+    "register": "Register",
+    "home": "Home",
+    "main": "Main navigation",
+    "openMenu": "Open navigation menu",
+    "userMenu": "Account menu for {name}",
+    "goHome": "SmartStay, go to home",
+    "language": "Language",
+    "skipToContent": "Skip to content",
+    "guest": {
+      "hotels": "Hotels",
+      "rooms": "Rooms",
+      "bookings": "My bookings"
+    }
   },
   "login": {
     "title": "WELCOME, LOGIN AND OPEN OUR APP",
@@ -174,61 +186,8 @@
     "title": "Welcome",
     "content": "Welcome to ACME Learning Center, your gateway to quality education."
   },
-  "dashboard": {
-    "adminTitle": "Administrator Dashboard",
-    "staffTitle": "Staff Dashboard",
-    "guestTitle": "Guest Dashboard",
-    "welcomeMessage": "Welcome, {name}!",
-    "defaultUser": "User",
-    "manageStaffButton": "Manage Staff",
-    "manageRoomsButton": "Manage Rooms",
-    "logoutButton": "Logout",
-    "kpiBookingsToday": "Bookings (Today)",
-    "kpiOccupancyRate": "Occupancy Rate",
-    "actionGoToStaff": "Go to Staff",
-    "actionGoToRooms": "Go to Rooms",
-    "actionDescStaff": "Add, edit, or remove staff members. Assign tasks and review their shifts.",
-    "actionDescRooms": "Create new rooms, update prices, status (cleaning, maintenance), and upload images."
-  },
   "staffDashboard": {
-    "title": "Staff Panel",
-    "welcome": "Welcome back, {name}!",
-    "shift": "Shift",
-    "timeClock": "Time Clock",
-    "clockIn": "Clock In",
-    "startBreak": "Start Break",
-    "clockOut": "Clock Out",
-    "performanceStats": "Performance Statistics (Last 7 Days)",
-    "tasksToday": "Tasks Today",
-    "tasksThisWeek": "Tasks This Week",
-    "tasksThisMonth": "Tasks This Month",
-    "tasksThisYear": "Tasks This Year",
-    "pendingTasks": "Pending Tasks",
-    "viewAllTasks": "View All",
-    "taskDescription": "Description",
-    "taskRoom": "Room",
-    "taskStatus": "Status",
-    "noPendingTasks": "No pending tasks. Great job!",
-    "assignedRooms": "Assigned Rooms (Pending)",
-    "viewAllRooms": "View All",
-    "roomNumber": "Room",
-    "noAssignedRooms": "No rooms assigned for cleaning.",
-    "taskCompleted": "Task marked as complete.",
-    "quickActions": "Quick Actions",
-    "reportIssue": "Report Issue",
-    "requestSupplies": "Request Supplies",
-    "issueReported": "Issue Reported",
-    "notifyMaintenance": "Maintenance has been notified.",
-    "suppliesRequested": "Supplies Requested",
-    "notifyHousekeeping": "Housekeeping manager notified.",
-    "tasksNotAvailable": "Operational task management is coming soon.",
-    "tasksNotAvailableShort": "Not available yet",
     "revenueHistoryNotAvailable": "Only the current month is shown. Revenue history is not available yet."
-  },
-  "menu": {
-    "profile": "My Profile",
-    "tasks": "Manage Tasks",
-    "assignedRooms": "Assigned Rooms"
   },
   "page-not-found": {
     "title": "Page Not Found",
@@ -245,7 +204,6 @@
     "saveError": "Save Error",
     "tryAgain": "Please try again.",
     "uploadError": "Upload Error",
-    "taskError": "Task Error",
     "descriptionRequired": "Description is required.",
     "authError": "Authentication Error",
     "userNotFound": "User session not found. Please log in again.",
@@ -784,8 +742,7 @@
     "financialPerformance": "Financial performance",
     "occupancyChart": "Availability",
     "occupied": "Occupied",
-    "available": "Available",
-    "operationalTasks": "Operational tasks"
+    "available": "Available"
   },
   "staffBookings": {
     "title": "Booking management",

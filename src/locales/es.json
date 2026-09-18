@@ -6,7 +6,19 @@
   },
   "nav": {
     "login": "Iniciar sesión",
-    "register": "Registrarse"
+    "register": "Registrarse",
+    "home": "Inicio",
+    "main": "Navegación principal",
+    "openMenu": "Abrir menú de navegación",
+    "userMenu": "Menú de cuenta de {name}",
+    "goHome": "SmartStay, ir al inicio",
+    "language": "Idioma",
+    "skipToContent": "Saltar al contenido",
+    "guest": {
+      "hotels": "Hoteles",
+      "rooms": "Habitaciones",
+      "bookings": "Mis reservas"
+    }
   },
   "login": {
     "title": "Bienvenido, inicia sesión y abre nuestra app",
@@ -174,61 +186,8 @@
     "title": "Bienvenido",
     "content": "Bienvenido a ACME Learning Center, tu puerta de entrada a la educación de calidad."
   },
-  "dashboard": {
-    "adminTitle": "Panel del administrador",
-    "staffTitle": "Panel del personal",
-    "guestTitle": "Panel del huésped",
-    "welcomeMessage": "¡Bienvenido/a, {name}!",
-    "defaultUser": "Usuario",
-    "manageStaffButton": "Gestionar personal",
-    "manageRoomsButton": "Gestionar habitaciones",
-    "logoutButton": "Cerrar sesión",
-    "kpiBookingsToday": "Reservas (hoy)",
-    "kpiOccupancyRate": "Tasa de ocupación",
-    "actionGoToStaff": "Ir a personal",
-    "actionGoToRooms": "Ir a habitaciones",
-    "actionDescStaff": "Añade, edita o elimina miembros del personal. Asigna tareas y revisa sus turnos.",
-    "actionDescRooms": "Crea nuevas habitaciones, actualiza precios, estado (limpieza, mantenimiento) y sube imágenes."
-  },
   "staffDashboard": {
-    "title": "Panel de personal",
-    "welcome": "¡Bienvenido de vuelta, {name}!",
-    "shift": "Turno",
-    "timeClock": "Reloj marcador",
-    "clockIn": "Marcar entrada",
-    "startBreak": "Iniciar descanso",
-    "clockOut": "Marcar salida",
-    "performanceStats": "Estadísticas de rendimiento (últimos 7 días)",
-    "tasksToday": "Tareas hoy",
-    "tasksThisWeek": "Tareas esta semana",
-    "tasksThisMonth": "Tareas este mes",
-    "tasksThisYear": "Tareas este año",
-    "pendingTasks": "Tareas pendientes",
-    "viewAllTasks": "Ver todas",
-    "taskDescription": "Descripción",
-    "taskRoom": "Habitación",
-    "taskStatus": "Estado",
-    "noPendingTasks": "No hay tareas pendientes. ¡Buen trabajo!",
-    "assignedRooms": "Habitaciones asignadas (pendientes)",
-    "viewAllRooms": "Ver todas",
-    "roomNumber": "Habitación",
-    "noAssignedRooms": "No hay habitaciones asignadas para limpieza.",
-    "taskCompleted": "Tarea marcada como completada.",
-    "quickActions": "Acciones rápidas",
-    "reportIssue": "Reportar incidencia",
-    "requestSupplies": "Solicitar suministros",
-    "issueReported": "Incidencia reportada",
-    "notifyMaintenance": "Se ha notificado a mantenimiento.",
-    "suppliesRequested": "Suministros solicitados",
-    "notifyHousekeeping": "Se ha notificado al jefe de limpieza.",
-    "tasksNotAvailable": "La gestión de tareas operativas estará disponible próximamente.",
-    "tasksNotAvailableShort": "Aún no disponible",
     "revenueHistoryNotAvailable": "Se muestra solo el mes actual. El historial de ingresos aún no está disponible."
-  },
-  "menu": {
-    "profile": "Mi perfil",
-    "tasks": "Gestionar tareas",
-    "assignedRooms": "Habitaciones asignadas"
   },
   "page-not-found": {
     "title": "Página no encontrada",
@@ -245,7 +204,6 @@
     "saveError": "Error al guardar",
     "tryAgain": "Por favor, inténtalo de nuevo.",
     "uploadError": "Error de subida",
-    "taskError": "Error en tarea",
     "descriptionRequired": "La descripción es requerida.",
     "authError": "Error de autenticación",
     "userNotFound": "No se encontró la sesión del usuario. Por favor, inicia sesión de nuevo.",
@@ -784,8 +742,7 @@
     "financialPerformance": "Rendimiento financiero",
     "occupancyChart": "Disponibilidad",
     "occupied": "Ocupado",
-    "available": "Disponible",
-    "operationalTasks": "Tareas operativas"
+    "available": "Disponible"
   },
   "staffBookings": {
     "title": "Gestión de reservas",

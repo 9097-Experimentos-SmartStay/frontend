@@ -1,5 +1,5 @@
 <template>
-  <div class="surface-ground min-h-screen p-4 md:p-6">
+  <div class="p-4 md:p-6">
     <div class="max-w-7xl mx-auto">
       <div class="flex justify-content-between align-items-center mb-6">
         <div class="flex align-items-center gap-3">
