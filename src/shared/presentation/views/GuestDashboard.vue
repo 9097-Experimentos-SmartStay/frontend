@@ -339,16 +339,10 @@ function handleLogout() {
 async function loadDashboard() {
   loading.value = true;
   try {
-    // 1. Recuperar Sesión
-    let userId = iamStore.currentUserId;
+    // 1. Session (the IAM store restores it from storage on load)
+    const userId = iamStore.currentUserId;
     if (!userId) {
-      const storedId = localStorage.getItem('user_id');
-      if (storedId) {
-        iamStore.currentUserId = Number(storedId);
-        userId = Number(storedId);
-      } else {
-        throw new Error("Sesión no válida. Por favor, inicia sesión de nuevo.");
-      }
+      throw new Error("Sesión no válida. Por favor, inicia sesión de nuevo.");
     }
 
     if (iamStore.users.length === 0) await iamStore.fetchUsers();
