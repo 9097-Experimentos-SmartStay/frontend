@@ -55,14 +55,15 @@
       "accountDeactivated": "Tu cuenta está desactivada. Contacta al administrador.",
       "emailAlreadyRegistered": "Este correo ya está registrado.",
       "rateLimited": "Hiciste demasiados intentos. Espera {seconds} segundos e inténtalo de nuevo.",
-      "rateLimitedNoTime": "Hiciste demasiados intentos. Espera un momento e inténtalo de nuevo."
+      "rateLimitedNoTime": "Hiciste demasiados intentos. Espera un momento e inténtalo de nuevo.",
+      "emailNotVerified": "Confirma tu correo para iniciar sesión. Revisa tu bandeja de entrada o solicita un nuevo enlace."
     },
     "resetPasswordAction": "Restablecer mi contraseña",
     "recoverPasswordSuggestion": "¿Es tu cuenta? Recupera tu contraseña",
     "register": {
       "successTitle": "Revisa tu correo para confirmar tu cuenta",
       "successMessage": "Creamos tu cuenta y enviamos un enlace de confirmación a {email}. El enlace vence en 24 horas.",
-      "successSignIn": "Ya puedes iniciar sesión mientras confirmas tu correo.",
+      "successSignIn": "Confirma tu correo para poder iniciar sesión.",
       "resendButton": "Reenviar correo de confirmación",
       "resent": "Si la cuenta aún no está confirmada, te enviamos un nuevo enlace."
     },

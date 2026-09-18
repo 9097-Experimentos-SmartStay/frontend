@@ -55,14 +55,15 @@
       "accountDeactivated": "Your account is deactivated. Contact the administrator.",
       "emailAlreadyRegistered": "Email already registered.",
       "rateLimited": "Too many attempts. Wait {seconds} seconds and try again.",
-      "rateLimitedNoTime": "Too many attempts. Wait a moment and try again."
+      "rateLimitedNoTime": "Too many attempts. Wait a moment and try again.",
+      "emailNotVerified": "Confirm your email to sign in. Check your inbox or request a new link."
     },
     "resetPasswordAction": "Reset my password",
     "recoverPasswordSuggestion": "Is it your account? Recover your password",
     "register": {
       "successTitle": "Check your email to confirm your account",
       "successMessage": "We created your account and sent a confirmation link to {email}. The link expires in 24 hours.",
-      "successSignIn": "You can sign in while you confirm your email.",
+      "successSignIn": "Confirm your email to be able to sign in.",
       "resendButton": "Resend confirmation email",
       "resent": "If the account is not confirmed yet, we sent you a new link."
     },

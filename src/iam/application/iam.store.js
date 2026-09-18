@@ -61,7 +61,7 @@ const useIamStore = defineStore('iam', () => {
      * US-02: signs in and persists the session (localStorage with "Recordarme", sessionStorage without).
      * @param {import('../domain/commands/sign-in.command.js').SignInCommand} command
      * @returns {Promise<import('../domain/model/user.entity.js').User>}
-     * @throws {AuthFailure} invalidCredentials | accountLocked | accountDeactivated | invalidData | rateLimited | ...
+     * @throws {AuthFailure} invalidCredentials | accountLocked | accountDeactivated | emailNotVerified | invalidData | rateLimited | ...
      */
     async function signIn(command) {
         try {
@@ -74,7 +74,10 @@ const useIamStore = defineStore('iam', () => {
             return newSession.user;
         } catch (error) {
             const failure = AuthFailure.from(error, { 403: AuthFailureReason.ACCOUNT_DEACTIVATED });
-            if (failure.problem.status === 401) {
+            if (failure.problem.status === 403 && failure.problem.extensions.emailVerificationRequired) {
+                // Sign-in requires a verified e-mail: 403 with `emailVerificationRequired: true`.
+                failure.reason = AuthFailureReason.EMAIL_NOT_VERIFIED;
+            } else if (failure.problem.status === 401) {
                 // Same 401 for a wrong e-mail or password; the lock adds `lockedUntil` (§0.1).
                 failure.reason = failure.lockedUntil
                     ? AuthFailureReason.ACCOUNT_LOCKED

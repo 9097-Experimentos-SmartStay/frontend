@@ -21,6 +21,8 @@ export function authFailureMessage(t, locale, failure) {
         }
         case AuthFailureReason.ACCOUNT_DEACTIVATED:
             return t('auth.errors.accountDeactivated');
+        case AuthFailureReason.EMAIL_NOT_VERIFIED:
+            return t('auth.errors.emailNotVerified');
         case AuthFailureReason.EMAIL_ALREADY_REGISTERED:
             return t('auth.errors.emailAlreadyRegistered');
         case AuthFailureReason.RATE_LIMITED:
