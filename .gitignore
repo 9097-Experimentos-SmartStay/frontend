@@ -25,3 +25,7 @@ dist-ssr
 server/package-lock.json
 server/package.json
 server/.idea
+# Environment files (use .env.example as template)
+.env
+.env.*
+!.env.example
