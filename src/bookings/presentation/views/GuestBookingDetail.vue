@@ -22,7 +22,7 @@
 
       <template v-else>
         <!-- US-51 scenario 2: the booking was just created -->
-        <pv-message v-if="justCreated" severity="success" class="mb-4">
+        <pv-message v-if="justCreated && booking.isPending()" severity="success" class="mb-4">
           {{ t('guestBookingDetail.created', { code: booking.reference, email: booking.guestEmail }) }}
         </pv-message>
 
@@ -137,7 +137,7 @@ const { t, locale } = useI18n();
 const bookingStore = useBookingStore();
 const hotelStore = useHotelStore();
 const paymentStore = usePaymentStore();
-const { confirmCancel } = useBookingCancellation();
+const { confirmCancel } = useBookingCancellation({ byGuest: true });
 
 const loading = ref(true);
 const payment = ref(null);
