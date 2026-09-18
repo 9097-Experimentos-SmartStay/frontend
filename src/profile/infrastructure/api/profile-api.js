@@ -1,11 +1,14 @@
-import axios from 'axios';
-import { ProfileResource, CreateProfileResource } from '../profile.resource.js';
+import { httpClient } from '@/shared/infrastructure/http/http-client.js';
+import { endpoints } from '@/shared/infrastructure/config/api-config.js';
+import { ProfileResource } from '../profile.resource.js';
 
-const API_BASE_URL = 'http://localhost:5192/api/v1';
+// TODO(phase-2b): the backend exposes guests and staff instead of /profiles.
+// Paths and payloads stay as they were until the API contract is settled.
+const profilesEndpointPath = endpoints.profiles;
 
 /**
- * Profile API Service
- * Handles all HTTP requests related to profiles
+ * Profile API Service.
+ * Uses the shared HTTP client, so requests go to VITE_SMARTSTAY_API_URL with the auth header.
  */
 export class ProfileApi {
     /**
@@ -14,13 +17,8 @@ export class ProfileApi {
      * @returns {Promise<ProfileResource>} Profile resource
      */
     static async getProfileById(profileId) {
-        try {
-            const response = await axios.get(`${API_BASE_URL}/profiles/${profileId}`);
-            return ProfileResource.fromJSON(response.data);
-        } catch (error) {
-            console.error('Error fetching profile by ID:', error);
-            throw error;
-        }
+        const response = await httpClient.get(`${profilesEndpointPath}/${profileId}`);
+        return ProfileResource.fromJSON(response.data);
     }
 
     /**
@@ -28,31 +26,18 @@ export class ProfileApi {
      * @returns {Promise<ProfileResource[]>} Array of profile resources
      */
     static async getAllProfiles() {
-        try {
-            const response = await axios.get(`${API_BASE_URL}/profiles`);
-            return response.data.map(profile => ProfileResource.fromJSON(profile));
-        } catch (error) {
-            console.error('Error fetching all profiles:', error);
-            throw error;
-        }
+        const response = await httpClient.get(profilesEndpointPath);
+        return response.data.map(profile => ProfileResource.fromJSON(profile));
     }
 
     /**
      * Creates a new profile
-     * @param {CreateProfileResource} createProfileResource - Profile data to create
+     * @param {import('../profile.resource.js').CreateProfileResource} createProfileResource - Profile data to create
      * @returns {Promise<ProfileResource>} Created profile resource
      */
     static async createProfile(createProfileResource) {
-        try {
-            const response = await axios.post(
-                `${API_BASE_URL}/profiles`,
-                createProfileResource.toJSON()
-            );
-            return ProfileResource.fromJSON(response.data);
-        } catch (error) {
-            console.error('Error creating profile:', error);
-            throw error;
-        }
+        const response = await httpClient.post(profilesEndpointPath, createProfileResource.toJSON());
+        return ProfileResource.fromJSON(response.data);
     }
 
     /**
@@ -61,12 +46,7 @@ export class ProfileApi {
      * @returns {Promise<ProfileResource|null>} Profile resource or null if not found
      */
     static async getProfileByEmail(email) {
-        try {
-            const profiles = await this.getAllProfiles();
-            return profiles.find(profile => profile.email === email) || null;
-        } catch (error) {
-            console.error('Error fetching profile by email:', error);
-            throw error;
-        }
+        const profiles = await this.getAllProfiles();
+        return profiles.find(profile => profile.email === email) || null;
     }
 }
