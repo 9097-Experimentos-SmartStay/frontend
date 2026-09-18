@@ -7,7 +7,7 @@ import 'primeflex/primeflex.css';
 import 'primeicons/primeicons.css';
 import router from "./router.js";
 import pinia from "./pinia.js";
-import { onUnauthorized } from './shared/infrastructure/http/http-client.js';
+import { configureSessionHandling } from './shared/infrastructure/http/http-client.js';
 import useIamStore from './iam/application/iam.store.js';
 import Carousel from 'primevue/carousel';
 
@@ -46,6 +46,7 @@ import Chart from 'primevue/chart';
 import ProgressSpinner from 'primevue/progressspinner';
 import InputMask from 'primevue/inputmask';
 import Skeleton from 'primevue/skeleton';
+import Message from 'primevue/message';
 
 // noinspection JSCheckFunctionSignatures
 const app = createApp(App)
@@ -87,16 +88,22 @@ const app = createApp(App)
     .component('pv-progress-spinner', ProgressSpinner)
     .component('pv-input-mask', InputMask)
     .component('pv-skeleton', Skeleton)
+    .component('pv-message', Message)
     .directive('tooltip', Tooltip)
     .use(router)
     .use(pinia);
 
-// Session rejected by the API (401): reset the IAM state and go to login.
-onUnauthorized(() => {
-    useIamStore(pinia).signOut();
-    if (router.currentRoute.value.name !== 'login') {
-        router.push({ name: 'login', query: { reason: 'session-expired' } });
-    }
+// Session lifecycle: the HTTP client renews remembered sessions through IAM and, when the API
+// rejects the session (401), IAM clears it and the app goes to the login with the reason.
+configureSessionHandling({
+    refreshSession: () => useIamStore(pinia).refreshSession(),
+    onSessionEnded: (reason) => {
+        useIamStore(pinia).endSession();
+        const current = router.currentRoute.value;
+        if (current.meta.requiresAuth) {
+            router.push({ name: 'login', query: { reason, redirect: current.fullPath } });
+        }
+    },
 });
 
 app.mount('#app');

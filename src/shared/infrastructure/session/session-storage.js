@@ -1,71 +1,91 @@
 /**
- * Browser persistence for the authenticated session.
+ * Browser persistence of the authenticated session.
  *
- * This is the ONLY module that knows the localStorage keys of the session.
- * The rest of the app (stores, router guards, HTTP client) goes through it.
+ * This is the ONLY module that knows where the session lives. It stores a plain JSON snapshot
+ * (tokens + the signed-in user); the IAM context turns it into its `Session` entity.
+ *
+ * Storage choice (US-02 scenario 4, contract §2.4):
+ * - WITHOUT "Recordarme": `sessionStorage`. The session survives reloads of the tab but ends when
+ *   the browser session ends, and no refresh token exists, so nothing outlives the 30-minute access token.
+ * - WITH "Recordarme": `localStorage`, so the user stays signed in after closing and reopening the
+ *   browser until they sign out (the refresh token slides for 30 days). The access token is kept next
+ *   to the refresh token instead of only in memory: every open tab shares it (no refresh per tab or per
+ *   reload, which with single-use rotating refresh tokens would race and trigger reuse detection),
+ *   and memory-only storage would add little protection once a refresh token is readable by scripts anyway.
+ *   The backend returns the tokens in the body (no httpOnly cookie), so web storage is the only option;
+ *   XSS is mitigated by never rendering untrusted HTML (no v-html with API data).
+ *
  * The saved UI language ('language') is not part of the session and is never cleared here.
  */
-const KEYS = Object.freeze({
-    token: 'token',
-    legacyToken: 'user_token',
-    userId: 'user_id',
-    username: 'user_username',
-    role: 'user_role',
-});
+const SESSION_KEY = 'smartstay.session';
 
-function read(key) {
+/** Keys written by previous versions of the app; removed on every clear. */
+const LEGACY_KEYS = Object.freeze(['token', 'user_token', 'user_id', 'user_username', 'user_role']);
+
+/**
+ * @typedef {Object} StoredSession
+ * @property {string} accessToken
+ * @property {string|null} expiresAt - ISO 8601.
+ * @property {string|null} refreshToken - Only with "Recordarme".
+ * @property {string|null} refreshTokenExpiresAt
+ * @property {Object} user - Plain snapshot of the signed-in user.
+ */
+
+function storage(kind) {
     try {
-        return localStorage.getItem(key);
+        return kind === 'local' ? window.localStorage : window.sessionStorage;
+    } catch {
+        return null; // storage blocked (private mode, disabled cookies)
+    }
+}
+
+function readFrom(kind) {
+    try {
+        const raw = storage(kind)?.getItem(SESSION_KEY);
+        return raw ? JSON.parse(raw) : null;
     } catch {
         return null;
     }
 }
 
-/** @returns {string|null} The JWT of the current session, if any. */
-export function getToken() {
-    return read(KEYS.token) || read(KEYS.legacyToken);
-}
-
-/** @returns {string|null} The normalized role saved at sign-in. */
-export function getRole() {
-    return read(KEYS.role);
-}
-
-/** @returns {number|null} The id of the signed-in user. */
-export function getUserId() {
-    const id = read(KEYS.userId);
-    return id ? Number(id) : null;
-}
-
-/** @returns {string|null} The username of the signed-in user. */
-export function getUsername() {
-    return read(KEYS.username);
-}
-
-/** @returns {boolean} True when a token is stored. */
-export function hasSession() {
-    return !!getToken();
+function removeFrom(kind, key) {
+    try {
+        storage(kind)?.removeItem(key);
+    } catch {
+        /* storage unavailable: nothing to clear */
+    }
 }
 
 /**
- * Persists the session after a successful sign-in.
- * @param {{token: string, userId: number|string, username: string, role: string}} session
+ * @returns {StoredSession|null} The stored session (remembered one first), or null.
  */
-export function saveSession({ token, userId, username, role }) {
-    localStorage.setItem(KEYS.token, token);
-    localStorage.setItem(KEYS.legacyToken, token);
-    localStorage.setItem(KEYS.userId, String(userId));
-    localStorage.setItem(KEYS.username, username ?? '');
-    localStorage.setItem(KEYS.role, role);
+export function loadSession() {
+    return readFrom('local') ?? readFrom('session');
 }
 
-/** Removes every session key (keeps unrelated preferences such as the language). */
+/**
+ * Persists the session in the storage that matches its kind (see the module comment).
+ * @param {StoredSession} session
+ */
+export function saveSession(session) {
+    const remembered = !!session.refreshToken;
+    clearSession();
+    try {
+        storage(remembered ? 'local' : 'session')?.setItem(SESSION_KEY, JSON.stringify(session));
+    } catch {
+        /* storage full or blocked: the session lives only in memory for this page */
+    }
+}
+
+/** @returns {string|null} The current access token, if any. */
+export function getAccessToken() {
+    return loadSession()?.accessToken ?? null;
+}
+
+/** Removes the session from both storages (keeps unrelated preferences such as the language). */
 export function clearSession() {
-    Object.values(KEYS).forEach((key) => {
-        try {
-            localStorage.removeItem(key);
-        } catch {
-            /* storage unavailable: nothing to clear */
-        }
-    });
+    for (const kind of ['local', 'session']) {
+        removeFrom(kind, SESSION_KEY);
+    }
+    LEGACY_KEYS.forEach((key) => removeFrom('local', key));
 }
