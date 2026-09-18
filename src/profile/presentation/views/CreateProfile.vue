@@ -5,185 +5,78 @@
     <div class="max-w-4xl mx-auto">
       <div class="flex justify-content-between align-items-center mb-6">
         <div class="flex align-items-center gap-3">
-          <pv-button
-              icon="pi pi-arrow-left"
-              :label="$t('common.back')"
-              class="p-button-outlined p-button-sm"
-              @click="handleCancel"
-          />
-          <h1 class="text-3xl font-bold text-color m-0">{{ $t('createProfile.title') }}</h1>
+          <pv-button icon="pi pi-arrow-left" :label="t('common.back')" class="p-button-outlined p-button-sm" @click="handleCancel" />
+          <h1 class="text-3xl font-bold text-color m-0">{{ t('createProfile.title') }}</h1>
         </div>
-        <pv-button
-            :label="currentLocale.toUpperCase()"
-            icon="pi pi-globe"
-            class="p-button-text p-button-rounded language-btn"
-            @click="toggleLanguage"
-            v-tooltip.bottom="$t('common.changeLanguage')"
-        />
+        <LanguageSwitcher />
       </div>
 
       <pv-card class="surface-card shadow-2 border-round-xl">
         <template #content>
-          <form @submit.prevent="handleSubmit" class="profile-form">
-            <!-- Personal Information Section -->
+          <form class="profile-form" novalidate @submit.prevent="handleSubmit">
             <div class="form-section">
-              <h2 class="section-title">{{ $t('createProfile.personalInfo') }}</h2>
-
+              <h2 class="section-title">{{ t('createProfile.personalInfo') }}</h2>
               <div class="grid">
-                <div class="col-12 md:col-6">
-                  <div class="field">
-                    <label for="firstName" class="font-medium text-color">
-                      {{ $t('createProfile.firstName') }} *
-                    </label>
-                    <pv-input-text
-                        id="firstName"
-                        v-model="formData.firstName"
-                        type="text"
-                        required
-                        :placeholder="$t('createProfile.firstNamePlaceholder')"
-                        class="w-full"
-                    />
-                  </div>
+                <div class="col-12 md:col-6 field">
+                  <label for="firstName" class="font-medium text-color">{{ t('createProfile.firstName') }} *</label>
+                  <pv-input-text id="firstName" v-model="form.firstName" autocomplete="given-name" class="w-full" :invalid="!!errors.firstName" />
+                  <small v-if="errors.firstName" class="p-error">{{ errors.firstName }}</small>
                 </div>
-
-                <div class="col-12 md:col-6">
-                  <div class="field">
-                    <label for="lastName" class="font-medium text-color">
-                      {{ $t('createProfile.lastName') }} *
-                    </label>
-                    <pv-input-text
-                        id="lastName"
-                        v-model="formData.lastName"
-                        type="text"
-                        required
-                        :placeholder="$t('createProfile.lastNamePlaceholder')"
-                        class="w-full"
-                    />
-                  </div>
+                <div class="col-12 md:col-6 field">
+                  <label for="lastName" class="font-medium text-color">{{ t('createProfile.lastName') }} *</label>
+                  <pv-input-text id="lastName" v-model="form.lastName" autocomplete="family-name" class="w-full" :invalid="!!errors.lastName" />
+                  <small v-if="errors.lastName" class="p-error">{{ errors.lastName }}</small>
                 </div>
-
-                <div class="col-12">
-                  <div class="field">
-                    <label for="email" class="font-medium text-color">
-                      {{ $t('createProfile.email') }} *
-                    </label>
-                    <pv-input-text
-                        id="email"
-                        v-model="formData.email"
-                        type="email"
-                        required
-                        :placeholder="$t('createProfile.emailPlaceholder')"
-                        class="w-full"
-                    />
-                  </div>
+                <div class="col-12 md:col-6 field">
+                  <label for="phone" class="font-medium text-color">{{ t('createProfile.phone') }} *</label>
+                  <pv-input-text id="phone" v-model="form.phone" type="tel" autocomplete="tel" placeholder="+51987654321" class="w-full" :invalid="!!errors.phone" />
+                  <small v-if="errors.phone" class="p-error">{{ errors.phone }}</small>
+                </div>
+                <div class="col-12 md:col-6 field">
+                  <label for="email" class="font-medium text-color">{{ t('createProfile.email') }}</label>
+                  <pv-input-text id="email" v-model="form.email" type="email" class="w-full" disabled />
+                  <small class="text-color-secondary">{{ t('createProfile.emailFromAccount') }}</small>
+                </div>
+                <div class="col-12 md:col-4 field">
+                  <label for="documentType" class="font-medium text-color">{{ t('createProfile.documentType') }}</label>
+                  <pv-select
+                      v-model="form.documentType"
+                      input-id="documentType"
+                      :options="documentTypeOptions"
+                      option-label="label"
+                      option-value="value"
+                      show-clear
+                      :placeholder="t('createProfile.optional')"
+                      class="w-full"
+                      :invalid="!!errors.documentType"
+                  />
+                  <small v-if="errors.documentType" class="p-error">{{ errors.documentType }}</small>
+                </div>
+                <div class="col-12 md:col-8 field">
+                  <label for="documentNumber" class="font-medium text-color">{{ t('createProfile.documentNumber') }}</label>
+                  <pv-input-text id="documentNumber" v-model="form.documentNumber" class="w-full" :invalid="!!errors.documentNumber" />
+                  <small v-if="errors.documentNumber" class="p-error">{{ errors.documentNumber }}</small>
                 </div>
               </div>
             </div>
 
-            <!-- Address Section -->
             <div class="form-section">
-              <h2 class="section-title">{{ $t('createProfile.address') }}</h2>
-
+              <h2 class="section-title">{{ t('createProfile.address') }}</h2>
+              <p class="text-color-secondary mt-0">{{ t('createProfile.addressHint') }}</p>
               <div class="grid">
-                <div class="col-12 md:col-9">
-                  <div class="field">
-                    <label for="street" class="font-medium text-color">
-                      {{ $t('createProfile.street') }} *
-                    </label>
-                    <pv-input-text
-                        id="street"
-                        v-model="formData.street"
-                        type="text"
-                        required
-                        :placeholder="$t('createProfile.streetPlaceholder')"
-                        class="w-full"
-                    />
-                  </div>
-                </div>
-
-                <div class="col-12 md:col-3">
-                  <div class="field">
-                    <label for="number" class="font-medium text-color">
-                      {{ $t('createProfile.number') }} *
-                    </label>
-                    <pv-input-text
-                        id="number"
-                        v-model="formData.number"
-                        type="text"
-                        required
-                        :placeholder="$t('createProfile.numberPlaceholder')"
-                        class="w-full"
-                    />
-                  </div>
-                </div>
-
-                <div class="col-12 md:col-6">
-                  <div class="field">
-                    <label for="city" class="font-medium text-color">
-                      {{ $t('createProfile.city') }} *
-                    </label>
-                    <pv-input-text
-                        id="city"
-                        v-model="formData.city"
-                        type="text"
-                        required
-                        :placeholder="$t('createProfile.cityPlaceholder')"
-                        class="w-full"
-                    />
-                  </div>
-                </div>
-
-                <div class="col-12 md:col-6">
-                  <div class="field">
-                    <label for="postalCode" class="font-medium text-color">
-                      {{ $t('createProfile.postalCode') }} *
-                    </label>
-                    <pv-input-text
-                        id="postalCode"
-                        v-model="formData.postalCode"
-                        type="text"
-                        required
-                        :placeholder="$t('createProfile.postalCodePlaceholder')"
-                        class="w-full"
-                    />
-                  </div>
-                </div>
-
-                <div class="col-12">
-                  <div class="field">
-                    <label for="country" class="font-medium text-color">
-                      {{ $t('createProfile.country') }} *
-                    </label>
-                    <pv-input-text
-                        id="country"
-                        v-model="formData.country"
-                        type="text"
-                        required
-                        :placeholder="$t('createProfile.countryPlaceholder')"
-                        class="w-full"
-                    />
-                  </div>
+                <div v-for="field in addressFields" :key="field.name" :class="[field.col, 'field']">
+                  <label :for="field.name" class="font-medium text-color">{{ t(`createProfile.${field.name}`) }}</label>
+                  <pv-input-text :id="field.name" v-model="form[field.name]" :autocomplete="field.autocomplete" class="w-full" :invalid="!!errors[field.name]" />
+                  <small v-if="errors[field.name]" class="p-error">{{ errors[field.name] }}</small>
                 </div>
               </div>
             </div>
 
-            <!-- Action Buttons -->
+            <pv-message v-if="errorMessage" severity="error" class="mb-3">{{ errorMessage }}</pv-message>
+
             <div class="flex justify-content-end gap-3 mt-5 pt-4 border-top-1 surface-border">
-              <pv-button
-                  type="button"
-                  :label="$t('common.cancel')"
-                  icon="pi pi-times"
-                  @click="handleCancel"
-                  class="p-button-outlined p-button-secondary"
-                  :disabled="loading"
-              />
-              <pv-button
-                  type="submit"
-                  :label="loading ? $t('createProfile.creating') : $t('createProfile.createButton')"
-                  icon="pi pi-check"
-                  class="p-button-primary"
-                  :loading="loading"
-              />
+              <pv-button type="button" :label="t('common.cancel')" icon="pi pi-times" class="p-button-outlined p-button-secondary" :disabled="profileStore.loading" @click="handleCancel" />
+              <pv-button type="submit" :label="t('createProfile.createButton')" icon="pi pi-check" :loading="profileStore.loading" />
             </div>
           </form>
         </template>
@@ -193,78 +86,69 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useToast } from 'primevue/usetoast';
 import { useI18n } from 'vue-i18n';
 import { useProfileStore } from '../../application/profile.store.js';
+import { CreateGuestProfileCommand } from '../../domain/commands/create-guest-profile.command.js';
+import { DocumentType } from '../../domain/model/guest-profile.entity.js';
+import useIamStore from '@/iam/application/iam.store.js';
+import LanguageSwitcher from '@/shared/presentation/components/language-switcher.vue';
+import { apiErrorKey } from '@/shared/presentation/utils/api-error.js';
 
+/**
+ * The signed-in guest completes their guest profile (POST /guests; the owner comes from the token).
+ */
 const router = useRouter();
 const toast = useToast();
+const { t } = useI18n();
 const profileStore = useProfileStore();
-const { t, locale } = useI18n();
+const iamStore = useIamStore();
 
-const currentLocale = computed(() => locale.value);
-
-const formData = ref({
-  firstName: '',
-  lastName: '',
-  email: '',
+const user = iamStore.currentUser;
+const form = reactive({
+  firstName: user?.firstName ?? '',
+  lastName: user?.lastName ?? '',
+  phone: '',
+  email: user?.email ?? '',
+  documentType: null,
+  documentNumber: '',
   street: '',
   number: '',
   city: '',
   postalCode: '',
-  country: ''
+  country: '',
 });
+const errors = ref({});
+const errorMessage = ref('');
 
-const loading = ref(false);
+const documentTypeOptions = Object.values(DocumentType).map((value) => ({ value, label: t(`profileDetail.documentTypes.${value}`) }));
+const addressFields = [
+  { name: 'street', col: 'col-12 md:col-9', autocomplete: 'address-line1' },
+  { name: 'number', col: 'col-12 md:col-3', autocomplete: 'address-line2' },
+  { name: 'city', col: 'col-12 md:col-6', autocomplete: 'address-level2' },
+  { name: 'postalCode', col: 'col-12 md:col-6', autocomplete: 'postal-code' },
+  { name: 'country', col: 'col-12', autocomplete: 'country-name' },
+];
 
-function toggleLanguage() {
-  const newLocale = locale.value === 'en' ? 'es' : 'en';
-  locale.value = newLocale;
-  localStorage.setItem('language', newLocale);
-}
-
-const handleSubmit = async () => {
-  loading.value = true;
+async function handleSubmit() {
+  errorMessage.value = '';
+  const command = new CreateGuestProfileCommand(form);
+  const ruleErrors = command.validate();
+  errors.value = Object.fromEntries(Object.entries(ruleErrors).map(([field, rule]) => [field, t(`createProfile.rules.${rule}`)]));
+  if (Object.keys(ruleErrors).length > 0) return;
 
   try {
-    const profile = await profileStore.createProfile(formData.value);
-
-    toast.add({
-      severity: 'success',
-      summary: t('createProfile.successTitle'),
-      detail: t('createProfile.successMessage'),
-      life: 3000
-    });
-
-    // Redirect to profile detail after a short delay
-    setTimeout(() => {
-      router.push(`/profiles/${profile.id}`);
-    }, 1500);
+    await profileStore.createMyGuestProfile(command);
+    toast.add({ severity: 'success', summary: t('createProfile.successTitle'), detail: t('createProfile.successMessage'), life: 3000 });
+    router.push({ name: 'profile-detail' });
   } catch (err) {
-    toast.add({
-      severity: 'error',
-      summary: t('common.error'),
-      detail: err.message || t('createProfile.errorMessage'),
-      life: 3000
-    });
-  } finally {
-    loading.value = false;
+    errorMessage.value = t(apiErrorKey(err, { 409: 'createProfile.conflict' }));
   }
-};
+}
 
-const handleCancel = () => {
-  router.push('/profiles');
-};
-
-onMounted(() => {
-  // Load saved language
-  const savedLanguage = localStorage.getItem('language');
-  if (savedLanguage) {
-    locale.value = savedLanguage;
-  }
-});
+const handleCancel = () => router.push({ name: 'profile-detail' });
 </script>
 
 <style scoped>

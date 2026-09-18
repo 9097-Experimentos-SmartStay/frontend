@@ -3,341 +3,145 @@
     <pv-toast position="bottom-right" />
 
     <div class="max-w-5xl mx-auto">
-      <!-- Language Selector -->
-      <div class="flex justify-content-end mb-3">
-        <pv-button
-            :label="currentLocale.toUpperCase()"
-            icon="pi pi-globe"
-            class="p-button-text p-button-rounded language-btn"
-            @click="toggleLanguage"
-            v-tooltip.bottom="$t('common.changeLanguage')"
-        />
+      <div class="flex justify-content-between align-items-center mb-3">
+        <pv-button :label="t('common.back')" icon="pi pi-arrow-left" class="p-button-outlined p-button-secondary p-button-sm" @click="handleBack" />
+        <LanguageSwitcher />
       </div>
 
-      <!-- Loading State -->
-      <div v-if="loading" class="flex flex-column align-items-center justify-content-center h-20rem">
+      <div v-if="profileStore.loading" class="flex flex-column align-items-center justify-content-center h-20rem">
         <pv-progress-spinner />
-        <p class="text-color-secondary mt-3">{{ $t('profileDetail.loading') }}</p>
+        <p class="text-color-secondary mt-3">{{ t('profileDetail.loading') }}</p>
       </div>
 
-      <!-- Error State -->
-      <div v-else-if="error" class="text-center p-8 surface-card border-round-xl shadow-1 border-1 border-red-100">
-        <div class="bg-red-50 border-circle w-6rem h-6rem flex align-items-center justify-content-center mx-auto mb-4">
-          <i class="pi pi-exclamation-triangle text-red-500 text-5xl"></i>
-        </div>
-        <h3 class="text-color font-bold m-0 mb-2">{{ $t('common.error') }}</h3>
-        <p class="text-red-600 mb-4">{{ error }}</p>
-        <pv-button
-            :label="$t('profileDetail.retry')"
-            icon="pi pi-refresh"
-            class="p-button-outlined p-button-danger"
-            @click="handleRetry"
-        />
+      <div v-else-if="profileStore.error" class="text-center p-8 surface-card border-round-xl shadow-1 border-1 border-red-100">
+        <i class="pi pi-exclamation-triangle text-red-500 text-5xl mb-3"></i>
+        <p class="text-red-600 mb-4">{{ t(apiErrorKey(profileStore.error)) }}</p>
+        <pv-button :label="t('profileDetail.retry')" icon="pi pi-refresh" class="p-button-outlined p-button-danger" @click="loadProfile" />
       </div>
 
-      <!-- Profile Detail -->
-      <div v-else-if="profile || currentUser">
-        <pv-card class="surface-card shadow-2 border-round-xl overflow-hidden">
-          <!-- Header -->
-          <template #header>
-            <div class="profile-header">
-              <pv-avatar
-                  :label="getInitials()"
-                  class="profile-avatar"
-                  size="xlarge"
-                  shape="circle"
-              />
-              <div class="profile-header-info">
-                <h1 class="profile-name">{{ getDisplayName() }}</h1>
-                <p class="profile-email">{{ getEmail() }}</p>
-                <pv-tag
-                    v-if="!profile"
-                    :value="$t('profileDetail.incompleteProfile')"
-                    severity="warning"
-                    rounded
-                    class="mt-2"
-                />
+      <pv-card v-else-if="user" class="surface-card shadow-2 border-round-xl overflow-hidden">
+        <template #header>
+          <div class="profile-header">
+            <pv-avatar :label="user.initials" class="profile-avatar" size="xlarge" shape="circle" />
+            <div class="profile-header-info">
+              <h1 class="profile-name">{{ guestProfile?.fullName || user.displayName }}</h1>
+              <p class="profile-email">{{ user.email }}</p>
+              <pv-tag v-if="isGuest && !guestProfile" :value="t('profileDetail.incompleteProfile')" severity="warn" rounded class="mt-2" />
+            </div>
+          </div>
+        </template>
+
+        <template #content>
+          <EmailVerificationBanner />
+
+          <section class="info-section">
+            <h2 class="section-title"><i class="pi pi-user text-primary"></i>{{ t('profileDetail.accountInfo') }}</h2>
+            <div class="grid">
+              <div class="col-12 md:col-6 info-item">
+                <span class="info-label">{{ t('profileDetail.email') }}</span>
+                <span class="info-value">{{ user.email }}</span>
+              </div>
+              <div class="col-12 md:col-6 info-item">
+                <span class="info-label">{{ t('profileDetail.role') }}</span>
+                <pv-tag :value="t(`roles.${user.role}`)" severity="info" rounded class="w-max" />
+              </div>
+              <div v-if="user.firstName" class="col-12 md:col-6 info-item">
+                <span class="info-label">{{ t('profileDetail.firstName') }}</span>
+                <span class="info-value">{{ user.firstName }}</span>
+              </div>
+              <div v-if="user.lastName" class="col-12 md:col-6 info-item">
+                <span class="info-label">{{ t('profileDetail.lastName') }}</span>
+                <span class="info-value">{{ user.lastName }}</span>
               </div>
             </div>
-          </template>
+          </section>
 
-          <template #content>
-            <!-- Account Information Section -->
-            <div class="info-section mb-4">
-              <h2 class="section-title">
-                <i class="pi pi-user text-primary"></i>
-                {{ $t('profileDetail.accountInfo') }}
-              </h2>
-              <div class="grid">
-                <div class="col-12 md:col-6">
-                  <div class="info-item">
-                    <span class="info-label">{{ $t('profileDetail.username') }}:</span>
-                    <span class="info-value">{{ currentUser?.username || 'N/A' }}</span>
-                  </div>
-                </div>
-                <div class="col-12 md:col-6">
-                  <div class="info-item">
-                    <span class="info-label">{{ $t('profileDetail.email') }}:</span>
-                    <span class="info-value">{{ getEmail() }}</span>
-                  </div>
-                </div>
-                <div class="col-12 md:col-6">
-                  <div class="info-item">
-                    <span class="info-label">{{ $t('profileDetail.userId') }}:</span>
-                    <span class="info-value">#{{ currentUser?.id || 'N/A' }}</span>
-                  </div>
-                </div>
-                <div class="col-12 md:col-6">
-                  <div class="info-item">
-                    <span class="info-label">{{ $t('profileDetail.role') }}:</span>
-                    <pv-tag :value="currentUser?.role || 'GUEST'" severity="info" rounded />
-                  </div>
-                </div>
+          <section v-if="guestProfile" class="info-section">
+            <h2 class="section-title"><i class="pi pi-id-card text-primary"></i>{{ t('profileDetail.personalInfo') }}</h2>
+            <div class="grid">
+              <div class="col-12 md:col-6 info-item">
+                <span class="info-label">{{ t('profileDetail.phone') }}</span>
+                <span class="info-value">{{ guestProfile.phone || t('profileDetail.notSpecified') }}</span>
+              </div>
+              <div class="col-12 md:col-6 info-item">
+                <span class="info-label">{{ t('profileDetail.document') }}</span>
+                <span class="info-value">
+                  {{ guestProfile.documentNumber ? `${t(`profileDetail.documentTypes.${guestProfile.documentType}`)} ${guestProfile.documentNumber}` : t('profileDetail.notSpecified') }}
+                </span>
+              </div>
+              <div class="col-12 info-item">
+                <span class="info-label">{{ t('profileDetail.address') }}</span>
+                <span class="info-value">{{ guestProfile.fullAddress || t('profileDetail.notSpecified') }}</span>
               </div>
             </div>
+          </section>
 
-            <!-- Personal Information Section (if profile exists) -->
-            <div v-if="profile" class="info-section mb-4">
-              <h2 class="section-title">
-                <i class="pi pi-id-card text-primary"></i>
-                {{ $t('profileDetail.personalInfo') }}
-              </h2>
-              <div class="grid">
-                <div class="col-12 md:col-6">
-                  <div class="info-item">
-                    <span class="info-label">{{ $t('profileDetail.firstName') }}:</span>
-                    <span class="info-value">{{ profile.firstName || $t('profileDetail.notSpecified') }}</span>
-                  </div>
-                </div>
-                <div class="col-12 md:col-6">
-                  <div class="info-item">
-                    <span class="info-label">{{ $t('profileDetail.lastName') }}:</span>
-                    <span class="info-value">{{ profile.lastName || $t('profileDetail.notSpecified') }}</span>
-                  </div>
-                </div>
-                <div class="col-12 md:col-6">
-                  <div class="info-item">
-                    <span class="info-label">{{ $t('profileDetail.phone') }}:</span>
-                    <span class="info-value">{{ profile.phone || $t('profileDetail.notSpecified') }}</span>
-                  </div>
-                </div>
-                <div class="col-12 md:col-6">
-                  <div class="info-item">
-                    <span class="info-label">{{ $t('profileDetail.profileId') }}:</span>
-                    <span class="info-value">#{{ profile.id }}</span>
-                  </div>
-                </div>
+          <section v-if="staffProfile" class="info-section">
+            <h2 class="section-title"><i class="pi pi-briefcase text-primary"></i>{{ t('profileDetail.jobInfo') }}</h2>
+            <div class="grid">
+              <div class="col-12 md:col-4 info-item">
+                <span class="info-label">{{ t('profileDetail.employeeCode') }}</span>
+                <span class="info-value">{{ staffProfile.code }}</span>
+              </div>
+              <div class="col-12 md:col-4 info-item">
+                <span class="info-label">{{ t('profileDetail.position') }}</span>
+                <span class="info-value">{{ staffProfile.position }}</span>
+              </div>
+              <div class="col-12 md:col-4 info-item">
+                <span class="info-label">{{ t('profileDetail.shift') }}</span>
+                <span class="info-value">{{ staffProfile.shift }}</span>
               </div>
             </div>
+          </section>
 
-            <!-- Address Section (if profile exists) -->
-            <div v-if="profile && (profile.street || profile.city || profile.country)" class="info-section mb-4">
-              <h2 class="section-title">
-                <i class="pi pi-map-marker text-primary"></i>
-                {{ $t('profileDetail.address') }}
-              </h2>
-              <div class="grid">
-                <div class="col-12 md:col-6">
-                  <div class="info-item">
-                    <span class="info-label">{{ $t('profileDetail.street') }}:</span>
-                    <span class="info-value">{{ profile.street || $t('profileDetail.notSpecified') }}</span>
-                  </div>
-                </div>
-                <div class="col-12 md:col-6">
-                  <div class="info-item">
-                    <span class="info-label">{{ $t('profileDetail.number') }}:</span>
-                    <span class="info-value">{{ profile.number || $t('profileDetail.notSpecified') }}</span>
-                  </div>
-                </div>
-                <div class="col-12 md:col-6">
-                  <div class="info-item">
-                    <span class="info-label">{{ $t('profileDetail.city') }}:</span>
-                    <span class="info-value">{{ profile.city || $t('profileDetail.notSpecified') }}</span>
-                  </div>
-                </div>
-                <div class="col-12 md:col-6">
-                  <div class="info-item">
-                    <span class="info-label">{{ $t('profileDetail.postalCode') }}:</span>
-                    <span class="info-value">{{ profile.postalCode || $t('profileDetail.notSpecified') }}</span>
-                  </div>
-                </div>
-                <div class="col-12">
-                  <div class="info-item">
-                    <span class="info-label">{{ $t('profileDetail.country') }}:</span>
-                    <span class="info-value">{{ profile.country || $t('profileDetail.notSpecified') }}</span>
-                  </div>
-                </div>
+          <pv-card v-if="isGuest && !guestProfile" class="no-profile-card bg-blue-50">
+            <template #content>
+              <div class="text-center">
+                <i class="pi pi-file-edit text-6xl text-blue-500 mb-4"></i>
+                <h3 class="text-color font-bold mb-2">{{ t('profileDetail.completeProfile') }}</h3>
+                <p class="text-color-secondary mb-4">{{ t('profileDetail.completeProfileMessage') }}</p>
+                <pv-button :label="t('profileDetail.completeProfileButton')" icon="pi pi-plus" @click="router.push({ name: 'create-profile' })" />
               </div>
-            </div>
-
-            <!-- No Profile Created Yet -->
-            <div v-if="!profile" class="no-profile-section">
-              <pv-card class="no-profile-card bg-blue-50">
-                <template #content>
-                  <div class="text-center">
-                    <i class="pi pi-file-edit text-6xl text-blue-500 mb-4"></i>
-                    <h3 class="text-color font-bold mb-2">{{ $t('profileDetail.completeProfile') }}</h3>
-                    <p class="text-color-secondary mb-4">{{ $t('profileDetail.completeProfileMessage') }}</p>
-                    <pv-button
-                        :label="$t('profileDetail.completeProfileButton')"
-                        icon="pi pi-plus"
-                        class="p-button-primary"
-                        @click="handleCreateProfile"
-                    />
-                  </div>
-                </template>
-              </pv-card>
-            </div>
-          </template>
-
-          <template #footer>
-            <div class="flex justify-content-between gap-3">
-              <pv-button
-                  :label="$t('common.back')"
-                  icon="pi pi-arrow-left"
-                  class="p-button-outlined p-button-secondary"
-                  @click="handleBack"
-              />
-              <pv-button
-                  v-if="profile"
-                  :label="$t('profileDetail.editProfile')"
-                  icon="pi pi-pencil"
-                  class="p-button-primary"
-                  @click="handleEditProfile"
-              />
-            </div>
-          </template>
-        </pv-card>
-      </div>
-
-      <!-- Not Found State -->
-      <div v-else class="text-center p-8 surface-card border-round-xl shadow-1 border-1 surface-border">
-        <i class="pi pi-search text-500 text-6xl mb-4"></i>
-        <h3 class="text-color font-bold m-0 mb-2">{{ $t('profileDetail.notFound') }}</h3>
-        <p class="text-color-secondary mb-4">{{ $t('profileDetail.notFoundMessage') }}</p>
-        <pv-button
-            :label="$t('profileDetail.backToDashboard')"
-            icon="pi pi-home"
-            class="p-button-primary"
-            @click="handleBack"
-        />
-      </div>
+            </template>
+          </pv-card>
+        </template>
+      </pv-card>
     </div>
   </div>
 </template>
 
 <script setup>
-import { reportError } from '@/shared/infrastructure/logging/report-error.js';
-import { ref, computed, onMounted } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-import { useToast } from 'primevue/usetoast';
+import { computed, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { useProfileStore } from '../../application/profile.store.js';
 import useIamStore from '@/iam/application/iam.store.js';
+import { UserRole } from '@/iam/domain/user-role.js';
+import EmailVerificationBanner from '@/iam/presentation/components/email-verification-banner.vue';
+import LanguageSwitcher from '@/shared/presentation/components/language-switcher.vue';
+import { apiErrorKey } from '@/shared/presentation/utils/api-error.js';
 
-const route = useRoute();
+/**
+ * Own profile of the signed-in user: account data from the session, plus the guest profile
+ * (GET /guests/user/{id}) for guests or the staff profile (GET /staff/user/{id}) for administrators.
+ */
 const router = useRouter();
-const toast = useToast();
+const { t } = useI18n();
 const profileStore = useProfileStore();
 const iamStore = useIamStore();
-const { t, locale } = useI18n();
 
-const profile = computed(() => profileStore.getCurrentProfile);
-const loading = computed(() => profileStore.isLoading);
-const error = computed(() => profileStore.getError);
-const currentUser = ref(null);
-const currentLocale = computed(() => locale.value);
+const user = computed(() => iamStore.currentUser);
+const isGuest = computed(() => user.value?.role === UserRole.GUEST);
+const guestProfile = computed(() => profileStore.guestProfile);
+const staffProfile = computed(() => profileStore.staffProfile);
 
-function toggleLanguage() {
-  const newLocale = locale.value === 'en' ? 'es' : 'en';
-  locale.value = newLocale;
-  localStorage.setItem('language', newLocale);
+function loadProfile() {
+  if (user.value) profileStore.fetchMyProfile(user.value);
 }
 
-const loadProfile = async () => {
-  try {
-    // The IAM store restores the session from storage on load.
-    const userId = iamStore.currentUserId;
+const handleBack = () => router.push({ name: 'dashboard' });
 
-    if (iamStore.users.length === 0) {
-      await iamStore.fetchUsers();
-    }
-
-    currentUser.value = iamStore.users.find(u => u.id === userId);
-
-    if (!currentUser.value && iamStore.currentUsername) {
-      currentUser.value = {
-        id: userId,
-        username: iamStore.currentUsername,
-        email: iamStore.currentUsername
-      };
-    }
-
-    if (route.params.id) {
-      await profileStore.fetchProfileById(parseInt(route.params.id));
-    } else if (currentUser.value?.email || currentUser.value?.username) {
-      const email = currentUser.value.email || currentUser.value.username;
-      await profileStore.fetchProfileByEmail(email);
-    }
-  } catch (err) {
-    reportError('Error loading profile', err);
-  }
-};
-
-const getInitials = () => {
-  if (profile.value?.firstName && profile.value?.lastName) {
-    return `${profile.value.firstName.charAt(0)}${profile.value.lastName.charAt(0)}`.toUpperCase();
-  }
-
-  const username = currentUser.value?.username || currentUser.value?.email || 'U';
-  return username.substring(0, 2).toUpperCase();
-};
-
-const getDisplayName = () => {
-  if (profile.value?.fullName) {
-    return profile.value.fullName;
-  }
-
-  if (currentUser.value?.username) {
-    return currentUser.value.username.split('@')[0];
-  }
-
-  return t('profileDetail.user');
-};
-
-const getEmail = () => {
-  return profile.value?.email || currentUser.value?.email || currentUser.value?.username || 'N/A';
-};
-
-const handleRetry = () => {
-  loadProfile();
-};
-
-const handleBack = () => {
-  router.push({ name: 'guest-dashboard' });
-};
-
-const handleCreateProfile = () => {
-  router.push({ name: 'CreateProfile' });
-};
-
-const handleEditProfile = () => {
-  toast.add({
-    severity: 'info',
-    summary: t('profileDetail.comingSoon'),
-    detail: t('profileDetail.editFeatureComingSoon'),
-    life: 3000
-  });
-};
-
-onMounted(() => {
-  const savedLanguage = localStorage.getItem('language');
-  if (savedLanguage) {
-    locale.value = savedLanguage;
-  }
-
-  loadProfile();
-});
+onMounted(loadProfile);
 </script>
 
 <style scoped>
