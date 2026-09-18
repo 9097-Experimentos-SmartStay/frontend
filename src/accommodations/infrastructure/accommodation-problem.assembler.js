@@ -14,6 +14,7 @@ import { AccommodationFailureReason } from '../application/accommodation-failure
  */
 export function classifyAccommodationProblem(problem) {
     if (problem.status !== 409) return null;
+    if (problem.detailIncludes('cannot change from')) return AccommodationFailureReason.INVALID_STATUS_TRANSITION;
     if (problem.detailIncludes('already exists in hotel')) return AccommodationFailureReason.DUPLICATE_ROOM_NUMBER;
     if (problem.detailIncludes('active booking')) return AccommodationFailureReason.HAS_ACTIVE_BOOKINGS;
     if (problem.detailIncludes('already has one') || problem.detailIncludes('single hotel')) {

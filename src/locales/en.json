@@ -995,7 +995,8 @@
       "payments": "Payments",
       "guests": "Guests",
       "users": "Users",
-      "audit": "Audit"
+      "audit": "Audit",
+      "roomMap": "Room map"
     },
     "navHint": {
       "hotels": "Properties and their data",
@@ -1004,7 +1005,8 @@
       "payments": "Payments per booking",
       "guests": "Guest profiles",
       "users": "Staff accounts and roles",
-      "audit": "Access history"
+      "audit": "Access history",
+      "roomMap": "Live status of every room"
     },
     "kpi": {
       "revenue": "Revenue",
@@ -1248,5 +1250,43 @@
     "descriptionPlaceholder": "E.g. Spacious room with a king bed and city view",
     "created": "Type \"{name}\" created.",
     "empty": "There are no room types yet."
+  },
+  "duration": {
+    "daysHours": "{days} d {hours} h",
+    "hoursMinutes": "{hours} h {minutes} min",
+    "minutes": "{minutes} min"
+  },
+  "roomMap": {
+    "open": "Room map",
+    "title": "Room map",
+    "subtitle": "Status of the rooms of your hotel.",
+    "chooseHotel": "Choose a hotel",
+    "chooseHotelHint": "Choose a hotel to see its room map.",
+    "legend": "Status legend",
+    "overdue": "+24 h",
+    "overdueCount": "{count} in maintenance for more than 24 h | {count} in maintenance for more than 24 h",
+    "overdueDetail": "This room has been in maintenance for more than 24 hours. The hotel administrator got an e-mail alert.",
+    "updatedAt": "Updated: {time}",
+    "tileLabel": "Room {number}, {status}",
+    "empty": "This hotel has no rooms yet.",
+    "dialogTitle": "Room {number}",
+    "since": "Since {time} ({duration})",
+    "changeTo": "Change status to",
+    "noTransitions": "No status changes are available.",
+    "notifyHint": "We will e-mail the staff in charge of the new status (housekeeping, maintenance or reception).",
+    "history": "Change history",
+    "historyEmpty": "No changes recorded yet.",
+    "historyWhen": "Date and time",
+    "historyChange": "Change",
+    "historyWho": "Changed by",
+    "system": "System",
+    "origins": {
+      "CheckIn": "By check-in",
+      "Staff": "Staff"
+    },
+    "changed": "Room {number} is now {status}.",
+    "invalidTransition": "That status change is no longer possible: someone updated the room. Check its current status.",
+    "forbidden": "You can only see and change the rooms of your hotel.",
+    "noHotel": "You have no hotel assigned. Ask your administrator to assign one."
   }
 }

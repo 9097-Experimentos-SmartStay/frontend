@@ -11,7 +11,10 @@
           <p class="text-color-secondary m-0">{{ t('staffRooms.subtitle') }}</p>
         </div>
       </div>
-      <pv-button v-if="canManageRooms" :label="t('staffRooms.newRoom')" icon="pi pi-plus" class="p-button-success" @click="router.push({ name: 'create-room' })" />
+      <div class="flex flex-wrap gap-2">
+        <pv-button v-if="canViewMap" :label="t('roomMap.open')" icon="pi pi-th-large" class="p-button-outlined" @click="router.push({ name: 'staff-room-map' })" />
+        <pv-button v-if="canManageRooms" :label="t('staffRooms.newRoom')" icon="pi pi-plus" class="p-button-success" @click="router.push({ name: 'create-room' })" />
+      </div>
     </div>
 
     <div class="surface-card p-4 shadow-2 border-round">
@@ -91,7 +94,7 @@ import { useConfirm } from 'primevue/useconfirm';
 import { useI18n } from 'vue-i18n';
 import { useRoomStore } from '@/accommodations/application/room.store.js';
 import { useHotelStore } from '@/accommodations/application/hotel.store.js';
-import { RoomStatus } from '@/accommodations/domain/model/room.entity.js';
+import { roomStatusSeverity } from '../utils/room-status-style.js';
 import useIamStore from '@/iam/application/iam.store.js';
 import { Capability, canManageHotel } from '@/iam/domain/user-role.js';
 import { failureMessageKey } from '@/shared/presentation/utils/failure-message.js';
@@ -112,15 +115,10 @@ const iamStore = useIamStore();
 const currentUser = computed(() => iamStore.currentUser);
 const canManageRooms = computed(() => iamStore.can(Capability.MANAGE_ROOMS));
 const canCreateRoomTypes = computed(() => iamStore.can(Capability.CREATE_ROOM_TYPES));
+const canViewMap = computed(() => iamStore.can(Capability.VIEW_ROOM_MAP));
 const isTypeDialogVisible = ref(false);
 
-const STATUS_SEVERITY = {
-  [RoomStatus.AVAILABLE]: 'success',
-  [RoomStatus.OCCUPIED]: 'info',
-  [RoomStatus.CLEANING]: 'warn',
-  [RoomStatus.MAINTENANCE]: 'danger',
-};
-const statusSeverity = (status) => STATUS_SEVERITY[status] ?? 'secondary';
+const statusSeverity = roomStatusSeverity;
 const hotelName = (hotelId) => hotelStore.hotels.find((hotel) => hotel.id === hotelId)?.name ?? `#${hotelId}`;
 const truncate = (text, length) => (!text ? '' : text.length > length ? `${text.substring(0, length)}…` : text);
 
