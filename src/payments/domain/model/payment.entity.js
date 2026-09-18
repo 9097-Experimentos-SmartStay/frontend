@@ -1,106 +1,42 @@
-// src/bounded-contexts/payments/domain/model/payment.entity.js
+/** Payment status strings the API returns (§9). `Pending` only exists inside the backend. */
+export const PaymentStatus = Object.freeze({
+    COMPLETED: 'Completed',
+    FAILED: 'Failed',
+});
 
 /**
- * Payment Domain Entity.
- * Represents a payment in the business domain.
+ * Payment Domain Entity (PaymentResource, §9).
+ * The amount is computed by the backend: room price per night × nights of the booking.
  * @class
  */
 export class Payment {
     /**
-     * Creates an instance of Payment.
-     * @param {Object} params - The parameters for creating the payment.
-     * @param {number} params.id - The unique identifier of the payment.
-     * @param {number} params.bookingId - The identifier of the associated booking.
-     * @param {number} params.amount - The payment amount.
-     * @param {string} params.paymentMethod - The method of payment.
-     * @param {string} [params.status='Pending'] - The status of the payment.
-     * @param {Date|string} params.paymentDate - The date of the payment.
-     * @param {string} params.invoiceNumber - The invoice number.
+     * @param {Object} params
+     * @param {number} params.id
+     * @param {number} params.bookingId
+     * @param {string} params.transactionId
+     * @param {number} params.amount - Charged by the backend.
+     * @param {string} params.status - One of {@link PaymentStatus}.
+     * @param {string} params.cardNumberMasked - "**** **** **** 1111".
+     * @param {Date|null} params.paymentDate
      */
-    constructor({ id, bookingId, amount, paymentMethod, status, paymentDate, invoiceNumber }) {
-        /**
-         * @property {number} id - The unique identifier of the payment.
-         */
+    constructor({ id, bookingId, transactionId, amount, status, cardNumberMasked, paymentDate }) {
         this.id = id;
-        /**
-         * @property {number} bookingId - The identifier of the associated booking.
-         */
         this.bookingId = bookingId;
-        /**
-         * @property {number} amount - The payment amount.
-         */
-        this.amount = amount;
-        /**
-         * @property {string} paymentMethod - The method of payment.
-         */
-        this.paymentMethod = paymentMethod;
-        /**
-         * @property {string} status - The status of the payment.
-         */
-        this.status = status || 'Pending';
-        /**
-         * @property {Date|null} paymentDate - The date of the payment.
-         */
-        this.paymentDate = paymentDate ? new Date(paymentDate) : null;
-        /**
-         * @property {string|null} invoiceNumber - The invoice number.
-         */
-        this.invoiceNumber = invoiceNumber || null;
+        this.transactionId = transactionId;
+        this.amount = Number(amount ?? 0);
+        this.status = status;
+        this.cardNumberMasked = cardNumberMasked;
+        this.paymentDate = paymentDate;
     }
 
-    /**
-     * Creates a Payment instance from a resource object.
-     * @param {Object} resource - The resource object to convert from.
-     * @param {number} resource.id - The unique identifier.
-     * @param {number} resource.bookingId - The booking identifier.
-     * @param {number} resource.amount - The amount.
-     * @param {string} resource.paymentMethod - The payment method.
-     * @param {string} resource.status - The status.
-     * @param {Date|string} resource.paymentDate - The payment date.
-     * @param {string} resource.invoiceNumber - The invoice number.
-     * @returns {Payment} A new Payment instance.
-     */
-    static fromResource(resource) {
-        return new Payment({
-            id: resource.id,
-            bookingId: resource.bookingId,
-            amount: resource.amount,
-            paymentMethod: resource.paymentMethod,
-            status: resource.status,
-            paymentDate: resource.paymentDate,
-            invoiceNumber: resource.invoiceNumber
-        });
+    /** @returns {boolean} Approved: the booking became Confirmed in the same transaction. */
+    isCompleted() {
+        return this.status === PaymentStatus.COMPLETED;
     }
 
-    /**
-     * Checks if the payment is pending.
-     * @returns {boolean} True if the status is 'Pending'.
-     */
-    isPending() {
-        return this.status === 'Pending';
-    }
-
-    /**
-     * Checks if the payment is processed.
-     * @returns {boolean} True if the status is 'Processed'.
-     */
-    isProcessed() {
-        return this.status === 'Processed';
-    }
-
-    /**
-     * Checks if the payment failed.
-     * @returns {boolean} True if the status is 'Failed'.
-     */
+    /** @returns {boolean} Declined card (the response is still 201); the booking can be paid again. */
     isFailed() {
-        return this.status === 'Failed';
-    }
-
-    /**
-     * Checks if the payment is refunded.
-     * @returns {boolean} True if the status is 'Refunded'.
-     */
-    isRefunded() {
-        return this.status === 'Refunded';
+        return this.status === PaymentStatus.FAILED;
     }
 }
