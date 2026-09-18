@@ -820,12 +820,15 @@
     "nameFormat": "Usa entre 2 y 50 letras (se permiten espacios, guiones y apóstrofos).",
     "passwordMismatch": "Las contraseñas no coinciden.",
     "dateRange": "La fecha final no puede ser anterior a la inicial.",
-    "passwordTooShort": "La contraseña debe tener al menos {min} caracteres.",
+    "passwordTooShort": "Usa al menos {min} caracteres. Una frase de varias palabras es larga y fácil de recordar.",
     "passwordTooLong": "La contraseña no puede tener más de {max} caracteres.",
-    "passwordBreached": "Esta contraseña aparece en filtraciones o es muy común. Elige otra.",
+    "passwordBreached": "Esta contraseña apareció en una filtración de datos conocida. Elige otra.",
     "passwordRejected": "El servidor rechazó la contraseña: {reason}",
     "authenticatorCodeFormat": "Ingresa los 6 dígitos de tu app de autenticación.",
-    "recoveryCodeFormat": "Un código de recuperación tiene 10 letras y números (XXXXX-XXXXX)."
+    "recoveryCodeFormat": "Un código de recuperación tiene 10 letras y números (XXXXX-XXXXX).",
+    "passwordCommon": "Esta contraseña es demasiado común o fácil de adivinar. Elige otra.",
+    "passwordSequential": "La contraseña no puede ser una repetición o secuencia de caracteres (como «aaaaaaaa» o «12345678»).",
+    "passwordEmailBased": "La contraseña no puede ser tu correo ni tu nombre de usuario."
   },
   "roles": {
     "guest": "Huésped",
@@ -966,14 +969,16 @@
     "confirmLabel": "Confirma la contraseña",
     "minLength": "Al menos {min} caracteres ({count} de {min})",
     "maxLength": "Máximo {max} caracteres",
-    "noBreached": "No uses contraseñas filtradas o muy comunes; lo verificamos al guardar.",
+    "noBreached": "No es una contraseña común ni filtrada; lo verificamos al guardar.",
     "hint": "Puedes usar una frase con espacios, acentos o emojis. Pegar desde tu gestor de contraseñas está permitido.",
     "matches": "Las contraseñas coinciden.",
     "strength": {
       "weak": "Seguridad baja",
       "medium": "Seguridad media",
       "strong": "Seguridad alta"
-    }
+    },
+    "notSequential": "No es una repetición ni una secuencia (como 12345678 o abcabcabc)",
+    "notEmail": "No es tu correo ni tu nombre de usuario"
   },
   "staffPanel": {
     "welcome": "Hola, {name}",

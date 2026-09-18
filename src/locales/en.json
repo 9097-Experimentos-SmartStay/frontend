@@ -820,12 +820,15 @@
     "nameFormat": "Use 2 to 50 letters (spaces, hyphens and apostrophes allowed).",
     "passwordMismatch": "The passwords do not match.",
     "dateRange": "The end date cannot be earlier than the start date.",
-    "passwordTooShort": "The password must have at least {min} characters.",
+    "passwordTooShort": "Use at least {min} characters. A passphrase of a few words is long and easy to remember.",
     "passwordTooLong": "The password cannot have more than {max} characters.",
-    "passwordBreached": "This password appears in data breaches or is too common. Choose another one.",
+    "passwordBreached": "This password has appeared in a known data breach. Choose a different one.",
     "passwordRejected": "The server rejected the password: {reason}",
     "authenticatorCodeFormat": "Enter the 6 digits of your authenticator app.",
-    "recoveryCodeFormat": "A recovery code has 10 letters and digits (XXXXX-XXXXX)."
+    "recoveryCodeFormat": "A recovery code has 10 letters and digits (XXXXX-XXXXX).",
+    "passwordCommon": "This password is too common or easy to guess. Choose a different one.",
+    "passwordSequential": "The password cannot be a repeated or sequential run of characters (such as 'aaaaaaaa' or '12345678').",
+    "passwordEmailBased": "The password cannot be your e-mail address or its user name."
   },
   "roles": {
     "guest": "Guest",
@@ -966,14 +969,16 @@
     "confirmLabel": "Confirm the password",
     "minLength": "At least {min} characters ({count} of {min})",
     "maxLength": "At most {max} characters",
-    "noBreached": "Do not use breached or very common passwords; we check it when saving.",
+    "noBreached": "Not a common or breached password; we check it when you save.",
     "hint": "You can use a phrase with spaces, accents or emojis. Pasting from your password manager is allowed.",
     "matches": "The passwords match.",
     "strength": {
       "weak": "Low strength",
       "medium": "Medium strength",
       "strong": "High strength"
-    }
+    },
+    "notSequential": "Not a repeated or sequential run (such as 12345678 or abcabcabc)",
+    "notEmail": "Not your e-mail address or its user name"
   },
   "staffPanel": {
     "welcome": "Hi, {name}",
