@@ -1,48 +1,41 @@
-﻿import { defineStore } from 'pinia';
+import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { BookingApi } from '../infrastructure/api/booking-api.js';
 import { BookingAssembler } from '../infrastructure/booking.assembler.js';
+import { BookingStatus } from '../domain/model/booking.entity.js';
 import { reportError } from '@/shared/infrastructure/logging/report-error.js';
 
 const bookingApi = new BookingApi();
 
 /**
  * Pinia Store for Booking Management.
- * Handles state management and business logic for Bookings.
- * @returns {Object} The booking store composable with state and actions.
+ *
+ * GET /bookings is scoped by the backend: a guest receives only their own bookings, staff roles
+ * receive every booking (newest first). No client-side filtering by e-mail is needed.
+ * Actions that change data re-throw the HTTP error so the view can show the right message.
  */
 export const useBookingStore = defineStore('booking', () => {
-
-    // --- State ---
-    /**
-     * @type {import('vue').Ref<Array<Booking>>} bookings - List of all bookings.
-     */
+    /** @type {import('vue').Ref<Array<import('../domain/model/booking.entity.js').Booking>>} */
     const bookings = ref([]);
-    /**
-     * @type {import('vue').Ref<Booking|null>} currentBooking - The currently selected booking.
-     */
+    /** @type {import('vue').Ref<import('../domain/model/booking.entity.js').Booking|null>} */
     const currentBooking = ref(null);
-    /**
-     * @type {import('vue').Ref<boolean>} loading - Indicates if an operation is in progress.
-     */
     const loading = ref(false);
-    /**
-     * @type {import('vue').Ref<Error|null>} error - The last error encountered.
-     */
     const error = ref(null);
 
-    // --- Actions ---
+    function replace(updated) {
+        bookings.value = bookings.value.map((booking) => (booking.id === updated.id ? updated : booking));
+        if (currentBooking.value?.id === updated.id) currentBooking.value = updated;
+    }
 
     /**
-     * Fetches all bookings from the API and updates state.
+     * Loads the bookings visible to the signed-in user (own bookings for a guest).
      * @returns {Promise<void>}
      */
-    async function fetchAllBookings() {
+    async function fetchBookings() {
         loading.value = true;
         error.value = null;
         try {
-            const response = await bookingApi.getAllBookings();
-            bookings.value = BookingAssembler.toEntitiesFromResponse(response);
+            bookings.value = BookingAssembler.toEntitiesFromResponse(await bookingApi.getAllBookings());
         } catch (err) {
             reportError('Error fetching bookings', err);
             error.value = err;
@@ -52,25 +45,37 @@ export const useBookingStore = defineStore('booking', () => {
     }
 
     /**
-     * Creates a new booking.
-     * @param {Object} bookingData - The data for the new booking.
-     * @param {number} bookingData.roomId - The room identifier.
-     * @param {string} bookingData.guestName - The guest name.
-     * @param {string} bookingData.guestEmail - The guest email.
-     * @param {Date} bookingData.checkInDate - The check-in date.
-     * @param {Date} bookingData.checkOutDate - The check-out date.
-     * @returns {Promise<Booking>} The created booking entity.
+     * GET /bookings/{id}. 404 also means "not yours" for a guest: currentBooking becomes null.
+     * @param {number} id
+     * @returns {Promise<import('../domain/model/booking.entity.js').Booking|null>}
      */
-    async function createBooking(bookingData) {
+    async function fetchBookingById(id) {
+        loading.value = true;
+        error.value = null;
+        try {
+            currentBooking.value = BookingAssembler.toEntityFromResponse(await bookingApi.getBookingById(id));
+        } catch (err) {
+            if (err?.response?.status !== 404) reportError(`Error fetching booking ${id}`, err);
+            currentBooking.value = null;
+            error.value = err;
+        } finally {
+            loading.value = false;
+        }
+        return currentBooking.value;
+    }
+
+    /**
+     * POST /bookings. 409 = the room is already booked for some of those nights.
+     * @param {import('../domain/commands/create-booking.command.js').CreateBookingCommand} command - Already validated.
+     * @returns {Promise<import('../domain/model/booking.entity.js').Booking>}
+     */
+    async function createBooking(command) {
         loading.value = true;
         try {
-            // Validaciones de dominio simples
-            if (!bookingData.roomId) throw new Error('Room ID required');
-
-            const response = await bookingApi.createBooking(bookingData);
-            const newBooking = BookingAssembler.toEntityFromResponse(response);
-            if(newBooking) bookings.value.push(newBooking);
-            return newBooking;
+            const response = await bookingApi.createBooking(BookingAssembler.toCreateResource(command));
+            const created = BookingAssembler.toEntityFromResponse(response);
+            if (created) bookings.value = [created, ...bookings.value];
+            return created;
         } catch (err) {
             reportError('Error creating booking', err);
             error.value = err;
@@ -81,19 +86,16 @@ export const useBookingStore = defineStore('booking', () => {
     }
 
     /**
-     * Cancels a booking by ID.
-     * @param {number} id - The unique identifier of the booking to cancel.
+     * POST /bookings/{id}/cancel → the updated booking.
+     * @param {number} id
      * @returns {Promise<void>}
      */
     async function cancelBooking(id) {
         loading.value = true;
         try {
-            await bookingApi.cancelBooking(id);
-            // Actualizamos la lista localmente para reflejar el cambio sin recargar todo
-            const index = bookings.value.findIndex(b => b.id === id);
-            if (index !== -1) {
-                bookings.value[index].status = 'Cancelled';
-            }
+            const updated = BookingAssembler.toEntityFromResponse(await bookingApi.cancelBooking(id));
+            const current = bookings.value.find((booking) => booking.id === id) ?? currentBooking.value;
+            replace(updated ?? current.withStatus(BookingStatus.CANCELLED));
         } catch (err) {
             reportError('Error cancelling booking', err);
             error.value = err;
@@ -104,15 +106,17 @@ export const useBookingStore = defineStore('booking', () => {
     }
 
     /**
-     * Confirms a booking by ID.
-     * @param {number} id - The unique identifier of the booking to confirm.
+     * POST /bookings/{id}/confirm (reception, admin, chain_admin) → the updated booking.
+     * @param {number} id
      * @returns {Promise<void>}
      */
     async function confirmBooking(id) {
         loading.value = true;
         try {
-            await bookingApi.confirmBooking(id);
+            const updated = BookingAssembler.toEntityFromResponse(await bookingApi.confirmBooking(id));
+            if (updated) replace(updated);
         } catch (err) {
+            reportError('Error confirming booking', err);
             error.value = err;
             throw err;
         } finally {
@@ -125,9 +129,10 @@ export const useBookingStore = defineStore('booking', () => {
         currentBooking,
         loading,
         error,
-        fetchAllBookings,
+        fetchBookings,
+        fetchBookingById,
         createBooking,
         confirmBooking,
-        cancelBooking
+        cancelBooking,
     };
 });

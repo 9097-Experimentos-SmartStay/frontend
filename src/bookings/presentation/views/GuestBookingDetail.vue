@@ -32,7 +32,7 @@
             <div class="col-12">
               <div class="flex justify-content-between align-items-center mb-4">
                 <span class="text-xl font-bold text-color">{{ $t('guestBookingDetail.bookingStatus') }}</span>
-                <pv-tag :value="translateStatus(booking.status)" :severity="getStatusSeverity(booking.status)" class="text-lg px-3 py-2" rounded />
+                <pv-tag :value="bookingStatusLabel(t, booking.status)" :severity="bookingStatusSeverity(booking.status)" class="text-lg px-3 py-2" rounded />
               </div>
               <div class="border-top-1 surface-border mb-4"></div>
             </div>
@@ -66,14 +66,14 @@
 
             <div class="col-12 flex gap-2 mt-4 pt-4 border-top-1 surface-border">
               <pv-button
-                  v-if="booking.status === 'Pending'"
+                  v-if="booking.canBeCancelled()"
                   :label="$t('guestBookingDetail.cancelBooking')"
                   icon="pi pi-times"
                   class="p-button-danger p-button-outlined w-auto"
                   @click="cancelBooking"
               />
               <pv-button
-                  v-if="booking.status === 'Pending'"
+                  v-if="booking.canBePaid()"
                   :label="$t('guestBookingDetail.payNow')"
                   icon="pi pi-credit-card"
                   class="p-button-success p-button-outlined"
@@ -103,6 +103,9 @@ import { useRouter } from 'vue-router';
 import { useToast } from 'primevue/usetoast';
 import { useI18n } from 'vue-i18n';
 import { useBookingStore } from '../../application/booking.store.js';
+import { bookingStatusLabel, bookingStatusSeverity } from '../utils/booking-status.js';
+import { formatDay } from '@/shared/presentation/utils/formatters.js';
+import { apiErrorKey } from '@/shared/presentation/utils/api-error.js';
 
 const props = defineProps({
   bookingId: { type: [String, Number], required: true }
@@ -129,10 +132,8 @@ onMounted(async () => {
     locale.value = savedLanguage;
   }
 
-  if (bookingStore.bookings.length === 0) {
-    await bookingStore.fetchAllBookings();
-  }
-  booking.value = bookingStore.bookings.find(b => String(b.id) === String(props.bookingId));
+  // GET /bookings/{id}: 404 when it does not exist or is not the guest's.
+  booking.value = await bookingStore.fetchBookingById(Number(props.bookingId));
 });
 
 const goBack = () => router.push({ name: 'guest-bookings' });
@@ -148,41 +149,18 @@ const cancelBooking = async () => {
       summary: t('guestBookings.cancelled'),
       life: 3000
     });
-    booking.value.status = 'Cancelled';
+    booking.value = bookingStore.currentBooking;
   } catch (err) {
     toast.add({
       severity: 'error',
       summary: t('common.error'),
-      detail: t('guestBookings.cancelledError'),
+      detail: t(apiErrorKey(err, { 409: 'guestBookings.cancelledError' })),
       life: 3000
     });
   }
 };
 
-const getStatusSeverity = (status) => {
-  const map = { 'Pending': 'warning', 'Confirmed': 'success', 'Cancelled': 'danger' };
-  return map[status] || 'info';
-};
-
-const translateStatus = (status) => {
-  const statusMap = {
-    'Pending': t('bookings.statusPending'),
-    'Confirmed': t('bookings.statusConfirmed'),
-    'Cancelled': t('bookings.statusCancelled')
-  };
-  return statusMap[status] || status;
-};
-
-const formatDate = (date) => {
-  if (!date) return 'N/A';
-  const localeStr = locale.value === 'es' ? 'es-ES' : 'en-US';
-  return new Date(date).toLocaleDateString(localeStr, {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  });
-};
+const formatDate = (day) => formatDay(day, locale.value, 'long');
 </script>
 
 <style scoped>
