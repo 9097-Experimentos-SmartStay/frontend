@@ -489,7 +489,7 @@
     "vipTransport": "Transporte VIP",
     "vipTransportDesc": "Agenda tu traslado al aeropuerto y viaja con total comodidad.",
     "manageBooking": "Gestionar",
-    "roomNumber": "Habitación #{id}",
+    "roomNumber": "Habitación {id}",
     "loadError": "No pudimos cargar toda tu información.",
     "supportSoon": "El soporte en línea estará disponible pronto."
   },
@@ -523,33 +523,12 @@
     "checkAvailability": "Verificar Disponibilidad"
   },
   "bookings": {
-    "title": "Mis Reservas",
-    "upcomingBookings": "Próximas Reservas",
-    "pastBookings": "Reservas Anteriores",
-    "cancelledBookings": "Reservas Canceladas",
-    "bookingDetails": "Detalles de la Reserva",
-    "bookingNumber": "Número de Reserva",
     "checkIn": "Entrada",
     "checkOut": "Salida",
     "nights": "Noches",
-    "guests": "Huéspedes",
-    "totalAmount": "Monto Total",
     "status": "Estado",
-    "statusConfirmed": "Confirmada",
-    "statusPending": "Pendiente",
-    "statusCancelled": "Cancelada",
-    "statusCompleted": "Completada",
-    "accommodation": "Alojamiento",
-    "cancelBooking": "Cancelar Reserva",
-    "confirmCancel": "¿Estás seguro de que quieres cancelar esta reserva?",
-    "cancellationPolicy": "Política de Cancelación",
-    "viewReceipt": "Ver Recibo",
-    "downloadReceipt": "Descargar Recibo",
-    "contactHost": "Contactar Anfitrión",
-    "leaveReview": "Dejar Reseña",
-    "noBookings": "No tienes reservas",
     "bookingCancelled": "Reserva cancelada exitosamente",
-    "bookingCreated": "Reserva creada exitosamente"
+    "notFound": "No encontramos esa reserva."
   },
   "payments": {
     "title": "Pagos",
@@ -583,7 +562,9 @@
     "noPaymentMethods": "No tienes métodos de pago guardados",
     "saveCard": "Guardar Tarjeta",
     "defaultCard": "Tarjeta Predeterminada",
-    "removeCard": "Eliminar Tarjeta"
+    "removeCard": "Eliminar Tarjeta",
+    "refundedAt": "Reembolsado el",
+    "refundedHint": "La reserva se canceló después del pago: el hotel devuelve el dinero por el mismo medio."
   },
   "profile": {
     "title": "Mi Perfil",
@@ -667,60 +648,28 @@
   },
   "guestBookings": {
     "title": "Mis Reservas",
-    "loading": "Cargando reservas...",
-    "travelHistory": "Historial de Viajes",
     "room": "Habitación",
-    "dates": "Fechas",
-    "until": "hasta",
-    "status": "Estado",
-    "actions": "Acciones",
     "viewDetails": "Ver Detalles",
     "cancelBooking": "Cancelar Reserva",
     "noActiveBookings": "No tienes reservas activas",
     "planningEscape": "¿Planeando tu próxima escapada?",
-    "exploreRooms": "Explorar Habitaciones",
-    "cancelled": "Cancelada",
-    "cancelledSuccess": "Reserva cancelada correctamente",
-    "cancelledError": "No se pudo cancelar"
-  },
-  "guestBookingDetail": {
-    "bookingNumber": "Reserva #{id}",
-    "bookingStatus": "Estado de la Reserva",
-    "room": "Habitación",
-    "mainGuest": "Huésped Principal",
-    "checkIn": "Entrada (Check-in)",
-    "checkOut": "Salida (Check-out)",
-    "cancelBooking": "Cancelar Reserva",
-    "payNow": "Pagar Ahora",
-    "bookingNotFound": "No encontramos la reserva solicitada.",
-    "backToList": "Volver al listado",
+    "newBooking": "Nueva reserva",
     "howToPay": "Cómo pagar"
   },
-  "guestCreateBooking": {
-    "title": "Confirmar Reserva",
-    "selectedRoom": "Habitación Seleccionada",
-    "roomId": "ID de Habitación",
-    "noRoomSelected": "No seleccionada",
-    "guestName": "Nombre del Huésped",
-    "contactEmail": "Email de Contacto",
-    "linkedToAccount": "Vinculado a tu cuenta",
-    "arrival": "Llegada",
-    "departure": "Salida",
-    "confirmAndBook": "Confirmar y Reservar",
-    "missingData": "Faltan datos",
-    "checkDatesAndRoom": "Revisa las fechas y la habitación.",
-    "bookingCreated": "¡Reserva Creada!",
-    "seeSoon": "Nos vemos pronto.",
-    "couldNotCreate": "No se pudo crear la reserva.",
-    "nightsSummary": "{count} noche | {count} noches",
-    "roomNotAvailable": "La habitación ya está reservada en algunas de esas noches. Elige otras fechas u otra habitación.",
-    "invalidRequest": "Revisa las fechas y la habitación seleccionada.",
-    "rules": {
-      "roomRequired": "Selecciona una habitación para continuar.",
-      "datesRequired": "Selecciona las fechas de llegada y de salida.",
-      "checkInInPast": "La fecha de llegada no puede ser anterior a hoy.",
-      "checkOutNotAfterCheckIn": "La salida debe ser al menos un día después de la llegada."
-    }
+  "guestBookingDetail": {
+    "bookingNotFound": "No encontramos la reserva solicitada.",
+    "backToList": "Volver al listado",
+    "title": "Reserva {code}",
+    "titleLoading": "Reserva",
+    "created": "¡Listo! Creamos tu reserva {code}. Te enviamos un correo a {email} con el total y los datos para pagar.",
+    "confirmedTitle": "Reserva confirmada",
+    "confirmedMessage": "El hotel registró tu pago. ¡Te esperamos!",
+    "expiredTitle": "Reserva vencida",
+    "cancelledTitle": "Reserva cancelada",
+    "cancelledAt": "Cancelada el {time}.",
+    "payment": "Pago",
+    "enjoy": "Disfruta tu estadía.",
+    "cancelPolicy": "Puedes cancelar hasta el día anterior a tu llegada. Si ya pagaste, el hotel te devuelve el pago."
   },
   "allProfiles": {
     "title": "Huéspedes",
@@ -1036,33 +985,17 @@
     "emptyHint": "Las nuevas reservas aparecerán aquí."
   },
   "guestPayment": {
-    "title": "Paga tu reserva",
-    "summary": "Resumen de la reserva",
-    "booking": "Reserva",
-    "room": "Habitación",
-    "stay": "Estadía",
     "pricePerNight": "Precio por noche",
-    "serverComputes": "El monto es el precio por noche × noches; el sistema lo calcula al registrar el pago.",
-    "byBookingTitle": "Pagos de la reserva #{id}",
-    "transactionColumn": "Transacción",
-    "noPayments": "No hay pagos registrados para esta reserva.",
     "howToPay": "Cómo pagar",
-    "instructionsIntro": "Tu reserva {code} está pendiente de pago. Paga fuera de la aplicación y recepción registrará tu pago.",
+    "instructionsIntro": "Paga {total} por Yape, Plin o transferencia bancaria e indica el código {code}. Cuando el hotel registre tu pago, tu reserva quedará confirmada.",
     "steps": {
-      "choose": "Paga con Yape, Plin o transferencia bancaria a la cuenta del hotel.",
-      "reference": "Indica el código de tu reserva ({code}) en el mensaje o la descripción del pago.",
-      "keepReceipt": "Guarda el número de operación o el comprobante.",
-      "confirmation": "Cuando recepción registre tu pago, tu reserva pasará a Confirmada."
+      "reference": "Escribe el código {code} en el mensaje o la descripción del pago.",
+      "keepReceipt": "Guarda el número de operación o la captura del pago.",
+      "confirmation": "Cuando el hotel registre tu pago, te enviaremos la confirmación.",
+      "email": "Revisa el correo que te enviamos a {email}: tiene los números de Yape y Plin, la cuenta bancaria y el titular."
     },
-    "deadline": "Tienes {hours} horas desde que hiciste la reserva para pagar. Si no, la reserva puede cancelarse.",
-    "accountDetailsNote": "Si necesitas los datos de la cuenta, comunícate con la recepción del hotel. También puedes pagar al llegar, en efectivo o con tarjeta.",
     "bookingCode": "Código de reserva",
-    "total": "Total",
-    "paid": "Pagado",
-    "paidTitle": "¡Pago registrado!",
-    "paidMessage": "Tu reserva está confirmada.",
-    "paidAmount": "Monto pagado: {amount}",
-    "cancelled": "Esta reserva fue cancelada; ya no requiere pago."
+    "atFrontDesk": "¿Llegas antes del plazo? También puedes pagar en la recepción del hotel, en efectivo o con tarjeta."
   },
   "staffPayments": {
     "title": "Gestión de pagos",
@@ -1187,9 +1120,9 @@
   "paymentMethods": {
     "Yape": "Yape",
     "Plin": "Plin",
-    "BankTransfer": "Transferencia",
+    "BankTransfer": "Transferencia bancaria",
     "Cash": "Efectivo",
-    "CardAtReception": "Tarjeta en recepción"
+    "CardAtFrontDesk": "Tarjeta en recepción"
   },
   "registerPayment": {
     "action": "Registrar pago",
@@ -1288,5 +1221,69 @@
     "invalidTransition": "Ese cambio de estado ya no es posible: alguien actualizó la habitación. Revisa su estado actual.",
     "forbidden": "Solo puedes ver y cambiar las habitaciones de tu hotel.",
     "noHotel": "No tienes un hotel asignado. Pide a tu administrador que te asigne uno."
+  },
+  "bookingStatus": {
+    "Pending": "Pendiente de pago",
+    "Confirmed": "Confirmada",
+    "CheckedIn": "En curso",
+    "Cancelled": "Cancelada",
+    "Completed": "Completada",
+    "Expired": "Vencida",
+    "Refunded": "Cancelada · reembolsada"
+  },
+  "bookingCancellation": {
+    "reasons": {
+      "GuestRequest": "La cancelaste tú.",
+      "HotelRequest": "La canceló el hotel.",
+      "PaymentNotReceived": "Venció: no recibimos el pago antes del plazo y la habitación se liberó."
+    },
+    "checkInDayReached": "Ya no se puede cancelar: la cancelación es posible hasta el día anterior a la llegada ({date}).",
+    "checkInDayReachedError": "Ya no se puede cancelar: llegó el día de ingreso de esta reserva.",
+    "notCancellable": "Solo se pueden cancelar reservas pendientes de pago o confirmadas.",
+    "header": "Cancelar la reserva {code}",
+    "message": "La habitación se liberará de inmediato y enviaremos un correo al huésped. ¿Deseas cancelarla?",
+    "messagePaid": "Esta reserva ya está pagada: al cancelarla, el pago queda como reembolsado y el hotel devuelve el dinero por el mismo medio. La habitación se liberará y enviaremos un correo al huésped. ¿Deseas cancelarla?",
+    "accept": "Cancelar reserva",
+    "keep": "Mantener reserva",
+    "done": "La reserva {code} fue cancelada y la habitación quedó libre.",
+    "doneRefund": "La reserva {code} fue cancelada. El pago quedó como reembolsado."
+  },
+  "stay": {
+    "checkIn": "Llegada",
+    "checkOut": "Salida",
+    "pickDate": "Elige una fecha",
+    "nights": "{count} noche | {count} noches"
+  },
+  "stayRules": {
+    "datesRequired": "Elige las fechas de llegada y de salida.",
+    "checkInInPast": "La fecha de llegada no puede ser anterior a hoy.",
+    "checkOutNotAfterCheckIn": "La salida debe ser al menos un día después de la llegada."
+  },
+  "paymentDeadline": {
+    "payBefore": "Paga antes del {time}",
+    "left": "quedan {time}",
+    "passed": "el plazo venció; la reserva se cancelará automáticamente"
+  },
+  "guestSearch": {
+    "title": "Reserva una habitación",
+    "hotel": "Hotel",
+    "hotelPlaceholder": "Elige un hotel",
+    "hotelRequired": "Elige un hotel para buscar.",
+    "search": "Buscar habitaciones",
+    "results": "No hay habitaciones libres para esas {nights} noches. | 1 habitación libre para toda tu estadía. | {count} habitaciones libres para toda tu estadía.",
+    "totalFor": "Total por {count} noche | Total por {count} noches",
+    "book": "Reservar",
+    "noResults": "No hay habitaciones libres para esas fechas. Prueba con otras fechas u otro hotel.",
+    "confirmTitle": "Confirma tu reserva",
+    "total": "Total",
+    "pendingNote": "Tu reserva quedará pendiente de pago. Tendrás 24 horas para pagar por Yape, Plin o transferencia; te enviaremos un correo con el código y los datos de pago.",
+    "noLongerAvailable": "Esta habitación ya no está disponible para esas fechas: otra persona la reservó. Busca de nuevo.",
+    "searchAgain": "Buscar de nuevo",
+    "confirm": "Confirmar reserva"
+  },
+  "paymentStatus": {
+    "Completed": "Pagado",
+    "Failed": "Rechazado",
+    "Refunded": "Reembolsado"
   }
 }

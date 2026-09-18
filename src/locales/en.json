@@ -489,7 +489,7 @@
     "vipTransport": "VIP Transport",
     "vipTransportDesc": "Schedule your airport transfer and travel in total comfort.",
     "manageBooking": "Manage",
-    "roomNumber": "Room #{id}",
+    "roomNumber": "Room {id}",
     "loadError": "We could not load all your information.",
     "supportSoon": "Online support will be available soon."
   },
@@ -523,33 +523,12 @@
     "checkAvailability": "Check Availability"
   },
   "bookings": {
-    "title": "My Bookings",
-    "upcomingBookings": "Upcoming Bookings",
-    "pastBookings": "Past Bookings",
-    "cancelledBookings": "Cancelled Bookings",
-    "bookingDetails": "Booking Details",
-    "bookingNumber": "Booking Number",
     "checkIn": "Check-in",
     "checkOut": "Check-out",
     "nights": "Nights",
-    "guests": "Guests",
-    "totalAmount": "Total Amount",
     "status": "Status",
-    "statusConfirmed": "Confirmed",
-    "statusPending": "Pending",
-    "statusCancelled": "Cancelled",
-    "statusCompleted": "Completed",
-    "accommodation": "Accommodation",
-    "cancelBooking": "Cancel Booking",
-    "confirmCancel": "Are you sure you want to cancel this booking?",
-    "cancellationPolicy": "Cancellation Policy",
-    "viewReceipt": "View Receipt",
-    "downloadReceipt": "Download Receipt",
-    "contactHost": "Contact Host",
-    "leaveReview": "Leave Review",
-    "noBookings": "You have no bookings",
     "bookingCancelled": "Booking cancelled successfully",
-    "bookingCreated": "Booking created successfully"
+    "notFound": "We could not find that booking."
   },
   "payments": {
     "title": "Payments",
@@ -583,7 +562,9 @@
     "noPaymentMethods": "You have no saved payment methods",
     "saveCard": "Save Card",
     "defaultCard": "Default Card",
-    "removeCard": "Remove Card"
+    "removeCard": "Remove Card",
+    "refundedAt": "Refunded on",
+    "refundedHint": "The booking was cancelled after the payment: the hotel returns the money through the same method."
   },
   "profile": {
     "title": "My Profile",
@@ -667,60 +648,28 @@
   },
   "guestBookings": {
     "title": "My Bookings",
-    "loading": "Loading bookings...",
-    "travelHistory": "Travel History",
     "room": "Room",
-    "dates": "Dates",
-    "until": "until",
-    "status": "Status",
-    "actions": "Actions",
     "viewDetails": "View Details",
     "cancelBooking": "Cancel Booking",
     "noActiveBookings": "You have no active bookings",
     "planningEscape": "Planning your next getaway?",
-    "exploreRooms": "Explore Rooms",
-    "cancelled": "Cancelled",
-    "cancelledSuccess": "Booking cancelled successfully",
-    "cancelledError": "Could not cancel"
-  },
-  "guestBookingDetail": {
-    "bookingNumber": "Booking #{id}",
-    "bookingStatus": "Booking Status",
-    "room": "Room",
-    "mainGuest": "Main Guest",
-    "checkIn": "Check-in",
-    "checkOut": "Check-out",
-    "cancelBooking": "Cancel Booking",
-    "payNow": "Pay Now",
-    "bookingNotFound": "We couldn't find the requested booking.",
-    "backToList": "Back to list",
+    "newBooking": "New booking",
     "howToPay": "How to pay"
   },
-  "guestCreateBooking": {
-    "title": "Confirm Booking",
-    "selectedRoom": "Selected Room",
-    "roomId": "Room ID",
-    "noRoomSelected": "Not selected",
-    "guestName": "Guest Name",
-    "contactEmail": "Contact Email",
-    "linkedToAccount": "Linked to your account",
-    "arrival": "Arrival",
-    "departure": "Departure",
-    "confirmAndBook": "Confirm and Book",
-    "missingData": "Missing data",
-    "checkDatesAndRoom": "Check the dates and room.",
-    "bookingCreated": "Booking Created!",
-    "seeSoon": "See you soon.",
-    "couldNotCreate": "Could not create the booking.",
-    "nightsSummary": "{count} night | {count} nights",
-    "roomNotAvailable": "The room is already booked for some of those nights. Choose other dates or another room.",
-    "invalidRequest": "Check the dates and the selected room.",
-    "rules": {
-      "roomRequired": "Select a room to continue.",
-      "datesRequired": "Select the arrival and departure dates.",
-      "checkInInPast": "The arrival date cannot be before today.",
-      "checkOutNotAfterCheckIn": "Departure must be at least one day after arrival."
-    }
+  "guestBookingDetail": {
+    "bookingNotFound": "We couldn't find the requested booking.",
+    "backToList": "Back to list",
+    "title": "Booking {code}",
+    "titleLoading": "Booking",
+    "created": "Done! We created your booking {code}. We e-mailed {email} the total and how to pay.",
+    "confirmedTitle": "Booking confirmed",
+    "confirmedMessage": "The hotel registered your payment. See you soon!",
+    "expiredTitle": "Booking expired",
+    "cancelledTitle": "Booking cancelled",
+    "cancelledAt": "Cancelled on {time}.",
+    "payment": "Payment",
+    "enjoy": "Enjoy your stay.",
+    "cancelPolicy": "You can cancel until the day before your arrival. If you already paid, the hotel refunds you."
   },
   "allProfiles": {
     "title": "Guests",
@@ -1036,33 +985,17 @@
     "emptyHint": "New bookings will show up here."
   },
   "guestPayment": {
-    "title": "Pay your booking",
-    "summary": "Booking summary",
-    "booking": "Booking",
-    "room": "Room",
-    "stay": "Stay",
     "pricePerNight": "Price per night",
-    "serverComputes": "The amount is the price per night × nights; the system computes it when the payment is registered.",
-    "byBookingTitle": "Payments of booking #{id}",
-    "transactionColumn": "Transaction",
-    "noPayments": "There are no payments for this booking.",
     "howToPay": "How to pay",
-    "instructionsIntro": "Your booking {code} is pending payment. Pay outside the app and reception will register your payment.",
+    "instructionsIntro": "Pay {total} by Yape, Plin or bank transfer and quote the code {code}. When the hotel registers your payment, your booking is confirmed.",
     "steps": {
-      "choose": "Pay with Yape, Plin or a bank transfer to the hotel account.",
-      "reference": "Write your booking code ({code}) in the message or description of the payment.",
-      "keepReceipt": "Keep the operation number or the receipt.",
-      "confirmation": "When reception registers your payment, your booking becomes Confirmed."
+      "reference": "Write the code {code} in the message or description of the payment.",
+      "keepReceipt": "Keep the operation number or a screenshot of the payment.",
+      "confirmation": "When the hotel registers your payment, we will send you the confirmation.",
+      "email": "Check the e-mail we sent to {email}: it has the Yape and Plin numbers, the bank account and the account holder."
     },
-    "deadline": "You have {hours} hours from the moment you booked to pay. Otherwise the booking may be cancelled.",
-    "accountDetailsNote": "If you need the account details, contact the hotel reception. You can also pay on arrival, in cash or by card.",
     "bookingCode": "Booking code",
-    "total": "Total",
-    "paid": "Paid",
-    "paidTitle": "Payment registered!",
-    "paidMessage": "Your booking is confirmed.",
-    "paidAmount": "Amount paid: {amount}",
-    "cancelled": "This booking was cancelled; it no longer needs a payment."
+    "atFrontDesk": "Arriving before the deadline? You can also pay at the front desk, in cash or by card."
   },
   "staffPayments": {
     "title": "Payment management",
@@ -1189,7 +1122,7 @@
     "Plin": "Plin",
     "BankTransfer": "Bank transfer",
     "Cash": "Cash",
-    "CardAtReception": "Card at reception"
+    "CardAtFrontDesk": "Card at the front desk"
   },
   "registerPayment": {
     "action": "Register payment",
@@ -1288,5 +1221,69 @@
     "invalidTransition": "That status change is no longer possible: someone updated the room. Check its current status.",
     "forbidden": "You can only see and change the rooms of your hotel.",
     "noHotel": "You have no hotel assigned. Ask your administrator to assign one."
+  },
+  "bookingStatus": {
+    "Pending": "Awaiting payment",
+    "Confirmed": "Confirmed",
+    "CheckedIn": "In house",
+    "Cancelled": "Cancelled",
+    "Completed": "Completed",
+    "Expired": "Expired",
+    "Refunded": "Cancelled · refunded"
+  },
+  "bookingCancellation": {
+    "reasons": {
+      "GuestRequest": "You cancelled it.",
+      "HotelRequest": "The hotel cancelled it.",
+      "PaymentNotReceived": "Expired: the payment did not arrive before the deadline and the room was released."
+    },
+    "checkInDayReached": "It can no longer be cancelled: cancellation is possible until the day before arrival ({date}).",
+    "checkInDayReachedError": "It can no longer be cancelled: the check-in day of this booking has arrived.",
+    "notCancellable": "Only bookings awaiting payment or confirmed can be cancelled.",
+    "header": "Cancel booking {code}",
+    "message": "The room will be released at once and we will e-mail the guest. Cancel it?",
+    "messagePaid": "This booking is already paid: if you cancel it, the payment is marked as refunded and the hotel returns the money through the same method. The room will be released and we will e-mail the guest. Cancel it?",
+    "accept": "Cancel booking",
+    "keep": "Keep booking",
+    "done": "Booking {code} was cancelled and the room is free.",
+    "doneRefund": "Booking {code} was cancelled. The payment is marked as refunded."
+  },
+  "stay": {
+    "checkIn": "Check-in",
+    "checkOut": "Check-out",
+    "pickDate": "Choose a date",
+    "nights": "{count} night | {count} nights"
+  },
+  "stayRules": {
+    "datesRequired": "Choose the check-in and check-out dates.",
+    "checkInInPast": "The check-in date cannot be before today.",
+    "checkOutNotAfterCheckIn": "The check-out must be at least one day after the check-in."
+  },
+  "paymentDeadline": {
+    "payBefore": "Pay before {time}",
+    "left": "{time} left",
+    "passed": "the deadline passed; the booking will be cancelled automatically"
+  },
+  "guestSearch": {
+    "title": "Book a room",
+    "hotel": "Hotel",
+    "hotelPlaceholder": "Choose a hotel",
+    "hotelRequired": "Choose a hotel to search.",
+    "search": "Search rooms",
+    "results": "No rooms are free for those {nights} nights. | 1 room is free for your whole stay. | {count} rooms are free for your whole stay.",
+    "totalFor": "Total for {count} night | Total for {count} nights",
+    "book": "Book",
+    "noResults": "No rooms are free for those dates. Try other dates or another hotel.",
+    "confirmTitle": "Confirm your booking",
+    "total": "Total",
+    "pendingNote": "Your booking will await payment. You will have 24 hours to pay by Yape, Plin or bank transfer; we will e-mail you the code and the payment details.",
+    "noLongerAvailable": "This room is no longer available for those dates: someone else booked it. Search again.",
+    "searchAgain": "Search again",
+    "confirm": "Confirm booking"
+  },
+  "paymentStatus": {
+    "Completed": "Paid",
+    "Failed": "Declined",
+    "Refunded": "Refunded"
   }
 }

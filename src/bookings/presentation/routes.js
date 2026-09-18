@@ -11,11 +11,11 @@ export default [
         meta: guest
     },
     {
-        path: '/guest/bookings/new/:roomId?',
+        // US-51: search by hotel and dates, then book (?hotelId=&roomId=&checkIn=&checkOut= preselect it).
+        path: '/guest/bookings/new',
         name: 'guest-create-booking',
-        component: () => import('./views/GuestCreateBooking.vue'),
-        meta: guest,
-        props: true
+        component: () => import('./views/GuestSearchRooms.vue'),
+        meta: guest
     },
     {
         path: '/guest/bookings/:bookingId',
