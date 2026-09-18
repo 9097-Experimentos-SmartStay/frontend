@@ -247,6 +247,7 @@
 </template>
 
 <script setup>
+import { reportError } from '@/shared/infrastructure/logging/report-error.js';
 import { ref, onMounted, computed, onBeforeUnmount } from 'vue';
 import { useRouter } from 'vue-router';
 import { useToast } from 'primevue/usetoast';
@@ -400,7 +401,7 @@ async function loadDashboard() {
     stats.value.upcoming = upcomingBookings.value.filter(b => b.status === 'Confirmed' || b.status === 'Pending').length;
 
   } catch (err) {
-    console.error("❌ Error loading dashboard:", err);
+    reportError("Error loading dashboard", err);
     if (err.message.includes("Sesión no válida")) {
       logout();
       return;
