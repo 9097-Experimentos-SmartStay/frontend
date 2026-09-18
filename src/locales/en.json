@@ -972,17 +972,23 @@
   },
   "staffBookings": {
     "title": "Booking management",
-    "all": "All bookings",
     "guest": "Guest",
     "room": "Room",
     "dates": "Dates",
-    "nights": "{count} night | {count} nights",
     "status": "Status",
     "cancel": "Cancel booking",
-    "cancelled": "Booking cancelled.",
-    "cancelConflict": "This booking can no longer be cancelled.",
-    "empty": "There are no bookings",
-    "emptyHint": "New bookings will show up here."
+    "empty": "No bookings match.",
+    "subtitle": "Calendar, manual bookings, changes, cancellations and payment registration.",
+    "allHotels": "All hotels",
+    "calendarMode": "Calendar",
+    "listMode": "List",
+    "search": "Search by code, guest, e-mail or room",
+    "allStatuses": "All statuses",
+    "change": "Change booking",
+    "view": "View details",
+    "detailTitle": "Booking {code}",
+    "createdAt": "Created on {time}",
+    "noHotel": "You can only see the bookings of your assigned hotel."
   },
   "guestPayment": {
     "pricePerNight": "Price per night",
@@ -1003,7 +1009,8 @@
     "booking": "Booking",
     "empty": "There are no payments",
     "emptyHint": "Booking payments will show up here.",
-    "partial": "We could not load the payment of some bookings."
+    "partial": "We could not load the payment of some bookings.",
+    "operation": "Operation {number}"
   },
   "staffHotels": {
     "title": "Hotels",
@@ -1131,16 +1138,18 @@
     "methodPlaceholder": "Select the method",
     "operationNumber": "Operation number",
     "note": "Note",
-    "amountNote": "The amount is computed by the system (price per night × nights). Registering the payment confirms the booking.",
+    "amountNote": "The amount is the booking total and cannot be changed. Registering the payment confirms the booking and e-mails the guest.",
     "submit": "Register payment",
-    "success": "Payment registered. The booking is confirmed.",
-    "conflict": "This booking is already paid or was cancelled.",
-    "notAvailable": "Payment registration will be available when the API publishes it.",
+    "success": "Payment registered. Booking {code} is confirmed.",
     "rules": {
-      "methodRequired": "Select the payment method.",
+      "methodRequired": "Choose the payment method.",
       "operationNumberRequired": "Enter the operation number.",
-      "noteTooLong": "The note cannot exceed {max} characters."
-    }
+      "noteTooLong": "The note cannot exceed {max} characters.",
+      "operationNumberTooLong": "Use at most {max} characters."
+    },
+    "alreadyPaid": "Booking {code} already has a registered payment.",
+    "notPending": "Booking {code} is cancelled or expired: payments are registered for pending bookings only.",
+    "forbidden": "You can only register payments of your hotel's bookings."
   },
   "security": {
     "title": "Account security",
@@ -1285,5 +1294,58 @@
     "Completed": "Paid",
     "Failed": "Declined",
     "Refunded": "Refunded"
+  },
+  "calendar": {
+    "previous": "Previous",
+    "next": "Next",
+    "today": "Today",
+    "month": "Month",
+    "week": "Week",
+    "arrival": "Arrival",
+    "departure": "Departure",
+    "occupied": "Occupied rooms",
+    "more": "+{count} more",
+    "statsTitle": "Arrivals, departures and occupied rooms"
+  },
+  "manualBooking": {
+    "open": "New booking",
+    "title": "New booking (phone or front desk)",
+    "guestSection": "Guest",
+    "guestName": "Full name",
+    "guestEmail": "E-mail",
+    "guestEmailHint": "We will send the booking and the payment details there.",
+    "guestPhone": "Phone",
+    "guestPhonePlaceholder": "+51 987 654 321",
+    "staySection": "Stay and room",
+    "findRooms": "Show free rooms",
+    "roomSection": "Free rooms",
+    "night": "night",
+    "noLongerAvailable": "That room is no longer free for those dates: another booking took it. Choose another one from the updated list.",
+    "pendingNote": "The booking awaits payment. If no payment is registered within 24 hours, it is cancelled automatically.",
+    "create": "Create booking",
+    "created": "Booking {code} created, awaiting payment.",
+    "otherHotel": "You can only book rooms of your hotel.",
+    "rules": {
+      "guestName": "Enter the guest's name (2 to 100 characters).",
+      "guestEmail": "Enter a valid e-mail (for example name{'@'}domain.com): the booking e-mails go there.",
+      "guestPhone": "The phone must have 7 to 15 digits and may start with +.",
+      "roomRequired": "Choose a room."
+    }
+  },
+  "changeBooking": {
+    "title": "Change booking {code}",
+    "current": "Now: room {room}, from {checkIn} to {checkOut}, total {total}.",
+    "paidRule": "This booking is already paid ({total}): it can only change to a stay with the same total.",
+    "room": "Room",
+    "roomHint": "The rooms of the hotel free for the new dates are listed.",
+    "keepRoom": "Keep room {room}",
+    "notifyHint": "We will check availability and e-mail the guest about the change.",
+    "submit": "Save changes",
+    "nothingChanged": "Change the dates or the room to save.",
+    "unavailable": "The room is not free for those dates. Choose other dates or another room.",
+    "paidTotalMismatch": "This booking is already paid ({total}) and the change has another total. Cancel it and create a new booking.",
+    "notChangeable": "Only bookings awaiting payment or confirmed can be changed.",
+    "otherHotelRoom": "The booking can only move to a room of the same hotel.",
+    "done": "Booking {code} changed. We e-mailed the guest."
   }
 }

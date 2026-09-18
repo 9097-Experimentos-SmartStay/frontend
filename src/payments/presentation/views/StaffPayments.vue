@@ -27,9 +27,8 @@
         </div>
       </template>
 
-      <pv-column field="payment.id" header="ID" sortable style="width: 80px" />
-      <pv-column field="payment.bookingId" :header="t('staffPayments.booking')" sortable>
-        <template #body="{ data }">#{{ data.payment.bookingId }}</template>
+      <pv-column :header="t('staffPayments.booking')">
+        <template #body="{ data }"><span class="font-semibold">{{ data.booking?.reference ?? `#${data.payment.bookingId}` }}</span></template>
       </pv-column>
       <pv-column :header="t('staffBookings.guest')">
         <template #body="{ data }">
@@ -45,7 +44,12 @@
         </template>
       </pv-column>
       <pv-column field="payment.method" :header="t('registerPayment.method')">
-        <template #body="{ data }">{{ data.payment.method ? t(`paymentMethods.${data.payment.method}`, data.payment.method) : (data.payment.cardNumberMasked ?? '—') }}</template>
+        <template #body="{ data }">
+          <div class="flex flex-column">
+            <span>{{ data.payment.method ? t(`paymentMethods.${data.payment.method}`, data.payment.method) : '—' }}</span>
+            <span v-if="data.payment.operationNumber" class="text-sm text-color-secondary">{{ t('staffPayments.operation', { number: data.payment.operationNumber }) }}</span>
+          </div>
+        </template>
       </pv-column>
       <pv-column field="payment.status" :header="t('bookings.status')" sortable>
         <template #body="{ data }">
@@ -53,7 +57,10 @@
         </template>
       </pv-column>
       <pv-column :header="t('payments.date')">
-        <template #body="{ data }">{{ formatDateTime(data.payment.paymentDate, locale) }}</template>
+        <template #body="{ data }">
+          <div>{{ formatDateTime(data.payment.paymentDate, locale) }}</div>
+          <small v-if="data.payment.refundedAt" class="text-color-secondary">{{ t('payments.refundedAt') }} {{ formatDateTime(data.payment.refundedAt, locale) }}</small>
+        </template>
       </pv-column>
     </pv-data-table>
 
@@ -76,8 +83,9 @@ import { useBookingStore } from '@/bookings/application/booking.store.js';
 import { formatDateTime, formatMoney } from '@/shared/presentation/utils/formatters.js';
 
 /**
- * Payments of the staff area (reception, admin, chain_admin).
- * The API has no "list payments" endpoint (§9): the payment of each booking is requested.
+ * Payments of the staff area (reception, admin, chain_admin): amount, method and operation number, status
+ * (Completed or Refunded when the booking was cancelled after paying).
+ * The API has no "list payments" endpoint (§9): the payment of each booking that was ever paid is requested.
  */
 const router = useRouter();
 const toast = useToast();
@@ -93,7 +101,7 @@ const rows = computed(() => paymentStore.payments.map((payment) => ({
 
 async function load() {
   await bookingStore.fetchBookings();
-  await paymentStore.fetchPaymentsForBookings(bookingStore.bookings.map((booking) => booking.id));
+  await paymentStore.fetchPaymentsForBookings(bookingStore.bookings.filter((booking) => booking.wasPaid).map((booking) => booking.id));
   if (paymentStore.error) {
     toast.add({ severity: 'warn', summary: t('common.warning'), detail: t('staffPayments.partial'), life: 4000 });
   }
