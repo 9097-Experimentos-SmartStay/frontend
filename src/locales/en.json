@@ -1210,5 +1210,20 @@
       "action": "Sign out on all devices",
       "confirm": "Every session will end, including this browser's, and you will need to sign in again. Continue?"
     }
+  },
+  "masterData": {
+    "name": "Name",
+    "duplicate": "That name already exists in the catalog.",
+    "forbidden": "Only the chain administrator can add options to the catalog.",
+    "category": {
+      "title": "New category",
+      "placeholder": "E.g. Bungalow, Glamping",
+      "created": "Category \"{name}\" added."
+    },
+    "amenity": {
+      "title": "New amenity",
+      "placeholder": "E.g. Pool, Parking",
+      "created": "Amenity \"{name}\" added."
+    }
   }
 }

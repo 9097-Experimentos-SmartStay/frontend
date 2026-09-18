@@ -1210,5 +1210,20 @@
       "action": "Cerrar sesión en todos los dispositivos",
       "confirm": "Se cerrarán todas tus sesiones, también la de este navegador, y tendrás que volver a iniciar sesión. ¿Deseas continuar?"
     }
+  },
+  "masterData": {
+    "name": "Nombre",
+    "duplicate": "Ese nombre ya existe en el catálogo.",
+    "forbidden": "Solo el administrador de la cadena puede agregar opciones al catálogo.",
+    "category": {
+      "title": "Nueva categoría",
+      "placeholder": "Ej. Bungalow, Glamping",
+      "created": "Categoría «{name}» agregada."
+    },
+    "amenity": {
+      "title": "Nueva comodidad",
+      "placeholder": "Ej. Piscina, Estacionamiento",
+      "created": "Comodidad «{name}» agregada."
+    }
   }
 }
