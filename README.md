@@ -6,6 +6,13 @@ cuenta, buscan hoteles, reservan y ven cómo pagar (el pago se hace fuera de la 
 
 Consume la API REST del backend de SmartStay (`/api/v1`).
 
+## Enlaces
+
+- **Frontend web:** https://smartstay-movildev-web.vercel.app
+- **API (producción):** https://smartstay-movildev-api.onrender.com · documentación en [https://smartstay-movildev-api.onrender.com/scalar](https://smartstay-movildev-api.onrender.com/scalar)
+- **Landing page:** https://smartstay-movildev-landing.vercel.app
+- **Repositorios:** [backend](https://github.com/9097-Experimentos-SmartStay/backend) · [frontend](https://github.com/9097-Experimentos-SmartStay/frontend) · [landing-page](https://github.com/9097-Experimentos-SmartStay/landing-page) · [mobile](https://github.com/9097-Experimentos-SmartStay/mobile) · [Report](https://github.com/9097-Experimentos-SmartStay/Report)
+
 ## Stack
 
 | Área | Tecnología |
@@ -47,11 +54,11 @@ Los archivos `.env.*` reales no se versionan; usa `.env.example` como plantilla.
 
 | Variable | Obligatoria | Descripción |
 |---|---|---|
-| `VITE_SMARTSTAY_API_URL` | Sí | URL base de la API. En desarrollo, una ruta relativa (`/api/v1`). En producción, la URL absoluta del backend, por ejemplo `https://<backend>.onrender.com/api/v1`. |
+| `VITE_SMARTSTAY_API_URL` | Sí | URL base de la API. En desarrollo, una ruta relativa (`/api/v1`). En producción, la URL absoluta del backend, por ejemplo `https://smartstay-movildev-api.onrender.com/api/v1`. |
 | `VITE_DEV_PROXY_TARGET` | No (solo dev) | Destino del proxy de Vite. Por defecto `http://localhost:10000`. Si incluye una ruta (`https://host/api/v1`), esa ruta reemplaza al prefijo y nunca se duplica `/api/v1`. |
 | `VITE_*_ENDPOINT_PATH` | No | Rutas de cada recurso (`/authentication`, `/users`, `/audit-logs`, `/guests`, `/staff`, `/hotels`, ...). Tienen valores por defecto en `src/shared/infrastructure/config/api-config.js`. |
 
-El backend arma los enlaces de sus correos con `App__WebBaseUrl` (por ejemplo `https://<app>.vercel.app`):
+El backend arma los enlaces de sus correos con `App__WebBaseUrl` (en producción, `https://smartstay-movildev-web.vercel.app`):
 esa URL debe apuntar a esta aplicación para que funcionen `/verify-email` y `/reset-password`.
 
 **Imágenes de hoteles (subida firmada).** La web no tiene credenciales ni variables de Cloudinary: al elegir una foto
@@ -75,8 +82,8 @@ muestra que la subida no está disponible.
    la carpeta de salida (`dist`) y el rewrite de SPA (toda ruta sirve `index.html`, así que recargar
    `/staff/hotels` no da 404).
 2. En **Settings → Environment Variables** define, como mínimo:
-   - `VITE_SMARTSTAY_API_URL=https://<backend>/api/v1`
-3. Agrega el dominio de Vercel a los orígenes permitidos (CORS) del backend.
+   - `VITE_SMARTSTAY_API_URL=https://smartstay-movildev-api.onrender.com/api/v1`
+3. Agrega el dominio de Vercel (`https://smartstay-movildev-web.vercel.app`) a los orígenes permitidos (CORS) del backend.
 4. Cada cambio de variables requiere un nuevo deploy, porque se incrustan al compilar.
 
 ## Rutas
