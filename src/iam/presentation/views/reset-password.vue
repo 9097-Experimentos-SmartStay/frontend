@@ -45,7 +45,7 @@ import useIamStore from '../../application/iam.store.js';
 import { AuthFailure, AuthFailureReason } from '../../application/auth-failure.js';
 import { ResetPasswordCommand } from '../../domain/commands/reset-password.command.js';
 import { AccountRuleError, collectErrors, validateNewPassword, validatePasswordConfirmation } from '../../domain/model/account-rules.js';
-import { passwordRequirementsFor } from '../../domain/model/password-policy.js';
+import { PasswordPolicyRule, passwordRequirementsFor } from '../../domain/model/password-policy.js';
 import { authFailureMessage, serverFieldMessages, validationMessages } from '../utils/auth-messages.js';
 
 /**
@@ -61,8 +61,9 @@ const token = typeof route.query.token === 'string' ? route.query.token : '';
 /**
  * The link only carries a token, so the role of the account is unknown here: the lowest minimum of the
  * policy is checked locally and the backend applies the one of the account (its 400 shows under the input).
+ * When the backend answers with the account's minimum (a guest needs 15), the checklist adopts it.
  */
-const passwordRequirements = passwordRequirementsFor(null);
+const passwordRequirements = ref(passwordRequirementsFor(null));
 const form = reactive({ password: '', confirmation: '' });
 const errors = ref({});
 const errorMessage = ref('');
@@ -70,10 +71,22 @@ const loading = ref(false);
 /** @type {import('vue').Ref<''|'expired'|'invalid'>} */
 const linkProblem = ref(token ? '' : 'invalid');
 
+/**
+ * The backend knows the account and reports its minimum length (`password.too_short` + `minLength`):
+ * the live checklist and the local validation switch to it, so they never contradict the error.
+ * @param {AuthFailure} failure
+ */
+function adoptAccountMinimum(failure) {
+  const rule = failure.passwordViolation('newPassword');
+  const min = Number(rule?.params?.min);
+  if (rule?.code !== PasswordPolicyRule.TOO_SHORT || !Number.isInteger(min)) return;
+  passwordRequirements.value = Object.freeze({ ...passwordRequirements.value, minLength: min });
+}
+
 async function submit() {
   errorMessage.value = '';
   const codes = collectErrors({
-    password: () => validateNewPassword(form.password, passwordRequirements),
+    password: () => validateNewPassword(form.password, passwordRequirements.value),
     confirmation: () => validatePasswordConfirmation(form.password, form.confirmation),
   });
   errors.value = validationMessages(t, codes);
@@ -90,10 +103,11 @@ async function submit() {
     } else if (failure.reason === AuthFailureReason.LINK_INVALID) {
       linkProblem.value = 'invalid';
     } else {
+      adoptAccountMinimum(failure);
       const fieldMessages = serverFieldMessages(
           t,
           failure,
-          { newPassword: { code: AccountRuleError.PASSWORD_TOO_SHORT, params: { min: passwordRequirements.minLength } } },
+          { newPassword: { code: AccountRuleError.PASSWORD_TOO_SHORT, params: { min: passwordRequirements.value.minLength } } },
           { newPassword: 'password' },
       );
       if (fieldMessages.password) {
