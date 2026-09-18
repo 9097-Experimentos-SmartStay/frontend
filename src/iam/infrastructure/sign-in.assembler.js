@@ -14,7 +14,6 @@ export class SignInAssembler {
      * @returns {SignInResource|null} The assembled SignInResource or null if error.
      */
     static toResourceFromResponse(response) {
-        console.log(response);
         if (response.status !== 200) {
             console.error(`${response.status}, ${response.statusText}`);
             return null;

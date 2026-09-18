@@ -49,9 +49,6 @@ export class IamApi extends BaseApi {
             requestData.name = signUpRequest.name;
         }
         
-        console.log('Sign-up request data:', requestData);
-        console.log('Sign-up endpoint:', signUpEndpointPath);
-        
         return this.#signUpEndpoint.create(requestData);
     }
 

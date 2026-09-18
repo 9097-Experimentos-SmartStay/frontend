@@ -51,9 +51,7 @@ const useIamStore = defineStore('iam', () => {
      * @param {Object} router - The Vue Router instance for navigation.
      */
     function signIn(signInCommand, router) {
-        console.log("Executing SignIn Command:", signInCommand);
-
-        iamApi.signIn(signInCommand)
+        return iamApi.signIn(signInCommand)
             .then(response => {
                 // Transform Response to Resource
                 let signInResource = SignInAssembler.toResourceFromResponse(response);
@@ -88,7 +86,6 @@ const useIamStore = defineStore('iam', () => {
                     localStorage.setItem('user_username', currentUser.username);
                     localStorage.setItem('user_role', role);
 
-                    console.log(`User signed in successfully: ID ${currentUser.id}, Role: ${role}`);
                     errors.value = [];
 
                     // Navigate to Dashboard (Router Guard will handle specific redirection based on role)
@@ -99,6 +96,7 @@ const useIamStore = defineStore('iam', () => {
             })
             .catch(error => {
                 handleSignInError(error, router);
+                throw error;
             });
     }
 
@@ -109,7 +107,7 @@ const useIamStore = defineStore('iam', () => {
      */
     function handleSignInError(error, router) {
         isSignedIn.value = false;
-        console.error("Sign-in failed:", error);
+        console.error("Sign-in failed:", error.message);
         errors.value.push(error);
         router.push({name: 'login'});
     }
@@ -120,12 +118,11 @@ const useIamStore = defineStore('iam', () => {
      * @param {Object} router - The Vue Router instance.
      */
     function signUp(signUpCommand, router) {
-        iamApi.signUp(signUpCommand)
+        return iamApi.signUp(signUpCommand)
             .then(response => {
                 let signUpResource = SignUpAssembler.toResourceFromResponse(response);
 
                 if (signUpResource) {
-                    console.log("Sign-up successful:", signUpResource.message);
                     errors.value = [];
                     router.push({name: 'login'});
                 } else {
@@ -135,9 +132,10 @@ const useIamStore = defineStore('iam', () => {
                 }
             })
             .catch(error => {
-                console.error("Sign-up error:", error);
+                console.error("Sign-up error:", error.message);
                 errors.value.push(error);
                 router.push({name: 'register'});
+                throw error;
             });
     }
 
@@ -158,7 +156,6 @@ const useIamStore = defineStore('iam', () => {
         localStorage.removeItem('user_id');
         localStorage.removeItem('user_username');
 
-        console.log('User session terminated');
         errors.value = [];
         router.push({name: 'login'});
     }

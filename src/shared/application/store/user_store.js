@@ -18,7 +18,7 @@ export const useUserStore = defineStore('user', {
     actions: {
         // Esta acción guarda el estado al loguearse
         loginSuccess(userData) {
-            this.token = userData.id; // O un token real si lo tuvieras
+            this.token = userData.token;
             this.role = userData.role;
             this.user = userData;
 
@@ -28,22 +28,13 @@ export const useUserStore = defineStore('user', {
         },
 
         logout() {
-            console.log("--- user_store.js (1) ---");
-            console.log("Estado ANTES de $reset:", { token: this.token, role: this.role });
-
             // 1. Borra el estado en memoria (Pinia)
             this.$reset();
-
-            console.log("--- user_store.js (2) ---");
-            console.log("Estado DESPUÉS de $reset:", { token: this.token, role: this.role });
 
             // 2. Borra el estado persistente (LocalStorage)
             localStorage.removeItem('user');
             localStorage.removeItem('user_token');
             localStorage.removeItem('user_role');
-
-            console.log("--- user_store.js (3) ---");
-            console.log("LocalStorage 'user_token' AHORA ES:", localStorage.getItem('user_token'));
         }
 
     }

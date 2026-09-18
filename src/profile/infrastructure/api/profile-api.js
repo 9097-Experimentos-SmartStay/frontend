@@ -1,7 +1,8 @@
-import axios from 'axios';
+import { BaseApi } from '../../../shared/infrastructure/services/base-api.js';
 import { ProfileResource, CreateProfileResource } from '../profile.resource.js';
 
-const API_BASE_URL = 'http://localhost:5192/api/v1';
+const http = new BaseApi().http;
+const profilesEndpointPath = import.meta.env.VITE_PROFILES_ENDPOINT_PATH;
 
 /**
  * Profile API Service
@@ -15,7 +16,7 @@ export class ProfileApi {
      */
     static async getProfileById(profileId) {
         try {
-            const response = await axios.get(`${API_BASE_URL}/profiles/${profileId}`);
+            const response = await http.get(`${profilesEndpointPath}/${profileId}`);
             return ProfileResource.fromJSON(response.data);
         } catch (error) {
             console.error('Error fetching profile by ID:', error);
@@ -29,7 +30,7 @@ export class ProfileApi {
      */
     static async getAllProfiles() {
         try {
-            const response = await axios.get(`${API_BASE_URL}/profiles`);
+            const response = await http.get(profilesEndpointPath);
             return response.data.map(profile => ProfileResource.fromJSON(profile));
         } catch (error) {
             console.error('Error fetching all profiles:', error);
@@ -44,8 +45,8 @@ export class ProfileApi {
      */
     static async createProfile(createProfileResource) {
         try {
-            const response = await axios.post(
-                `${API_BASE_URL}/profiles`,
+            const response = await http.post(
+                profilesEndpointPath,
                 createProfileResource.toJSON()
             );
             return ProfileResource.fromJSON(response.data);
