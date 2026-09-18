@@ -1,5 +1,5 @@
 <template>
-  <div class="surface-ground min-h-screen p-4 md:p-6">
+  <div class="p-4 md:p-6">
     <pv-toast position="bottom-right" />
     <pv-confirm-dialog />
 
@@ -9,7 +9,6 @@
           <pv-button icon="pi pi-arrow-left" :label="t('common.back')" class="p-button-outlined p-button-sm" @click="router.push({ name: 'guest-bookings' })" />
           <h1 class="text-3xl font-bold text-color m-0">{{ booking ? t('guestBookingDetail.title', { code: booking.reference }) : t('guestBookingDetail.titleLoading') }}</h1>
         </div>
-        <LanguageSwitcher />
       </div>
 
       <div v-if="loading" class="flex justify-content-center p-8"><pv-progress-spinner /></div>
@@ -120,7 +119,6 @@ import { useHotelStore } from '@/accommodations/application/hotel.store.js';
 import { usePaymentStore } from '@/payments/application/payment.store.js';
 import PaymentInstructions from '@/payments/presentation/components/PaymentInstructions.vue';
 import PaymentSummary from '@/payments/presentation/components/PaymentSummary.vue';
-import LanguageSwitcher from '@/shared/presentation/components/language-switcher.vue';
 import { formatDateTime, formatDay, formatMoney } from '@/shared/presentation/utils/formatters.js';
 
 /**
