@@ -216,7 +216,7 @@
     "notifyMaintenance": "Se ha notificado a mantenimiento.",
     "suppliesRequested": "Suministros Solicitados",
     "notifyHousekeeping": "Se ha notificado al jefe de limpieza.",
-    "tasksNotAvailable": "La gestión de tareas operativas aún no está disponible. Cuando el backend exponga las tareas, aparecerán aquí.",
+    "tasksNotAvailable": "La gestión de tareas operativas estará disponible próximamente.",
     "tasksNotAvailableShort": "Aún no disponible",
     "revenueHistoryNotAvailable": "Se muestra solo el mes actual. El historial de ingresos aún no está disponible."
   },
