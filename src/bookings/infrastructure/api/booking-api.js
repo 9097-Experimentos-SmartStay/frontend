@@ -1,70 +1,65 @@
-import { BaseApi } from "@/shared/infrastructure/services/base-api.js";
-import { BaseEndpoint } from "@/shared/infrastructure/services/base-endpoint.js";
-import { endpoints } from "@/shared/infrastructure/config/api-config.js";
+import { BaseApi } from '@/shared/infrastructure/services/base-api.js';
+import { endpoints } from '@/shared/infrastructure/config/api-config.js';
 
-// Swagger Path: /api/v1/bookings
-// noinspection DuplicatedCode
-const bookingsEndpointPath = endpoints.bookings;
+const bookingsPath = endpoints.bookings;
+const roomsPath = endpoints.rooms;
 
 /**
- * BookingApi class.
- * Direct communication with the Backend for Booking resources.
- * @class
+ * Bookings (§8). GET /bookings is scoped by the backend: a guest gets their own bookings; reception,
+ * housekeeping, maintenance and admin those of their hotel; a chain_admin every booking.
  */
 export class BookingApi extends BaseApi {
-    #endpoint;
-
-    constructor() {
-        super();
-        this.#endpoint = new BaseEndpoint(this, bookingsEndpointPath);
+    /** GET /bookings → BookingResource[] (newest first). */
+    getAll() {
+        return this.http.get(bookingsPath);
     }
 
     /**
-     * Get all bookings.
-     * @returns {Promise<Object>} Axios response.
+     * GET /bookings/{id} → 404 when missing, another guest's or another hotel's.
+     * @param {number} id
      */
-    getAllBookings() {
-        return this.#endpoint.getAll();
+    getById(id) {
+        return this.http.get(`${bookingsPath}/${id}`);
     }
 
     /**
-     * Get booking by ID.
-     * @param {number} id - The unique identifier of the booking.
-     * @returns {Promise<Object>} Axios response.
+     * POST /bookings → 201 BookingResource (Pending) | 400 per field | 403 other hotel | 409 unavailable.
+     * @param {Object} resource - Built by BookingAssembler.toCreateResource.
      */
-    getBookingById(id) {
-        return this.#endpoint.getById(id);
+    create(resource) {
+        return this.http.post(bookingsPath, resource);
     }
 
     /**
-     * Create a new booking.
-     * @param {Object} resource - The booking data resource.
-     * @returns {Promise<Object>} Axios response.
+     * PATCH /bookings/{id} {checkInDate?, checkOutDate?, roomId?} → 200 BookingResource | 409 unavailable / paid total.
+     * @param {number} id
+     * @param {Object} resource - Built by BookingAssembler.toChangeResource.
      */
-    createBooking(resource) {
-        return this.#endpoint.create(resource);
-    }
-
-    // --- MÉTODOS CUSTOM (No están en BaseEndpoint) ---
-
-    /**
-     * Get bookings by room ID.
-     * Swagger: GET /api/v1/bookings/room/{roomId}
-     * @param {number} roomId - The room identifier.
-     * @returns {Promise<Object>} Axios response.
-     */
-    getBookingsByRoomId(roomId) {
-        // Usamos this.http para peticiones personalizadas
-        return this.http.get(`${bookingsEndpointPath}/room/${roomId}`);
+    change(id, resource) {
+        return this.http.patch(`${bookingsPath}/${id}`, resource);
     }
 
     /**
-     * Cancel a booking.
-     * Swagger: POST /api/v1/bookings/{bookingId}/cancel
-     * @param {number} id - The booking identifier.
-     * @returns {Promise<Object>} Axios response.
+     * POST /bookings/{id}/cancel → 200 BookingResource (Cancelled) | 409 not cancellable (status, check-in day).
+     * @param {number} id
      */
-    cancelBooking(id) {
-        return this.http.post(`${bookingsEndpointPath}/${id}/cancel`);
+    cancel(id) {
+        return this.http.post(`${bookingsPath}/${id}/cancel`);
+    }
+
+    /**
+     * GET /bookings/calendar?from&to&hotelId (to excluded, ≤ 92 days) → BookingCalendarResource.
+     * @param {{from: string, to: string, hotelId?: number}} params
+     */
+    getCalendar(params) {
+        return this.http.get(`${bookingsPath}/calendar`, { params });
+    }
+
+    /**
+     * GET /rooms/available?checkIn&checkOut&hotelId → AvailableRoomResource[] free for the whole stay (any role).
+     * @param {{checkIn: string, checkOut: string, hotelId?: number}} params
+     */
+    getAvailableRooms(params) {
+        return this.http.get(`${roomsPath}/available`, { params });
     }
 }
