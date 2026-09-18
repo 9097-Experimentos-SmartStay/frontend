@@ -9,13 +9,14 @@ import { ProblemDetails } from '@/shared/infrastructure/http/problem-details.js'
  * - Adds `Authorization: Bearer <access token>` when a session exists (skipped with `skipAuth: true`,
  *   used by the anonymous /authentication/* calls).
  * - Remembered sessions ("Recordarme") are renewed silently: shortly before `expiresAt`, and once more
- *   when a request gets 401 "expired". Refreshes are SERIALIZED: concurrent requests wait for the same
+ *   when a request gets 401 `auth.token_expired`. Refreshes are SERIALIZED: concurrent requests wait for the same
  *   refresh and are retried with the new token, because a refresh token is single use and presenting it
  *   twice revokes the whole session (§2.4).
  * - Any other 401 on an authenticated request ends the session through the handler registered with
- *   {@link configureSessionHandling} (the app clears the IAM state and goes to /login). A request sent with
- *   `checksCredentials: true` (change password) gets its "Invalid credentials" 401 back as a normal error:
- *   it means "wrong current password", not "your session ended".
+ *   {@link configureSessionHandling} (the app clears the IAM state and goes to /login with the reason). A
+ *   401 `auth.session_revoked` says why in `reason` (role or hotel changed, password changed, signed out
+ *   everywhere, MFA reset, deactivated). A request sent with `checksCredentials: true` (change password) gets
+ *   its `auth.invalid_credentials` 401 back as a normal error: it means "wrong current password".
  *
  * This module does not import the IAM context: IAM registers how to refresh and what to do when
  * the session ends, keeping the dependency direction shared ← iam.
@@ -34,7 +35,29 @@ const REFRESH_MARGIN_MS = 60 * 1000;
 export const SessionEndReason = Object.freeze({
     EXPIRED: 'session-expired',
     REVOKED: 'session-revoked',
+    PERMISSIONS_CHANGED: 'permissions-changed',
+    PASSWORD_CHANGED: 'password-changed',
+    SIGNED_OUT_EVERYWHERE: 'signed-out-everywhere',
+    MFA_RESET: 'mfa-reset',
     DEACTIVATED: 'account-deactivated',
+});
+
+/** Codes of the 401s the session lifecycle reacts to (§0.1). */
+const ApiCode = Object.freeze({
+    TOKEN_EXPIRED: 'auth.token_expired',
+    SESSION_REVOKED: 'auth.session_revoked',
+    INVALID_CREDENTIALS: 'auth.invalid_credentials',
+});
+
+/** `reason` of a 401 `auth.session_revoked` → message of the login page. */
+const END_REASON_BY_REVOCATION = Object.freeze({
+    role_changed: SessionEndReason.PERMISSIONS_CHANGED,
+    assignment_changed: SessionEndReason.PERMISSIONS_CHANGED,
+    password_changed: SessionEndReason.PASSWORD_CHANGED,
+    password_reset: SessionEndReason.PASSWORD_CHANGED,
+    signed_out_everywhere: SessionEndReason.SIGNED_OUT_EVERYWHERE,
+    mfa_reset: SessionEndReason.MFA_RESET,
+    deactivated: SessionEndReason.DEACTIVATED,
 });
 
 const handlers = {
@@ -80,9 +103,14 @@ function expiresSoon(session) {
     return new Date(session.expiresAt).getTime() - REFRESH_MARGIN_MS <= Date.now();
 }
 
+/**
+ * @param {ProblemDetails} problem - A 401 of an authenticated request (or of the refresh).
+ * @returns {string} One of {@link SessionEndReason}.
+ */
 function endReasonFor(problem) {
-    if (problem.detailIncludes('deactivated')) return SessionEndReason.DEACTIVATED;
-    if (problem.detailIncludes('revoked')) return SessionEndReason.REVOKED;
+    if (problem.is(ApiCode.SESSION_REVOKED)) {
+        return END_REASON_BY_REVOCATION[problem.extensions.reason] ?? SessionEndReason.REVOKED;
+    }
     return SessionEndReason.EXPIRED;
 }
 
@@ -119,11 +147,11 @@ httpClient.interceptors.response.use(
         const problem = ProblemDetails.fromError(error);
         const session = loadSession();
 
-        if (config.checksCredentials && problem.detail === 'Invalid credentials') {
+        if (config.checksCredentials && problem.is(ApiCode.INVALID_CREDENTIALS)) {
             return Promise.reject(error);
         }
 
-        if (!config._authRetried && problem.detailIncludes('expired') && isRemembered(session)) {
+        if (!config._authRetried && problem.is(ApiCode.TOKEN_EXPIRED) && isRemembered(session)) {
             config._authRetried = true;
             try {
                 // Another tab may already have refreshed: reuse its token instead of spending the refresh token.
@@ -131,8 +159,9 @@ httpClient.interceptors.response.use(
                 const token = current && current !== sentToken ? current : await refreshOnce();
                 config.headers.Authorization = `Bearer ${token}`;
                 return httpClient(config);
-            } catch {
-                handlers.onSessionEnded?.(SessionEndReason.EXPIRED);
+            } catch (refreshError) {
+                // The refresh says why the remembered session ended (e.g. a role change), or it simply expired.
+                handlers.onSessionEnded?.(endReasonFor(ProblemDetails.fromError(refreshError)));
                 return Promise.reject(error);
             }
         }

@@ -100,10 +100,22 @@ const errors = ref({});
 const failure = ref(null);
 const loading = ref(false);
 
+const SESSION_END_REASONS = [
+  'session-expired',
+  'session-revoked',
+  'permissions-changed',
+  'password-changed',
+  'signed-out-everywhere',
+  'mfa-reset',
+  'hotel-registered',
+  'account-deactivated',
+  'mfa-expired',
+];
+
 /** Why the user landed here: session ended by the API (?reason=) or a finished flow (?notice=). */
 const reasonKey = computed(() => {
   const reason = route.query.reason;
-  return ['session-expired', 'session-revoked', 'account-deactivated', 'mfa-expired'].includes(reason) ? `auth.reasons.${reason}` : null;
+  return SESSION_END_REASONS.includes(reason) ? `auth.reasons.${reason}` : null;
 });
 const noticeKey = computed(() => {
   const notice = route.query.notice;

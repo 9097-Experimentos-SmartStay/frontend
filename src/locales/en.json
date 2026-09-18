@@ -41,9 +41,14 @@
     "requiredFieldsNote": "Every field is required.",
     "reasons": {
       "session-expired": "Your session expired. Please sign in again.",
-      "session-revoked": "Your session was closed because your password changed. Please sign in again.",
+      "session-revoked": "Your session was closed. Please sign in again.",
       "account-deactivated": "Your account was deactivated. Contact the administrator.",
-      "mfa-expired": "For your security, the second step expires after 10 minutes or when the page reloads. Sign in again."
+      "mfa-expired": "For your security, the second step expires after 10 minutes or when the page reloads. Sign in again.",
+      "permissions-changed": "Your permissions changed. Please sign in again.",
+      "password-changed": "Your session was closed because your password changed. Please sign in again.",
+      "signed-out-everywhere": "You were signed out on all your devices. Please sign in again.",
+      "mfa-reset": "An administrator reset your two-step verification. Sign in to set it up again.",
+      "hotel-registered": "Your hotel is registered. Please sign in again to manage it."
     },
     "notices": {
       "password-updated": "Your password was updated. Sign in with the new password.",
@@ -564,7 +569,7 @@
     "passwordTooShort": "Use at least {min} characters. A passphrase of a few words is long and easy to remember.",
     "passwordTooLong": "The password cannot have more than {max} characters.",
     "passwordBreached": "This password has appeared in a known data breach. Choose a different one.",
-    "passwordRejected": "The server rejected the password: {reason}",
+    "passwordRejected": "We could not accept this password. Choose a different one.",
     "authenticatorCodeFormat": "Enter the 6 digits of your authenticator app.",
     "recoveryCodeFormat": "A recovery code has 10 letters and digits (XXXXX-XXXXX).",
     "passwordCommon": "This password is too common or easy to guess. Choose a different one.",
@@ -858,7 +863,7 @@
       "lengthRange": "Use between {min} and {max} characters.",
       "tooLong": "Use at most {max} characters.",
       "imageUrl": "Enter a full URL starting with http:// or https://.",
-      "serverRejected": "Check this field: {reason}"
+      "serverRejected": "Check the value of this field."
     },
     "form": {
       "name": "Property name",

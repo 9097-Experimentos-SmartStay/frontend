@@ -41,9 +41,14 @@
     "requiredFieldsNote": "Todos los campos son obligatorios.",
     "reasons": {
       "session-expired": "Tu sesión expiró. Inicia sesión de nuevo.",
-      "session-revoked": "Tu sesión se cerró porque cambió tu contraseña. Inicia sesión de nuevo.",
+      "session-revoked": "Tu sesión se cerró. Inicia sesión nuevamente.",
       "account-deactivated": "Tu cuenta fue desactivada. Contacta al administrador.",
-      "mfa-expired": "Por seguridad, el segundo paso vence a los 10 minutos o al recargar la página. Inicia sesión de nuevo."
+      "mfa-expired": "Por seguridad, el segundo paso vence a los 10 minutos o al recargar la página. Inicia sesión de nuevo.",
+      "permissions-changed": "Tus permisos cambiaron. Inicia sesión nuevamente.",
+      "password-changed": "Tu sesión se cerró porque cambió tu contraseña. Inicia sesión nuevamente.",
+      "signed-out-everywhere": "Se cerró tu sesión en todos tus dispositivos. Inicia sesión nuevamente.",
+      "mfa-reset": "Un administrador restableció tu verificación en dos pasos. Inicia sesión para configurarla de nuevo.",
+      "hotel-registered": "Registramos tu hotel. Inicia sesión nuevamente para administrarlo."
     },
     "notices": {
       "password-updated": "Tu contraseña se actualizó. Inicia sesión con la nueva contraseña.",
@@ -564,7 +569,7 @@
     "passwordTooShort": "Usa al menos {min} caracteres. Una frase de varias palabras es larga y fácil de recordar.",
     "passwordTooLong": "La contraseña no puede tener más de {max} caracteres.",
     "passwordBreached": "Esta contraseña apareció en una filtración de datos conocida. Elige otra.",
-    "passwordRejected": "El servidor rechazó la contraseña: {reason}",
+    "passwordRejected": "No pudimos aceptar esta contraseña. Elige otra.",
     "authenticatorCodeFormat": "Ingresa los 6 dígitos de tu app de autenticación.",
     "recoveryCodeFormat": "Un código de recuperación tiene 10 letras y números (XXXXX-XXXXX).",
     "passwordCommon": "Esta contraseña es demasiado común o fácil de adivinar. Elige otra.",
@@ -858,7 +863,7 @@
       "lengthRange": "Usa entre {min} y {max} caracteres.",
       "tooLong": "Usa como máximo {max} caracteres.",
       "imageUrl": "Ingresa una URL completa que empiece con http:// o https://.",
-      "serverRejected": "Revisa este campo: {reason}"
+      "serverRejected": "Revisa el valor de este campo."
     },
     "form": {
       "name": "Nombre de la propiedad",
