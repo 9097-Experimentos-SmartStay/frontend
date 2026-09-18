@@ -1174,5 +1174,41 @@
     "notChangeable": "Solo se pueden modificar reservas pendientes de pago o confirmadas.",
     "otherHotelRoom": "La reserva solo puede pasar a una habitación del mismo hotel.",
     "done": "Reserva {code} modificada. Avisamos al huésped por correo."
+  },
+  "hotelPaymentSettings": {
+    "title": "Métodos de pago",
+    "intro": "Indica cómo te pagan los huéspedes. Los verán en su reserva pendiente y en el correo de la reserva. Configura al menos uno: Yape, Plin o una cuenta bancaria.",
+    "readOnly": "Estos son los métodos de pago del hotel. Solo el administrador del hotel puede cambiarlos.",
+    "ready": "Tu hotel acepta reservas: los huéspedes ven estos métodos de pago.",
+    "notReady": "Tu hotel aún no acepta reservas: configura al menos un método de pago.",
+    "afterRegistration": "Registramos tu hotel. Configura tus métodos de pago para empezar a recibir reservas.",
+    "banner": "Tu hotel aún no acepta reservas: configura tus métodos de pago.",
+    "configure": "Configurar métodos de pago",
+    "accountHolder": "Titular",
+    "accountHolderPlaceholder": "Ej. Hotel Bolívar S.A.C.",
+    "accountHolderHint": "Nombre que verá el huésped al pagar (titular del Yape, Plin o de la cuenta).",
+    "wallets": "Billeteras digitales",
+    "bankTransfer": "Transferencia bancaria",
+    "bankName": "Banco",
+    "bankNamePlaceholder": "Ej. BCP",
+    "bankAccountNumber": "N.° de cuenta",
+    "bankAccountCci": "CCI",
+    "cciHint": "Opcional. 20 dígitos, para transferencias desde otros bancos.",
+    "frontDeskNote": "Los huéspedes también pueden pagar en efectivo o con tarjeta en la recepción del hotel.",
+    "save": "Guardar métodos de pago",
+    "saved": "Métodos de pago guardados.",
+    "rules": {
+      "accountHolderRequired": "Ingresa el nombre del titular.",
+      "accountHolderLength": "Usa entre {minLength} y {maxLength} caracteres.",
+      "yapeNumberInvalid": "Ingresa un celular de 9 dígitos que empiece con 9.",
+      "plinNumberInvalid": "Ingresa un celular de 9 dígitos que empiece con 9.",
+      "bankNameRequired": "Ingresa el banco de la cuenta.",
+      "bankNameLength": "Usa entre {minLength} y {maxLength} caracteres.",
+      "bankAccountNumberRequired": "Ingresa el número de cuenta.",
+      "bankAccountNumberInvalid": "Usa solo dígitos y guiones: de {minDigits} a {maxDigits} dígitos.",
+      "cciInvalid": "El CCI tiene exactamente 20 dígitos.",
+      "methodRequired": "Configura al menos un método de pago: Yape, Plin o una cuenta bancaria con su banco.",
+      "serverRejected": "Revisa el valor de este campo."
+    }
   }
 }

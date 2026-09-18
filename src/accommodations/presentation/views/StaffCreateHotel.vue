@@ -106,7 +106,9 @@ async function submitForm() {
     // An admin's session is renewed by the store with a token that carries the new hotel: no new sign-in.
     const hotel = await hotelStore.createHotel(form);
     toast.add({ severity: 'success', summary: t('common.success'), detail: t('staffHotels.created', { name: hotel.name }), life: 3000 });
-    router.push({ name: 'staff-hotels' });
+    // A new hotel accepts bookings only once it has payment methods: an admin goes on to configure them.
+    if (isAdmin.value) router.push({ name: 'hotel-payment-settings', params: { hotelId: hotel.id }, query: { setup: '1' } });
+    else router.push({ name: 'staff-hotels' });
   } catch (err) {
     if (err.reason === AccommodationFailureReason.HOTEL_ALREADY_REGISTERED) {
       // D2 / US-53 scenario 1: an admin manages a single hotel; the form is hidden.

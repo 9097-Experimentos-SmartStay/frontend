@@ -53,12 +53,14 @@
           </template>
         </pv-column>
 
-        <pv-column :header="t('common.actions')" style="width: 150px">
+        <pv-column :header="t('common.actions')" style="width: 190px">
           <template #body="{ data }">
             <div v-if="canManage(data)" class="flex gap-2">
+              <pv-button icon="pi pi-wallet" class="p-button-rounded p-button-text p-button-warning" :aria-label="t('hotelPaymentSettings.title')" v-tooltip="t('hotelPaymentSettings.title')" @click="router.push({ name: 'hotel-payment-settings', params: { hotelId: data.id } })" />
               <pv-button icon="pi pi-pencil" class="p-button-rounded p-button-text p-button-info" :aria-label="t('common.edit')" v-tooltip="t('common.edit')" @click="router.push({ name: 'edit-hotel', params: { hotelId: data.id } })" />
               <pv-button icon="pi pi-trash" class="p-button-rounded p-button-text p-button-danger" :aria-label="t('common.delete')" v-tooltip="t('common.delete')" @click="confirmDelete(data)" />
             </div>
+            <pv-button v-else-if="canViewPayments(data)" icon="pi pi-wallet" class="p-button-rounded p-button-text p-button-warning" :aria-label="t('hotelPaymentSettings.title')" v-tooltip="t('hotelPaymentSettings.title')" @click="router.push({ name: 'hotel-payment-settings', params: { hotelId: data.id } })" />
           </template>
         </pv-column>
       </pv-data-table>
@@ -74,7 +76,7 @@ import { useConfirm } from 'primevue/useconfirm';
 import { useI18n } from 'vue-i18n';
 import { useHotelStore } from '@/accommodations/application/hotel.store.js';
 import useIamStore from '@/iam/application/iam.store.js';
-import { UserRole, canManageHotel, canRegisterHotel } from '@/iam/domain/user-role.js';
+import { UserRole, canManageHotel, canRegisterHotel, canViewHotelPaymentSettings } from '@/iam/domain/user-role.js';
 import { failureMessageKey } from '@/shared/presentation/utils/failure-message.js';
 import { formatMoney } from '@/shared/presentation/utils/formatters.js';
 
@@ -97,6 +99,7 @@ const subtitle = computed(() => {
 });
 
 const canManage = (hotel) => canManageHotel(currentUser.value, hotel.id);
+const canViewPayments = (hotel) => canViewHotelPaymentSettings(currentUser.value, hotel.id);
 
 onMounted(() => hotelStore.fetchAllHotels());
 
