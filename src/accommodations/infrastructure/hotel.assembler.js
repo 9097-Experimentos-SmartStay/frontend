@@ -44,6 +44,17 @@ export class HotelAssembler {
     }
 
     /**
+     * Response of POST /hotels: `{ hotel, session }`. `session` holds the new tokens of an admin who registered
+     * their own hotel (the token must carry it); it is null for a chain_admin.
+     * @param {Object} response - Axios response.
+     * @returns {{hotel: Hotel|null, session: Object|null}}
+     */
+    static toRegistrationFromResponse(response) {
+        const body = response?.data ?? {};
+        return { hotel: HotelAssembler.toEntityFromResource(body.hotel), session: body.session ?? null };
+    }
+
+    /**
      * Body of POST /hotels and PUT /hotels/{id} (every string is required).
      * `hostId` is never sent: an admin always hosts their own hotel, and for a chain_admin
      * the backend defaults to the caller.

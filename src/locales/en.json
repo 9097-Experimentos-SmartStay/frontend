@@ -47,8 +47,7 @@
       "permissions-changed": "Your permissions changed. Please sign in again.",
       "password-changed": "Your session was closed because your password changed. Please sign in again.",
       "signed-out-everywhere": "You were signed out on all your devices. Please sign in again.",
-      "mfa-reset": "An administrator reset your two-step verification. Sign in to set it up again.",
-      "hotel-registered": "Your hotel is registered. Please sign in again to manage it."
+      "mfa-reset": "An administrator reset your two-step verification. Sign in to set it up again."
     },
     "notices": {
       "password-updated": "Your password was updated. Sign in with the new password.",

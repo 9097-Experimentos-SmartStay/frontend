@@ -28,6 +28,27 @@ export class SessionAssembler {
     }
 
     /**
+     * Tokens issued again for the signed-in user by an operation that changed their own permissions (an admin
+     * registering their hotel, §4): `{ token, tokenType, expiresAt, refreshToken?, refreshTokenExpiresAt? }`.
+     * @param {Object} resource - The `session` member of the response.
+     * @param {import('../../domain/model/user.entity.js').User} user - The user with the new permissions.
+     * @returns {Session}
+     * @throws {Error} When the resource carries no token.
+     */
+    static toEntityFromReissued(resource, user) {
+        if (!resource?.token) {
+            throw new Error('Reissued session has no token');
+        }
+        return new Session({
+            user,
+            accessToken: resource.token,
+            expiresAt: toDate(resource.expiresAt),
+            refreshToken: resource.refreshToken ?? null,
+            refreshTokenExpiresAt: toDate(resource.refreshTokenExpiresAt),
+        });
+    }
+
+    /**
      * @param {Session} session
      * @returns {import('@/shared/infrastructure/session/session-storage.js').StoredSession}
      */

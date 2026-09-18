@@ -47,8 +47,7 @@
       "permissions-changed": "Tus permisos cambiaron. Inicia sesión nuevamente.",
       "password-changed": "Tu sesión se cerró porque cambió tu contraseña. Inicia sesión nuevamente.",
       "signed-out-everywhere": "Se cerró tu sesión en todos tus dispositivos. Inicia sesión nuevamente.",
-      "mfa-reset": "Un administrador restableció tu verificación en dos pasos. Inicia sesión para configurarla de nuevo.",
-      "hotel-registered": "Registramos tu hotel. Inicia sesión nuevamente para administrarlo."
+      "mfa-reset": "Un administrador restableció tu verificación en dos pasos. Inicia sesión para configurarla de nuevo."
     },
     "notices": {
       "password-updated": "Tu contraseña se actualizó. Inicia sesión con la nueva contraseña.",
