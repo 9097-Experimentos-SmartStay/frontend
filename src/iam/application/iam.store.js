@@ -23,8 +23,22 @@ export const EmailVerificationResult = Object.freeze({
  * Navigation is a presentation concern: views decide where to go after each action.
  */
 const useIamStore = defineStore('iam', () => {
+    /**
+     * Restores the stored session. A session without "Recordarme" whose access token already expired
+     * cannot be renewed, so it is dropped here instead of failing on the first request.
+     * @returns {import('../domain/model/session.entity.js').Session|null}
+     */
+    function restoreSession() {
+        const restored = SessionAssembler.fromStored(loadSession());
+        if (restored && !restored.remembered && restored.isAccessTokenExpired()) {
+            clearSession();
+            return null;
+        }
+        return restored;
+    }
+
     /** @type {import('vue').Ref<import('../domain/model/session.entity.js').Session|null>} */
-    const session = ref(SessionAssembler.fromStored(loadSession()));
+    const session = ref(restoreSession());
 
     const currentUser = computed(() => session.value?.user ?? null);
     const currentUserId = computed(() => currentUser.value?.id ?? null);
@@ -53,7 +67,7 @@ const useIamStore = defineStore('iam', () => {
     // Another tab signed in, refreshed or signed out: follow it.
     if (typeof window !== 'undefined') {
         window.addEventListener('storage', () => {
-            session.value = SessionAssembler.fromStored(loadSession());
+            session.value = restoreSession();
         });
     }
 
