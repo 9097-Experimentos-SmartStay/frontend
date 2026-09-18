@@ -1,48 +1,63 @@
-﻿import { Booking } from '../domain/model/booking.entity.js';
+import { Booking } from '../domain/model/booking.entity.js';
+import { CalendarDate } from '@/shared/domain/calendar-date.js';
 
 /**
- * Assembler to convert between Booking Resources and Booking Entities.
+ * BookingResource (§8) ↔ {@link Booking}.
  * @class
  */
 export class BookingAssembler {
-
     /**
-     * Converts a raw Resource (JSON) into a Domain Entity.
-     * @param {import('./resources/booking.resource.js').BookingResource} resource
-     * @returns {Booking} Domain Entity
+     * Dates come back without timezone ("2026-09-28T00:00:00"): they are read as calendar days,
+     * never through `new Date()`, so the day does not shift with the browser timezone.
+     * @param {Object} resource
+     * @returns {Booking|null}
      */
     static toEntityFromResource(resource) {
         if (!resource) return null;
-
         return new Booking({
             id: resource.id,
             roomId: resource.roomId,
             guestName: resource.guestName,
             guestEmail: resource.guestEmail,
-            // AQUÍ ocurre la transformación de tipos (String -> Date)
-            checkInDate: resource.checkInDate ? new Date(resource.checkInDate) : null,
-            checkOutDate: resource.checkOutDate ? new Date(resource.checkOutDate) : null,
-            status: resource.status
+            checkInDate: CalendarDate.from(resource.checkInDate),
+            checkOutDate: CalendarDate.from(resource.checkOutDate),
+            status: resource.status,
+            userId: resource.userId ?? null,
+            guestProfileId: resource.guestProfileId ?? null,
         });
     }
 
     /**
-     * Converts a list of Resources into a list of Entities.
-     * @param {Object} response - Axios response object
-     * @returns {Array<Booking>} List of Booking Entities
+     * @param {Object} response - Axios response.
+     * @returns {Booking[]}
      */
     static toEntitiesFromResponse(response) {
-        if (!response.data || !Array.isArray(response.data)) return [];
-        return response.data.map(resource => BookingAssembler.toEntityFromResource(resource));
+        if (!Array.isArray(response?.data)) return [];
+        return response.data.map(BookingAssembler.toEntityFromResource);
     }
 
     /**
-     * Converts a single Resource response into an Entity.
-     * @param {Object} response - Axios response object
-     * @returns {Booking} Domain Entity
+     * @param {Object} response - Axios response.
+     * @returns {Booking|null}
      */
     static toEntityFromResponse(response) {
-        if (!response.data) return null;
-        return BookingAssembler.toEntityFromResource(response.data);
+        return BookingAssembler.toEntityFromResource(response?.data);
+    }
+
+    /**
+     * Body of POST /bookings. Dates go as "YYYY-MM-DD" (calendar days).
+     * A guest always books for themselves: the owner (and a missing name/e-mail) comes from the token.
+     * @param {import('../domain/commands/create-booking.command.js').CreateBookingCommand} command
+     * @returns {Object}
+     */
+    static toCreateResource(command) {
+        const resource = {
+            roomId: command.roomId,
+            checkInDate: command.checkInDate.toIsoString(),
+            checkOutDate: command.checkOutDate.toIsoString(),
+        };
+        if (command.guestName) resource.guestName = command.guestName;
+        if (command.guestEmail) resource.guestEmail = command.guestEmail;
+        return resource;
     }
 }

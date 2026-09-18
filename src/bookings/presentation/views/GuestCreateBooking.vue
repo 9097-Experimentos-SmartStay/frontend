@@ -54,16 +54,23 @@
             <div class="col-12 md:col-6">
               <div class="field">
                 <label for="checkInDate" class="font-medium text-color">{{ $t('guestCreateBooking.arrival') }}</label>
-                <pv-input-text id="checkInDate" v-model="form.checkInDate" type="datetime-local" class="w-full" />
+                <pv-input-text id="checkInDate" v-model="form.checkInDate" type="date" :min="today" class="w-full" :invalid="!!dateError" />
               </div>
             </div>
 
             <div class="col-12 md:col-6">
               <div class="field">
                 <label for="checkOutDate" class="font-medium text-color">{{ $t('guestCreateBooking.departure') }}</label>
-                <pv-input-text id="checkOutDate" v-model="form.checkOutDate" type="datetime-local" class="w-full" />
+                <pv-input-text id="checkOutDate" v-model="form.checkOutDate" type="date" :min="form.checkInDate || today" class="w-full" :invalid="!!dateError" />
               </div>
             </div>
+
+            <div class="col-12">
+              <small v-if="dateError" class="p-error block">{{ dateError }}</small>
+              <span v-else-if="nights > 0" class="text-color-secondary">{{ $t('guestCreateBooking.nightsSummary', { count: nights }, nights) }}</span>
+            </div>
+
+            <pv-message v-if="conflictMessage" severity="error" class="col-12">{{ conflictMessage }}</pv-message>
 
             <div class="col-12 mt-5">
               <pv-button
@@ -82,13 +89,20 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useToast } from 'primevue/usetoast';
 import { useI18n } from 'vue-i18n';
 import { useBookingStore } from '../../application/booking.store.js';
+import { CreateBookingCommand } from '../../domain/commands/create-booking.command.js';
 import useIamStore from '@/iam/application/iam.store.js';
+import { CalendarDate } from '@/shared/domain/calendar-date.js';
+import { apiErrorKey } from '@/shared/presentation/utils/api-error.js';
 
+/**
+ * A guest books a room. Dates are calendar days (check-in/check-out); the backend rejects
+ * overlapping bookings of the same room with 409 (no overbooking, R1).
+ */
 const router = useRouter();
 const route = useRoute();
 const toast = useToast();
@@ -97,73 +111,53 @@ const iamStore = useIamStore();
 const { t, locale } = useI18n();
 
 const currentLocale = computed(() => locale.value);
+const today = CalendarDate.today().toIsoString();
 
 function toggleLanguage() {
-  const newLocale = locale.value === 'en' ? 'es' : 'en';
-  locale.value = newLocale;
-  localStorage.setItem('language', newLocale);
+  locale.value = locale.value === 'en' ? 'es' : 'en';
+  localStorage.setItem('language', locale.value);
 }
 
+// The booking belongs to the signed-in guest (the backend takes the owner from the token).
 const form = ref({
   roomId: route.params.roomId ? Number(route.params.roomId) : null,
-  guestName: '',
-  guestEmail: '',
+  guestName: iamStore.currentUser?.displayName ?? '',
+  guestEmail: iamStore.currentUser?.email ?? '',
   checkInDate: '',
   checkOutDate: ''
 });
+const submitted = ref(false);
+const conflictMessage = ref('');
 
-onMounted(() => {
-  // Load saved language
-  const savedLanguage = localStorage.getItem('language');
-  if (savedLanguage) {
-    locale.value = savedLanguage;
-  }
-
-  const user = iamStore.users.find(u => u.id === iamStore.currentUserId);
-  if (user) {
-    form.value.guestName = user.username.split('@')[0];
-    form.value.guestEmail = user.username;
-  }
+const command = computed(() => new CreateBookingCommand(form.value));
+const nights = computed(() => command.value.nights);
+const dateError = computed(() => {
+  if (!submitted.value) return '';
+  const rule = command.value.validate();
+  return rule && rule !== 'roomRequired' ? t(`guestCreateBooking.rules.${rule}`) : '';
 });
 
 const goBack = () => router.push({ name: 'guest-rooms' });
 
 const submitForm = async () => {
-  if (!form.value.roomId || !form.value.checkInDate || !form.value.checkOutDate) {
-    toast.add({
-      severity: 'warn',
-      summary: t('guestCreateBooking.missingData'),
-      detail: t('guestCreateBooking.checkDatesAndRoom'),
-      life: 3000
-    });
+  submitted.value = true;
+  conflictMessage.value = '';
+  const rule = command.value.validate();
+  if (rule) {
+    toast.add({ severity: 'warn', summary: t('guestCreateBooking.missingData'), detail: t(`guestCreateBooking.rules.${rule}`), life: 4000 });
     return;
   }
 
   try {
-    const payload = {
-      roomId: form.value.roomId,
-      guestName: form.value.guestName,
-      guestEmail: form.value.guestEmail,
-      checkInDate: new Date(form.value.checkInDate).toISOString(),
-      checkOutDate: new Date(form.value.checkOutDate).toISOString()
-    };
-
-    await bookingStore.createBooking(payload);
-
-    toast.add({
-      severity: 'success',
-      summary: t('guestCreateBooking.bookingCreated'),
-      detail: t('guestCreateBooking.seeSoon'),
-      life: 3000
-    });
-    router.push({ name: 'guest-bookings' });
+    const booking = await bookingStore.createBooking(command.value);
+    toast.add({ severity: 'success', summary: t('guestCreateBooking.bookingCreated'), detail: t('guestCreateBooking.seeSoon'), life: 3000 });
+    router.push({ name: 'guest-booking-detail', params: { bookingId: booking.id } });
   } catch (err) {
-    toast.add({
-      severity: 'error',
-      summary: t('common.error'),
-      detail: t('guestCreateBooking.couldNotCreate'),
-      life: 3000
-    });
+    // 409: the room is taken for some of those nights → choose other dates or another room.
+    conflictMessage.value = t(apiErrorKey(err, {
+      400: 'guestCreateBooking.invalidRequest',
+      409: 'guestCreateBooking.roomNotAvailable'
+    }));
   }
 };
 </script>

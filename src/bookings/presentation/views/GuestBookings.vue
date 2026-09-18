@@ -60,7 +60,7 @@
 
       <pv-column field="status" :header="$t('guestBookings.status')" sortable style="width: 15%">
         <template #body="{ data }">
-          <pv-tag :value="translateStatus(data.status)" :severity="getStatusSeverity(data.status)" rounded />
+          <pv-tag :value="bookingStatusLabel(t, data.status)" :severity="bookingStatusSeverity(data.status)" rounded />
         </template>
       </pv-column>
 
@@ -74,7 +74,7 @@
                 v-tooltip="$t('guestBookings.viewDetails')"
             />
             <pv-button
-                v-if="data.status === 'Pending'"
+                v-if="data.canBeCancelled()"
                 icon="pi pi-times"
                 class="p-button-rounded p-button-text p-button-danger"
                 @click="cancelBooking(data.id)"
@@ -107,6 +107,9 @@ import { useRouter } from 'vue-router';
 import { useToast } from 'primevue/usetoast';
 import { useI18n } from 'vue-i18n';
 import { useBookingStore } from '../../application/booking.store.js';
+import { bookingStatusLabel, bookingStatusSeverity } from '../utils/booking-status.js';
+import { formatDay } from '@/shared/presentation/utils/formatters.js';
+import { apiErrorKey } from '@/shared/presentation/utils/api-error.js';
 
 const router = useRouter();
 const toast = useToast();
@@ -122,7 +125,7 @@ function toggleLanguage() {
 }
 
 const fetchData = async () => {
-  await bookingStore.fetchAllBookings();
+  await bookingStore.fetchBookings();
 };
 
 onMounted(() => {
@@ -152,30 +155,13 @@ const cancelBooking = async (bookingId) => {
     toast.add({
       severity: 'error',
       summary: t('common.error'),
-      detail: t('guestBookings.cancelledError'),
+      detail: t(apiErrorKey(err, { 409: 'guestBookings.cancelledError' })),
       life: 3000
     });
   }
 };
 
-const getStatusSeverity = (status) => {
-  const map = { 'Pending': 'warning', 'Confirmed': 'success', 'Cancelled': 'danger' };
-  return map[status] || 'info';
-};
-
-const translateStatus = (status) => {
-  const statusMap = {
-    'Pending': t('bookings.statusPending'),
-    'Confirmed': t('bookings.statusConfirmed'),
-    'Cancelled': t('bookings.statusCancelled')
-  };
-  return statusMap[status] || status;
-};
-
-const formatDate = (date) => {
-  if (!date) return 'N/A';
-  return new Date(date).toLocaleDateString(locale.value === 'es' ? 'es-ES' : 'en-US');
-};
+const formatDate = (day) => formatDay(day, locale.value);
 </script>
 
 <style scoped>
