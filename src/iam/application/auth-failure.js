@@ -1,5 +1,5 @@
 import { ProblemDetails } from '@/shared/infrastructure/http/problem-details.js';
-import { passwordViolationFromServerMessage } from '../infrastructure/assemblers/password-policy-error.assembler.js';
+import { passwordRuleFromViolation } from '../infrastructure/assemblers/password-policy-error.assembler.js';
 
 /** Why an account operation failed, in business terms (the views map each reason to a message). */
 export const AuthFailureReason = Object.freeze({
@@ -54,9 +54,9 @@ export class AuthFailure extends Error {
         return this.problem.retryAfterSeconds;
     }
 
-    /** @returns {Record<string, string[]>} Invalid fields reported by the API (camelCase keys). */
-    get fieldErrors() {
-        return this.problem.fieldErrors;
+    /** @returns {Record<string, import('@/shared/infrastructure/http/problem-details.js').FieldViolation[]>} Broken rules per field (camelCase keys). */
+    get fieldViolations() {
+        return this.problem.fieldViolations;
     }
 
     /**
@@ -65,8 +65,7 @@ export class AuthFailure extends Error {
      *   for that field, or null when the field is valid or the reason is unknown.
      */
     passwordViolation(field) {
-        const messages = this.fieldErrors[field];
-        return messages ? passwordViolationFromServerMessage(messages.join(' ')) : null;
+        return passwordRuleFromViolation(this.problem.violationOf(field));
     }
 
     /**

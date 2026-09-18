@@ -65,8 +65,8 @@ export function validationMessages(t, violations) {
  *
  * The client validates with the same rules, so for most fields a server error means the same rule failed
  * and its localized message is shown. Passwords are special: the backend also rejects common and breached
- * passwords (checks the client cannot do), so each password rule of §2.0 is recognized and gets its own
- * message; an unknown reason is shown with the server text.
+ * passwords (checks the client cannot do), so each password rule of §2.0 is recognized by its code and gets its
+ * own message; an unknown code gets a generic localized message.
  *
  * @param {Function} t
  * @param {import('../../application/auth-failure.js').AuthFailure} failure
@@ -77,23 +77,25 @@ export function validationMessages(t, violations) {
  */
 export function serverFieldMessages(t, failure, violationByField, formFieldByApiField = {}) {
     const messages = {};
-    for (const [apiField, serverMessages] of Object.entries(failure?.fieldErrors ?? {})) {
+    for (const [apiField, apiViolations] of Object.entries(failure?.fieldViolations ?? {})) {
         if (!(apiField in violationByField)) continue;
         const formField = formFieldByApiField[apiField] ?? apiField;
-        const text = serverMessages.join(' ');
         const expected = violationByField[apiField];
+        const codes = apiViolations.map(({ code }) => code);
 
         let violation = expected;
-        if (/required|enter a password/i.test(text)) {
+        if (codes.some((code) => REQUIRED_CODES.includes(code))) {
             violation = { code: AccountRuleError.REQUIRED };
         } else if (isPasswordViolation(expected)) {
-            violation = failure.passwordViolation(apiField)
-                ?? { code: AccountRuleError.PASSWORD_REJECTED, params: { reason: text } };
+            violation = failure.passwordViolation(apiField) ?? { code: AccountRuleError.PASSWORD_REJECTED };
         }
         messages[formField] = t(`validation.${violation.code}`, violation.params ?? {});
     }
     return messages;
 }
+
+/** API codes of an empty required field. */
+const REQUIRED_CODES = Object.freeze(['field.required', 'password.required', 'name.required', 'email.required']);
 
 function isPasswordViolation(violation) {
     return [AccountRuleError.PASSWORD_TOO_SHORT, AccountRuleError.PASSWORD_TOO_LONG].includes(violation?.code);

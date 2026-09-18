@@ -26,26 +26,48 @@ export const SignInStatus = Object.freeze({
     SECOND_FACTOR_REQUIRED: 'secondFactorRequired',
 });
 
+/** Error codes of the account endpoints (§0 code catalog) → business reason of the failure. */
+const REASON_BY_CODE = Object.freeze({
+    'auth.invalid_credentials': AuthFailureReason.INVALID_CREDENTIALS,
+    'auth.account_locked': AuthFailureReason.ACCOUNT_LOCKED,
+    'auth.account_deactivated': AuthFailureReason.ACCOUNT_DEACTIVATED,
+    'auth.email_not_verified': AuthFailureReason.EMAIL_NOT_VERIFIED,
+    'user.email_already_registered': AuthFailureReason.EMAIL_ALREADY_REGISTERED,
+    'email_verification.link_invalid': AuthFailureReason.LINK_INVALID,
+    'email_verification.link_expired': AuthFailureReason.LINK_EXPIRED,
+    'password_reset.link_invalid': AuthFailureReason.LINK_INVALID,
+    'password_reset.link_expired': AuthFailureReason.LINK_EXPIRED,
+    'mfa.invalid_code': AuthFailureReason.MFA_CODE_INVALID,
+    'mfa.code_already_used': AuthFailureReason.MFA_CODE_ALREADY_USED,
+    'mfa.recovery_code_invalid': AuthFailureReason.MFA_RECOVERY_CODE_INVALID,
+    'mfa.already_enabled': AuthFailureReason.MFA_ALREADY_ENABLED,
+    'mfa.enrollment_not_started': AuthFailureReason.MFA_ENROLLMENT_NOT_STARTED,
+});
+
 /**
- * Meaning of a failed MFA call (§0.1: 401 details of the MFA endpoints, 409 of the enrollment).
- * The mfaToken itself being rejected (expired, wrong audience) means: repeat the password step.
+ * Translates an error of the account endpoints by its code; unknown codes keep the generic reason of the status.
+ * @param {unknown} error
+ * @param {Record<number, string>} [reasonByStatus]
+ * @returns {AuthFailure}
+ */
+function accountFailure(error, reasonByStatus = {}) {
+    const failure = AuthFailure.from(error, reasonByStatus);
+    const reason = REASON_BY_CODE[failure.problem.code];
+    if (reason) failure.reason = reason;
+    return failure;
+}
+
+/**
+ * Meaning of a failed MFA call. Besides the MFA codes, the mfaToken itself being rejected (missing, invalid,
+ * expired, or an enrollment token on /verify: 401/403 `auth.*`) means: repeat the password step.
  * @param {unknown} error
  * @returns {AuthFailure}
  */
 function mfaFailure(error) {
-    const failure = AuthFailure.from(error, { 403: AuthFailureReason.MFA_CHALLENGE_EXPIRED });
+    const failure = accountFailure(error);
     const { problem } = failure;
-    if (problem.status === 401) {
-        if (failure.lockedUntil) failure.reason = AuthFailureReason.ACCOUNT_LOCKED;
-        // "The recovery code is not valid or was already used." also says "already used": test recovery codes first.
-        else if (problem.detailIncludes('recovery code')) failure.reason = AuthFailureReason.MFA_RECOVERY_CODE_INVALID;
-        else if (problem.detailIncludes('already used')) failure.reason = AuthFailureReason.MFA_CODE_ALREADY_USED;
-        else if (problem.detailIncludes('verification code')) failure.reason = AuthFailureReason.MFA_CODE_INVALID;
-        else failure.reason = AuthFailureReason.MFA_CHALLENGE_EXPIRED; // bearer token missing, invalid or expired
-    } else if (problem.status === 409) {
-        failure.reason = problem.detailIncludes('already enabled')
-            ? AuthFailureReason.MFA_ALREADY_ENABLED
-            : AuthFailureReason.MFA_ENROLLMENT_NOT_STARTED;
+    if (!REASON_BY_CODE[problem.code] && (problem.status === 401 || problem.status === 403)) {
+        failure.reason = AuthFailureReason.MFA_CHALLENGE_EXPIRED;
     }
     return failure;
 }
@@ -127,17 +149,9 @@ const useIamStore = defineStore('iam', () => {
         try {
             response = await authenticationApi.signIn(command);
         } catch (error) {
-            const failure = AuthFailure.from(error, { 403: AuthFailureReason.ACCOUNT_DEACTIVATED });
-            if (failure.problem.status === 403 && failure.problem.extensions.emailVerificationRequired) {
-                // Sign-in requires a verified e-mail: 403 with `emailVerificationRequired: true`.
-                failure.reason = AuthFailureReason.EMAIL_NOT_VERIFIED;
-            } else if (failure.problem.status === 401) {
-                // Same 401 for a wrong e-mail or password; the lock adds `lockedUntil` (§0.1).
-                failure.reason = failure.lockedUntil
-                    ? AuthFailureReason.ACCOUNT_LOCKED
-                    : AuthFailureReason.INVALID_CREDENTIALS;
-            }
-            throw failure;
+            // auth.invalid_credentials (same for a wrong e-mail or password), auth.account_locked (+ lockedUntil),
+            // auth.account_deactivated, auth.email_not_verified.
+            throw accountFailure(error);
         }
 
         const challenge = MfaAssembler.toChallengeFromSignIn(response?.data, command);
@@ -246,7 +260,7 @@ const useIamStore = defineStore('iam', () => {
             const { data } = await authenticationApi.signUp(command);
             return { email: data?.email ?? command.email, emailVerified: !!data?.emailVerified };
         } catch (error) {
-            throw AuthFailure.from(error, { 409: AuthFailureReason.EMAIL_ALREADY_REGISTERED });
+            throw accountFailure(error);
         }
     }
 
@@ -311,7 +325,10 @@ const useIamStore = defineStore('iam', () => {
             // Its 401 "Invalid credentials" is the wrong current password (the HTTP client leaves it to us).
             await usersApi.changePassword(command);
         } catch (error) {
-            throw AuthFailure.from(error, { 401: AuthFailureReason.WRONG_CURRENT_PASSWORD });
+            const failure = accountFailure(error);
+            // Here auth.invalid_credentials means the current password is wrong (the session is fine).
+            if (failure.reason === AuthFailureReason.INVALID_CREDENTIALS) failure.reason = AuthFailureReason.WRONG_CURRENT_PASSWORD;
+            throw failure;
         }
         persist(null);
     }
@@ -322,8 +339,7 @@ const useIamStore = defineStore('iam', () => {
     }
 
     /**
-     * Updates the signed-in user after a change the backend applies from the next request
-     * (e.g. an admin registering their hotel becomes its admin, D2).
+     * Updates profile data of the signed-in user kept in the session (e-mail verified, fresh profile).
      * @param {Partial<import('../domain/model/user.entity.js').User>} changes
      */
     function updateCurrentUser(changes) {
@@ -343,10 +359,7 @@ const useIamStore = defineStore('iam', () => {
             if (session.value) updateCurrentUser({ emailVerified: true });
             return EmailVerificationResult.VERIFIED;
         } catch (error) {
-            const failure = AuthFailure.from(error, {
-                400: AuthFailureReason.LINK_INVALID,
-                410: AuthFailureReason.LINK_EXPIRED,
-            });
+            const failure = accountFailure(error);
             if (failure.reason === AuthFailureReason.LINK_EXPIRED) return EmailVerificationResult.EXPIRED;
             if (failure.reason === AuthFailureReason.LINK_INVALID) return EmailVerificationResult.INVALID;
             throw failure;
@@ -391,11 +404,7 @@ const useIamStore = defineStore('iam', () => {
             await authenticationApi.resetPassword(command);
             persist(null);
         } catch (error) {
-            const failure = AuthFailure.from(error, { 410: AuthFailureReason.LINK_EXPIRED });
-            if (failure.problem.status === 400 && !failure.problem.hasFieldErrors) {
-                failure.reason = AuthFailureReason.LINK_INVALID;
-            }
-            throw failure;
+            throw accountFailure(error);
         }
     }
 

@@ -59,7 +59,7 @@ export const useUserManagementStore = defineStore('user-management', () => {
             return created;
         } catch (error) {
             const failure = AuthFailure.from(error);
-            if (failure.problem.status === 409 && failure.problem.detailIncludes('email')) {
+            if (failure.problem.is('user.email_already_registered')) {
                 failure.reason = AuthFailureReason.EMAIL_ALREADY_REGISTERED;
             }
             throw failure;
@@ -67,7 +67,8 @@ export const useUserManagementStore = defineStore('user-management', () => {
     }
 
     /**
-     * US-03 scenario 2: effective on the user's next request (no re-login).
+     * US-03 scenario 2: the backend ends every session of the user at once (401 `auth.session_revoked`,
+     * reason `role_changed`) and e-mails them to sign in again with the new role.
      * @param {number} userId
      * @param {string} newRole
      * @returns {Promise<void>}

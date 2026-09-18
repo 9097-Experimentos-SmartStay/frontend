@@ -1,30 +1,27 @@
 import { PasswordPolicyRule } from '../../domain/model/password-policy.js';
 
 /**
- * Anti-corruption layer for the password field errors of the API (§2.0).
+ * Anti-corruption layer for the password field violations of the API (§2.0).
  *
- * The backend reports a broken password rule as an English sentence in `errors.password` /
- * `errors.newPassword`. This translates each sentence of the contract into the same rule codes the client
- * validation uses, so the form shows one localized message per rule whether it failed locally or on the server.
+ * The backend reports each broken password rule with a stable code (`password.too_short` + `params.minLength`,
+ * `password.breached`...). They are mapped to the rule codes the client validation uses, so the form shows one
+ * localized message per rule whether it failed locally or on the server. The backend stays the authority on the
+ * minimum length: it comes in `params.minLength` (guest 15, staff 8).
  */
-const RULES = Object.freeze([
-    { pattern: /at least (\d+) characters/i, toViolation: (match) => ({ code: PasswordPolicyRule.TOO_SHORT, params: { min: Number(match[1]) } }) },
-    { pattern: /between (\d+) and (\d+) characters/i, toViolation: (match) => ({ code: PasswordPolicyRule.TOO_SHORT, params: { min: Number(match[1]) } }) },
-    { pattern: /cannot exceed (\d+) characters/i, toViolation: (match) => ({ code: PasswordPolicyRule.TOO_LONG, params: { max: Number(match[1]) } }) },
-    { pattern: /too common|easy to guess/i, toViolation: () => ({ code: PasswordPolicyRule.COMMON }) },
-    { pattern: /repeated or sequential/i, toViolation: () => ({ code: PasswordPolicyRule.REPEATED_OR_SEQUENTIAL }) },
-    { pattern: /e-?mail address or its user name/i, toViolation: () => ({ code: PasswordPolicyRule.EMAIL_BASED }) },
-    { pattern: /breach|pwned/i, toViolation: () => ({ code: PasswordPolicyRule.BREACHED }) },
-]);
+const RULE_BY_API_CODE = Object.freeze({
+    'password.too_short': (params) => ({ code: PasswordPolicyRule.TOO_SHORT, params: { min: params.minLength } }),
+    'password.too_long': (params) => ({ code: PasswordPolicyRule.TOO_LONG, params: { max: params.maxLength } }),
+    'password.too_common': () => ({ code: PasswordPolicyRule.COMMON }),
+    'password.repetitive': () => ({ code: PasswordPolicyRule.REPEATED_OR_SEQUENTIAL }),
+    'password.contains_email': () => ({ code: PasswordPolicyRule.EMAIL_BASED }),
+    'password.breached': () => ({ code: PasswordPolicyRule.BREACHED }),
+});
 
 /**
- * @param {string} message - One server message of a password field.
- * @returns {{code: string, params?: Record<string, unknown>}|null} The broken rule, or null for an unknown text.
+ * @param {{code: string, params?: Record<string, unknown>}|null} violation - One API violation of a password field.
+ * @returns {{code: string, params?: Record<string, unknown>}|null} The broken rule, or null for an unknown code.
  */
-export function passwordViolationFromServerMessage(message) {
-    for (const { pattern, toViolation } of RULES) {
-        const match = pattern.exec(message ?? '');
-        if (match) return toViolation(match);
-    }
-    return null;
+export function passwordRuleFromViolation(violation) {
+    const toRule = violation ? RULE_BY_API_CODE[violation.code] : null;
+    return toRule ? toRule(violation.params ?? {}) : null;
 }

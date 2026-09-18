@@ -4,73 +4,81 @@ import { AccommodationFailureReason } from '../application/accommodation-failure
 
 /**
  * Anti-corruption layer for the errors of /hotels, /rooms and /room-types (§4–§6, US-53).
- * Turns the English `detail` of a 409 into a business reason and the per-field `errors` into the same rule
- * codes the forms validate with, so a field shows one localized message whether it failed here or in the API.
+ * Maps the stable `code` of a problem to a business reason, and the code of each field violation to the same
+ * rule codes the forms validate with, so a field shows one localized message whether it failed here or in the API.
  */
+
+/** Problem codes of the Accommodations context (§0 catalog) → business reason. */
+const REASON_BY_CODE = Object.freeze({
+    'room.invalid_status_transition': AccommodationFailureReason.INVALID_STATUS_TRANSITION,
+    'room.number_taken': AccommodationFailureReason.DUPLICATE_ROOM_NUMBER,
+    'room.has_active_bookings': AccommodationFailureReason.HAS_ACTIVE_BOOKINGS,
+    'hotel.has_active_bookings': AccommodationFailureReason.HAS_ACTIVE_BOOKINGS,
+    'hotel.admin_already_has_hotel': AccommodationFailureReason.HOTEL_ALREADY_REGISTERED,
+});
 
 /**
  * @param {import('@/shared/infrastructure/http/problem-details.js').ProblemDetails} problem
  * @returns {string|null}
  */
 export function classifyAccommodationProblem(problem) {
-    if (problem.status !== 409) return null;
-    if (problem.detailIncludes('cannot change from')) return AccommodationFailureReason.INVALID_STATUS_TRANSITION;
-    if (problem.detailIncludes('already exists in hotel')) return AccommodationFailureReason.DUPLICATE_ROOM_NUMBER;
-    if (problem.detailIncludes('active booking')) return AccommodationFailureReason.HAS_ACTIVE_BOOKINGS;
-    if (problem.detailIncludes('already has one') || problem.detailIncludes('single hotel')) {
-        return AccommodationFailureReason.HOTEL_ALREADY_REGISTERED;
-    }
-    return null;
+    return REASON_BY_CODE[problem.code] ?? null;
 }
 
 /**
- * Field errors of POST/PUT /rooms (captured messages of §5 US-53 scenario 3).
+ * Field violations of POST/PUT /rooms (§5 US-53 scenario 3).
  * @param {import('@/shared/infrastructure/http/problem-details.js').ProblemDetails} problem
  * @returns {Record<string, {code: string, params?: Object}>}
  */
 export function roomFieldViolations(problem) {
     const violations = {};
-    const text = (field) => (problem.fieldErrors[field] ?? []).join(' ');
-    if (text('number')) {
-        violations.number = { code: /enter the room number|required/i.test(text('number')) ? RoomRuleError.REQUIRED : RoomRuleError.NUMBER_FORMAT };
+    if (problem.violationOf('number')) {
+        violations.number = { code: problem.fieldHas('number', 'field.required') ? RoomRuleError.REQUIRED : RoomRuleError.NUMBER_FORMAT };
     }
-    if (text('roomTypeId')) {
-        violations.roomTypeId = { code: /does not exist/i.test(text('roomTypeId')) ? RoomRuleError.UNKNOWN_TYPE : RoomRuleError.REQUIRED };
+    if (problem.violationOf('roomTypeId')) {
+        violations.roomTypeId = { code: problem.fieldHas('roomTypeId', 'room_type.not_found') ? RoomRuleError.UNKNOWN_TYPE : RoomRuleError.REQUIRED };
     }
-    if (text('price')) violations.price = { code: RoomRuleError.PRICE_RANGE, params: { min: ROOM_PRICE_MIN, max: ROOM_PRICE_MAX } };
-    if (text('description')) violations.description = { code: RoomRuleError.REQUIRED };
-    if (text('hotelId')) violations.hotelId = { code: RoomRuleError.UNKNOWN_HOTEL };
-    if (classifyAccommodationProblem(problem) === AccommodationFailureReason.DUPLICATE_ROOM_NUMBER) {
-        const match = /room number (\S+) already exists/i.exec(problem.detail);
-        violations.number = { code: RoomRuleError.DUPLICATE_NUMBER, params: { number: match?.[1] ?? '' } };
+    if (problem.violationOf('price')) violations.price = { code: RoomRuleError.PRICE_RANGE, params: { min: ROOM_PRICE_MIN, max: ROOM_PRICE_MAX } };
+    if (problem.violationOf('description')) {
+        violations.description = problem.fieldHas('description', 'field.length')
+            ? { code: RoomRuleError.DESCRIPTION_TOO_LONG, params: { max: problem.violationOf('description').params.maxLength } }
+            : { code: RoomRuleError.REQUIRED };
+    }
+    if (problem.violationOf('hotelId')) violations.hotelId = { code: RoomRuleError.UNKNOWN_HOTEL };
+    if (problem.is('room.number_taken')) {
+        violations.number = { code: RoomRuleError.DUPLICATE_NUMBER, params: { number: problem.params.number ?? '' } };
     }
     return violations;
 }
 
 /**
- * Field errors of POST/PUT /hotels: each invalid field gets the rule of its limits (§4).
+ * Field violations of POST/PUT /hotels: each invalid field gets the rule of its limits (§4).
  * @param {import('@/shared/infrastructure/http/problem-details.js').ProblemDetails} problem
  * @returns {Record<string, {code: string, params?: Object}>}
  */
 export function hotelFieldViolations(problem) {
     const violations = {};
-    for (const [field, messages] of Object.entries(problem.fieldErrors)) {
-        const message = messages.join(' ');
-        if (/required/i.test(message)) violations[field] = { code: HotelRuleError.REQUIRED };
-        else if (field === 'imageUrl') violations[field] = { code: HotelRuleError.URL };
-        else violations[field] = { code: 'serverRejected', params: { reason: message } };
+    for (const [field, fieldViolations] of Object.entries(problem.fieldViolations)) {
+        const codes = fieldViolations.map(({ code }) => code);
+        const length = fieldViolations.find(({ code }) => code === 'field.length');
+        if (codes.includes('field.required')) violations[field] = { code: HotelRuleError.REQUIRED };
+        else if (codes.includes('field.invalid_url')) violations[field] = { code: HotelRuleError.URL };
+        else if (length?.params.minLength != null) {
+            violations[field] = { code: HotelRuleError.LENGTH, params: { min: length.params.minLength, max: length.params.maxLength } };
+        } else if (length) violations[field] = { code: HotelRuleError.TOO_LONG, params: { max: length.params.maxLength } };
+        else violations[field] = { code: 'serverRejected' };
     }
     return violations;
 }
 
 /**
- * Field errors of POST /room-types (name 2–50, description ≤ 500).
+ * Field violations of POST /room-types (name 2–50, description ≤ 500).
  * @param {import('@/shared/infrastructure/http/problem-details.js').ProblemDetails} problem
  * @returns {Record<string, {code: string, params?: Object}>}
  */
 export function roomTypeFieldViolations(problem) {
     const violations = {};
-    if (problem.fieldErrors.name) violations.name = { code: 'lengthRange', params: { min: 2, max: 50 } };
-    if (problem.fieldErrors.description) violations.description = { code: RoomRuleError.DESCRIPTION_TOO_LONG, params: { max: 500 } };
+    if (problem.violationOf('name')) violations.name = { code: 'lengthRange', params: { min: 2, max: 50 } };
+    if (problem.violationOf('description')) violations.description = { code: RoomRuleError.DESCRIPTION_TOO_LONG, params: { max: 500 } };
     return violations;
 }

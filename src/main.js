@@ -7,7 +7,7 @@ import 'primeflex/primeflex.css';
 import 'primeicons/primeicons.css';
 import router from "./router.js";
 import pinia from "./pinia.js";
-import { configureSessionHandling } from './shared/infrastructure/http/http-client.js';
+import { configureSessionHandling, SessionEndReason } from './shared/infrastructure/http/http-client.js';
 import useIamStore from './iam/application/iam.store.js';
 import Carousel from 'primevue/carousel';
 
@@ -105,7 +105,9 @@ configureSessionHandling({
         useIamStore(pinia).endSession();
         const current = router.currentRoute.value;
         if (current.meta.requiresAuth) {
-            router.push({ name: 'login', query: { reason, redirect: current.fullPath } });
+            // With new permissions the current page may not be allowed any more: start from the new home.
+            const query = reason === SessionEndReason.PERMISSIONS_CHANGED ? { reason } : { reason, redirect: current.fullPath };
+            router.push({ name: 'login', query });
         }
     },
 });
