@@ -1,0 +1,137 @@
+﻿<template>
+  <div class="surface-ground min-h-screen p-4 md:p-6">
+    <pv-toast position="bottom-right" />
+
+    <pv-confirm-dialog></pv-confirm-dialog>
+
+    <div class="surface-card p-4 shadow-2 border-round mb-4 flex justify-content-between align-items-center">
+      <div class="flex align-items-center gap-3">
+        <pv-button icon="pi pi-arrow-left" class="p-button-text p-button-secondary" @click="goBack" />
+        <div>
+          <h1 class="text-2xl font-bold text-color m-0">Inventario de Habitaciones</h1>
+          <p class="text-color-secondary m-0">Estado y mantenimiento de cuartos.</p>
+        </div>
+      </div>
+      <pv-button label="Nueva Habitación" icon="pi pi-plus" class="p-button-success" @click="goToCreateRoom" />
+    </div>
+
+    <div class="surface-card p-4 shadow-2 border-round">
+      <pv-data-table
+          :value="roomStore.rooms"
+          :loading="roomStore.loading"
+          responsiveLayout="scroll"
+          :paginator="true"
+          :rows="10"
+          filterDisplay="menu"
+          class="p-datatable-sm"
+      >
+        <template #empty>No hay habitaciones registradas.</template>
+
+        <pv-column field="id" header="N° Habitación" sortable style="width: 120px">
+          <template #body="{ data }">
+            <span class="font-bold text-lg text-primary">#{{ data.id }}</span>
+          </template>
+        </pv-column>
+
+        <pv-column field="roomTypeName" header="Tipo" sortable>
+          <template #body="{ data }">
+            <pv-tag :value="data.roomTypeName" severity="info" />
+          </template>
+        </pv-column>
+
+        <pv-column field="description" header="Descripción">
+          <template #body="{ data }">
+            <span class="text-color-secondary text-sm">{{ truncate(data.description, 50) }}</span>
+          </template>
+        </pv-column>
+
+        <pv-column header="Amenidades">
+          <template #body="{ data }">
+            <div class="flex gap-1 flex-wrap">
+               <span v-for="am in (data.amenities || []).slice(0, 2)" :key="am" class="surface-ground text-color text-xs px-2 py-1 border-round border-1 surface-border">
+                 {{ am }}
+               </span>
+              <span v-if="data.amenities?.length > 2" class="text-xs text-color-secondary">+{{ data.amenities.length - 2 }}</span>
+            </div>
+          </template>
+        </pv-column>
+
+        <pv-column header="Estado" style="width: 120px">
+          <template #body>
+            <pv-tag value="Disponible" severity="success" rounded />
+          </template>
+        </pv-column>
+
+        <pv-column header="Acciones" style="width: 150px">
+          <template #body="{ data }">
+            <div class="flex gap-2">
+              <pv-button
+                  icon="pi pi-pencil"
+                  class="p-button-rounded p-button-text p-button-info"
+                  v-tooltip="'Editar'"
+                  @click="editRoom(data.id)"
+              />
+              <pv-button
+                  icon="pi pi-trash"
+                  class="p-button-rounded p-button-text p-button-danger"
+                  v-tooltip="'Eliminar'"
+                  @click="confirmDelete(data)"
+              />
+            </div>
+          </template>
+        </pv-column>
+      </pv-data-table>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import { useToast } from 'primevue/usetoast';
+import { useConfirm } from 'primevue/useconfirm';
+import { useRoomStore } from '@/accommodations/application/room.store.js';
+
+const router = useRouter();
+const toast = useToast();
+const confirm = useConfirm();
+const roomStore = useRoomStore();
+
+onMounted(async () => {
+  await roomStore.fetchAllRooms();
+});
+
+const goBack = () => router.push({ name: 'staff-dashboard' });
+const goToCreateRoom = () => router.push({ name: 'create-room' });
+
+// --- ACCIONES ---
+
+const editRoom = (roomId) => {
+  router.push({ name: 'edit-room', params: { roomId } });
+};
+
+const confirmDelete = (room) => {
+  confirm.require({
+    message: `¿Estás seguro de eliminar la habitación #${room.id}? Esta acción es irreversible.`,
+    header: 'Confirmar Eliminación',
+    icon: 'pi pi-exclamation-triangle',
+    acceptClass: 'p-button-danger',
+    accept: () => deleteRoom(room.id),
+    reject: () => { /* Cancelado */ }
+  });
+};
+
+const deleteRoom = async (id) => {
+  try {
+    await roomStore.deleteRoom(id);
+    toast.add({ severity: 'success', summary: 'Eliminado', detail: 'La habitación ha sido eliminada.', life: 3000 });
+  } catch (err) {
+    toast.add({ severity: 'error', summary: 'Error', detail: 'No se pudo eliminar la habitación.', life: 3000 });
+  }
+};
+
+const truncate = (text, length) => {
+  if(!text) return '';
+  return text.length > length ? text.substring(0, length) + '...' : text;
+}
+</script>
