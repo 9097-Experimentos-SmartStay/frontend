@@ -2,12 +2,15 @@
 import { ref } from 'vue';
 import { RoomApi } from '../infrastructure/api/room-api.js';
 import { RoomTypeApi } from '../infrastructure/api/room-type-api.js';
+import { AccommodationOptionsApi } from '../infrastructure/api/accommodation-options-api.js';
 import { RoomAssembler } from '../infrastructure/room.assembler.js';
 import { RoomTypeAssembler } from '../infrastructure/room-type.assembler.js';
+import { reportError } from '@/shared/infrastructure/logging/report-error.js';
 
 // Infrastructure Services
 const roomApi = new RoomApi();
 const roomTypeApi = new RoomTypeApi();
+const optionsApi = new AccommodationOptionsApi();
 
 /**
  * Pinia Store for Room Management within the Accommodations Bounded Context.
@@ -50,7 +53,7 @@ export const useRoomStore = defineStore('room', () => {
             const response = await roomApi.getAll();
             rooms.value = RoomAssembler.toEntitiesFromResponse(response);
         } catch (err) {
-            console.error('Error fetching rooms:', err);
+            reportError('Error fetching rooms', err);
             error.value = err;
         } finally {
             loading.value = false;
@@ -69,7 +72,7 @@ export const useRoomStore = defineStore('room', () => {
             const response = await roomApi.getById(id);
             currentRoom.value = RoomAssembler.toEntityFromResponse(response);
         } catch (err) {
-            console.error(`Error fetching room ${id}:`, err);
+            reportError(`Error fetching room ${id}`, err);
             error.value = err;
         } finally {
             loading.value = false;
@@ -85,22 +88,20 @@ export const useRoomStore = defineStore('room', () => {
             const response = await roomTypeApi.getAll();
             roomTypes.value = RoomTypeAssembler.toEntitiesFromResponse(response);
         } catch (err) {
-            console.error('Error fetching room types:', err);
+            reportError('Error fetching room types', err);
         }
     }
 
     /**
      * Fetches the catalog of available amenities.
-     * Uses the shared options endpoint via the configured HTTP client.
      * @returns {Promise<void>}
      */
     async function fetchAmenities() {
         try {
-            // Accessing the Master Data endpoint via the configured http client
-            const response = await roomApi.http.get('/accommodations/options/amenities');
+            const response = await optionsApi.getAmenities();
             amenitiesList.value = response.data;
         } catch (err) {
-            console.error('Error fetching amenities:', err);
+            reportError('Error fetching amenities', err);
         }
     }
 
@@ -153,7 +154,7 @@ export const useRoomStore = defineStore('room', () => {
             }
             return newType;
         } catch (err) {
-            console.error('Error creating room type:', err);
+            reportError('Error creating room type', err);
             throw err;
         } finally {
             loading.value = false;
@@ -168,12 +169,11 @@ export const useRoomStore = defineStore('room', () => {
     async function createAmenity(name) {
         loading.value = true;
         try {
-            // Post to the shared options endpoint
-            await roomApi.http.post('/accommodations/options/amenities', { name });
+            await optionsApi.createAmenity({ name });
             // Refresh the list to make it available immediately
             await fetchAmenities();
         } catch (err) {
-            console.error('Error creating amenity:', err);
+            reportError('Error creating amenity', err);
             throw err;
         } finally {
             loading.value = false;
@@ -199,7 +199,7 @@ export const useRoomStore = defineStore('room', () => {
             }
             return updatedRoom;
         } catch (err) {
-            console.error(`Error updating room ${id}:`, err);
+            reportError(`Error updating room ${id}`, err);
             throw err;
         } finally {
             loading.value = false;
@@ -219,7 +219,7 @@ export const useRoomStore = defineStore('room', () => {
             // Update local state immediately
             rooms.value = rooms.value.filter(r => r.id !== id);
         } catch (err) {
-            console.error(`Error deleting room ${id}:`, err);
+            reportError(`Error deleting room ${id}`, err);
             throw err;
         } finally {
             loading.value = false;

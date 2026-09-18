@@ -1,8 +1,9 @@
 import {BaseEndpoint} from "../../shared/infrastructure/services/base-endpoint.js";
 import {BaseApi} from "../../shared/infrastructure/services/base-api.js";
-const signInEndpointPath = import.meta.env.VITE_SIGNIN_ENDPOINT_PATH;
-const signUpEndpointPath = import.meta.env.VITE_SIGNUP_ENDPOINT_PATH;
-const usersEndpointPath   = import.meta.env.VITE_USERS_ENDPOINT_PATH;
+import { endpoints } from "@/shared/infrastructure/config/api-config.js";
+const signInEndpointPath = endpoints.signIn;
+const signUpEndpointPath = endpoints.signUp;
+const usersEndpointPath = endpoints.users;
 
 /**
  * @class IamApi
@@ -43,15 +44,12 @@ export class IamApi extends BaseApi {
             role: signUpRequest.role,
             roles: [signUpRequest.role]
         };
-        
-        // Incluir name si está disponible
+
+        // Include name when available
         if (signUpRequest.name) {
             requestData.name = signUpRequest.name;
         }
-        
-        console.log('Sign-up request data:', requestData);
-        console.log('Sign-up endpoint:', signUpEndpointPath);
-        
+
         return this.#signUpEndpoint.create(requestData);
     }
 

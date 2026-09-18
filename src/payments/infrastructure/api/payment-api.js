@@ -1,7 +1,8 @@
 import { BaseApi } from "@/shared/infrastructure/services/base-api.js";
 import { BaseEndpoint } from "@/shared/infrastructure/services/base-endpoint.js";
+import { endpoints } from "@/shared/infrastructure/config/api-config.js";
 
-const paymentsEndpointPath = import.meta.env.VITE_PAYMENTS_ENDPOINT_PATH;
+const paymentsEndpointPath = endpoints.payments;
 
 export class PaymentApi extends BaseApi {
     #endpoint;

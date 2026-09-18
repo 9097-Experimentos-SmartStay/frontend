@@ -227,6 +227,7 @@
 </template>
 
 <script setup>
+import { reportError } from '@/shared/infrastructure/logging/report-error.js';
 import { ref, computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useToast } from 'primevue/usetoast';
@@ -255,15 +256,8 @@ function toggleLanguage() {
 
 const loadProfile = async () => {
   try {
-    let userId = iamStore.currentUserId;
-
-    if (!userId) {
-      const storedId = localStorage.getItem('user_id');
-      if (storedId) {
-        userId = Number(storedId);
-        iamStore.currentUserId = userId;
-      }
-    }
+    // The IAM store restores the session from storage on load.
+    const userId = iamStore.currentUserId;
 
     if (iamStore.users.length === 0) {
       await iamStore.fetchUsers();
@@ -286,7 +280,7 @@ const loadProfile = async () => {
       await profileStore.fetchProfileByEmail(email);
     }
   } catch (err) {
-    console.error('Error loading profile:', err);
+    reportError('Error loading profile', err);
   }
 };
 

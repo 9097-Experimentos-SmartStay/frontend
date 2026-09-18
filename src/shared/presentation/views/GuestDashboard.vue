@@ -247,6 +247,7 @@
 </template>
 
 <script setup>
+import { reportError } from '@/shared/infrastructure/logging/report-error.js';
 import { ref, onMounted, computed, onBeforeUnmount } from 'vue';
 import { useRouter } from 'vue-router';
 import { useToast } from 'primevue/usetoast';
@@ -338,16 +339,10 @@ function handleLogout() {
 async function loadDashboard() {
   loading.value = true;
   try {
-    // 1. Recuperar Sesión
-    let userId = iamStore.currentUserId;
+    // 1. Session (the IAM store restores it from storage on load)
+    const userId = iamStore.currentUserId;
     if (!userId) {
-      const storedId = localStorage.getItem('user_id');
-      if (storedId) {
-        iamStore.currentUserId = Number(storedId);
-        userId = Number(storedId);
-      } else {
-        throw new Error("Sesión no válida. Por favor, inicia sesión de nuevo.");
-      }
+      throw new Error("Sesión no válida. Por favor, inicia sesión de nuevo.");
     }
 
     if (iamStore.users.length === 0) await iamStore.fetchUsers();
@@ -400,7 +395,7 @@ async function loadDashboard() {
     stats.value.upcoming = upcomingBookings.value.filter(b => b.status === 'Confirmed' || b.status === 'Pending').length;
 
   } catch (err) {
-    console.error("❌ Error loading dashboard:", err);
+    reportError("Error loading dashboard", err);
     if (err.message.includes("Sesión no válida")) {
       logout();
       return;
@@ -417,7 +412,10 @@ function goToRooms() { router.push({ name: 'guest-rooms' }); }
 function goToHotels() { router.push({ name: 'guest-hotels' }); }
 function goToBookings() { router.push({ name: 'guest-bookings' }); }
 function goToRoom(roomId) { router.push({ name: 'guest-room-detail', params: { roomId } }); }
-function logout() { iamStore.signOut(router); }
+function logout() {
+  iamStore.signOut();
+  router.push({ name: 'login' });
+}
 
 function formatDate(dateString) {
   if (!dateString) return 'N/A';

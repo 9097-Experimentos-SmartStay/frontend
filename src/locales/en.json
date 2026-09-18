@@ -39,7 +39,11 @@
     "registerSuccess": "User registered successfully. Please sign in.",
     "registerProfileError": "User registered, but failed to create profile. Please update it later.",
     "authFailedPrefix": "Authentication failed",
-    "authFailedGeneric": "Please check your details and try again."
+    "authFailedGeneric": "Please check your details and try again.",
+    "invalidCredentials": "Incorrect email or password.",
+    "userAlreadyExists": "An account with that email already exists.",
+    "registerInvalid": "Registration could not be completed. Check your details and try again.",
+    "sessionExpired": "Your session has expired. Please sign in again."
   },
   "authoring-phrase": {
     "intro": "Made with",
@@ -148,7 +152,10 @@
     "issueReported": "Issue Reported",
     "notifyMaintenance": "Maintenance has been notified.",
     "suppliesRequested": "Supplies Requested",
-    "notifyHousekeeping": "Housekeeping manager notified."
+    "notifyHousekeeping": "Housekeeping manager notified.",
+    "tasksNotAvailable": "Operational task management is not available yet. Tasks will show up here once the backend exposes them.",
+    "tasksNotAvailableShort": "Not available yet",
+    "revenueHistoryNotAvailable": "Only the current month is shown. Revenue history is not available yet."
   },
   "menu": {
     "profile": "My Profile",
@@ -178,7 +185,12 @@
     "taskError": "Task Error",
     "descriptionRequired": "Description is required.",
     "authError": "Authentication Error",
-    "userNotFound": "User session not found. Please log in again."
+    "userNotFound": "User session not found. Please log in again.",
+    "network": "Could not reach the server. Check your connection and try again.",
+    "server": "The server had a problem. Try again in a few minutes.",
+    "forbidden": "You do not have permission to do this.",
+    "notFound": "The requested resource was not found.",
+    "unexpected": "An unexpected error occurred. Please try again."
   },
   "common": {
     "cancel": "Cancel",
@@ -207,7 +219,6 @@
     "retry": "Retry",
     "error": "Error"
   },
-
   "rooms": {
     "title": "Room Management",
     "filterAll": "All Rooms",

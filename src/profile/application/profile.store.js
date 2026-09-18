@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 import { ProfileApi } from '../infrastructure/api/profile-api.js';
 import { ProfileAssembler } from '../infrastructure/profile.assembler.js';
 import { CreateProfileResource } from '../infrastructure/profile.resource.js';
+import { reportError } from '@/shared/infrastructure/logging/report-error.js';
 
 /**
  * Profile Store
@@ -66,7 +67,7 @@ export const useProfileStore = defineStore('profile', {
                 this.profiles = ProfileAssembler.toEntitiesFromResources(profileResources);
             } catch (error) {
                 this.error = error.message || 'Error fetching profiles';
-                console.error('Error in fetchAllProfiles:', error);
+                reportError('Error in fetchAllProfiles', error);
             } finally {
                 this.loading = false;
             }
@@ -93,7 +94,7 @@ export const useProfileStore = defineStore('profile', {
                 }
             } catch (error) {
                 this.error = error.message || 'Error fetching profile';
-                console.error('Error in fetchProfileById:', error);
+                reportError('Error in fetchProfileById', error);
             } finally {
                 this.loading = false;
             }
@@ -118,7 +119,7 @@ export const useProfileStore = defineStore('profile', {
                 return profile;
             } catch (error) {
                 this.error = error.message || 'Error creating profile';
-                console.error('Error in createProfile:', error);
+                reportError('Error in createProfile', error);
                 throw error;
             } finally {
                 this.loading = false;
@@ -142,7 +143,7 @@ export const useProfileStore = defineStore('profile', {
                 }
             } catch (error) {
                 this.error = error.message || 'Error fetching profile by email';
-                console.error('Error in fetchProfileByEmail:', error);
+                reportError('Error in fetchProfileByEmail', error);
             } finally {
                 this.loading = false;
             }

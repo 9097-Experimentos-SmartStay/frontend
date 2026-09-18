@@ -58,7 +58,7 @@
                 <span class="block text-500 font-medium mb-3">Ingresos Totales</span>
                 <div class="text-900 text-color font-bold text-2xl">
                   <span v-if="analyticsStore.loading">...</span>
-                  <span v-else>${{ analyticsStore.metrics?.formattedRevenue || '0.00' }}</span>
+                  <span v-else>{{ analyticsStore.metrics?.formattedRevenue || '$0.00' }}</span>
                 </div>
               </div>
               <div class="flex align-items-center justify-content-center bg-blue-100 border-round" style="width:2.5rem;height:2.5rem">
@@ -111,13 +111,13 @@
             <div class="flex justify-content-between mb-3">
               <div>
                 <span class="block text-500 font-medium mb-3">Tareas Pendientes</span>
-                <div class="text-900 text-color font-bold text-2xl">{{ pendingTasksCount }}</div>
+                <div class="text-900 text-color font-bold text-2xl">{{ t('common.notAvailable') }}</div>
               </div>
               <div class="flex align-items-center justify-content-center bg-cyan-100 border-round" style="width:2.5rem;height:2.5rem">
                 <i class="pi pi-list text-cyan-500 text-xl"></i>
               </div>
             </div>
-            <span class="text-blue-500 font-medium cursor-pointer hover:underline" @click="scrollToTasks">Ver detalles</span>
+            <span class="text-500 text-sm">{{ t('staffDashboard.tasksNotAvailableShort') }}</span>
           </div>
         </div>
       </div>
@@ -133,7 +133,10 @@
             <div v-if="analyticsStore.loading" class="h-20rem flex align-items-center justify-content-center">
               <pv-progress-spinner />
             </div>
-            <pv-chart v-else-if="revenueData" type="line" :data="revenueData" :options="lineOptions" class="h-20rem" />
+            <template v-else-if="revenueData">
+              <pv-chart type="bar" :data="revenueData" :options="lineOptions" class="h-20rem" />
+              <small class="block mt-2 text-500">{{ t('staffDashboard.revenueHistoryNotAvailable') }}</small>
+            </template>
           </div>
         </div>
         <div class="col-12 lg:col-4">
@@ -152,62 +155,11 @@
       </div>
 
       <div id="tasks-table" class="surface-card shadow-2 border-round-xl p-4">
-        <div class="flex justify-content-between align-items-center mb-4">
-          <h5 class="text-xl font-bold text-color m-0">Gestión de Tareas Operativas</h5>
-          <span class="p-input-icon-left">
-            <i class="pi pi-search" />
-            <pv-input-text placeholder="Buscar tarea..." class="p-inputtext-sm" />
-          </span>
+        <h5 class="text-xl font-bold text-color mt-0 mb-3">Gestión de Tareas Operativas</h5>
+        <div class="flex align-items-center gap-3 p-3 border-round surface-100 text-color-secondary">
+          <i class="pi pi-info-circle text-xl"></i>
+          <span>{{ t('staffDashboard.tasksNotAvailable') }}</span>
         </div>
-
-        <pv-data-table :value="operationalTasks" responsiveLayout="scroll" :paginator="true" :rows="5" class="p-datatable-sm">
-          <pv-column field="roomNumber" header="Habitación" sortable>
-            <template #body="slotProps">
-              <span class="font-bold text-color">#{{ slotProps.data.roomNumber }}</span>
-            </template>
-          </pv-column>
-          <pv-column field="type" header="Servicio" sortable>
-            <template #body="slotProps">
-              <div class="flex align-items-center gap-2">
-                <i :class="getTaskIcon(slotProps.data.type)"></i>
-                <span class="text-color">{{ slotProps.data.type }}</span>
-              </div>
-            </template>
-          </pv-column>
-          <pv-column field="priority" header="Prioridad" sortable>
-            <template #body="slotProps">
-              <pv-tag :value="slotProps.data.priority" :severity="getPrioritySeverity(slotProps.data.priority)" rounded />
-            </template>
-          </pv-column>
-          <pv-column field="assignedTo" header="Encargado">
-            <template #body="slotProps">
-              <div v-if="slotProps.data.assignedTo" class="flex align-items-center gap-2">
-                <pv-avatar :label="slotProps.data.assignedTo.charAt(0)" shape="circle" class="bg-primary text-white" size="small" />
-                <span class="text-color text-sm">{{ slotProps.data.assignedTo }}</span>
-              </div>
-              <span v-else class="text-500 italic text-sm">--</span>
-            </template>
-          </pv-column>
-          <pv-column header="Acciones" style="width: 120px">
-            <template #body="slotProps">
-              <div class="flex gap-2">
-                <pv-button
-                    v-if="!slotProps.data.assignedTo"
-                    icon="pi pi-user-plus"
-                    class="p-button-rounded p-button-outlined p-button-info p-button-sm"
-                    v-tooltip="'Asignar'"
-                    @click="assignStaff(slotProps.data)"
-                />
-                <pv-button
-                    icon="pi pi-check"
-                    class="p-button-rounded p-button-text p-button-success p-button-sm"
-                    v-tooltip="'Completar'"
-                    @click="completeTask(slotProps.data)"
-                />
-              </div>
-            </template>
-          </pv-column>
-        </pv-data-table>
       </div>
 
     </div>
@@ -215,14 +167,16 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, watch } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useToast } from 'primevue/usetoast';
+import { useI18n } from 'vue-i18n';
 import useIamStore from '@/iam/application/iam.store.js';
 import { useAnalyticsStore } from '@/analytics/application/analytics.store.js';
 
 const router = useRouter();
 const toast = useToast();
+const { t, locale } = useI18n();
 const iamStore = useIamStore();
 const analyticsStore = useAnalyticsStore();
 
@@ -236,8 +190,8 @@ const createMenuItems = ref([
   {
     label: 'Alojamiento',
     items: [
-      { label: 'Nuevo Hotel', icon: 'pi pi-building', command: () => { navigateTo('staff-hotels'); } },
-      { label: 'Nueva Habitación', icon: 'pi pi-key', command: () => { navigateTo('staff-rooms'); } },
+      { label: 'Nuevo Hotel', icon: 'pi pi-building', command: () => { navigateTo('create-hotel'); } },
+      { label: 'Nueva Habitación', icon: 'pi pi-key', command: () => { navigateTo('create-room'); } },
       { label: 'Tipo de Habitación', icon: 'pi pi-tags', command: () => { navigateTo('staff-rooms'); } }
     ]
   },
@@ -266,16 +220,6 @@ const occupancyData = ref(null);
 const lineOptions = ref(null);
 const pieOptions = ref(null);
 
-const operationalTasks = ref([
-  { id: 1, roomNumber: '101', type: 'Limpieza', priority: 'Alta', assignedTo: null },
-  { id: 2, roomNumber: '205', type: 'Room Service', priority: 'Media', assignedTo: 'Maria G.' },
-  { id: 3, roomNumber: '304', type: 'Mantenimiento (A/C)', priority: 'Crítica', assignedTo: 'Carlos T.' },
-  { id: 4, roomNumber: '102', type: 'Check-out', priority: 'Alta', assignedTo: null },
-  { id: 5, roomNumber: 'Lobby', type: 'Limpieza General', priority: 'Baja', assignedTo: 'Juan P.' },
-]);
-
-const pendingTasksCount = computed(() => operationalTasks.value.filter(t => !t.assignedTo).length);
-
 const updateCharts = () => {
   if (!analyticsStore.metrics) return;
 
@@ -284,30 +228,20 @@ const updateCharts = () => {
   const textColorSecondary = documentStyle.getPropertyValue('--text-color-secondary');
   const surfaceBorder = documentStyle.getPropertyValue('--surface-border');
 
-  // Dynamic Dates
-  const today = new Date();
-  const currentMonthIndex = today.getMonth();
-  const allMonths = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
-  const dynamicLabels = allMonths.slice(0, currentMonthIndex + 1);
-  const historicalData = new Array(currentMonthIndex).fill(0);
-  const revenueSeries = [...historicalData, analyticsStore.metrics.totalRevenue];
+  // The API only returns the current month, so only the current month is charted.
+  // No history is invented (it used to be padded with zeros).
+  const currentMonthLabel = new Date().toLocaleDateString(locale.value, { month: 'long', year: 'numeric' });
 
   revenueData.value = {
-    labels: dynamicLabels,
+    labels: [currentMonthLabel],
     datasets: [
       {
         label: 'Ingresos ($)',
-        data: revenueSeries,
-        fill: true,
+        data: [analyticsStore.metrics.totalRevenue],
+        backgroundColor: 'rgba(59, 130, 246, 0.5)',
         borderColor: documentStyle.getPropertyValue('--primary-color'),
-        tension: 0.4,
-        backgroundColor: (context) => {
-          const ctx = context.chart.ctx;
-          const gradient = ctx.createLinearGradient(0, 0, 0, 400);
-          gradient.addColorStop(0, 'rgba(59, 130, 246, 0.5)');
-          gradient.addColorStop(1, 'rgba(59, 130, 246, 0.0)');
-          return gradient;
-        }
+        borderWidth: 1,
+        maxBarThickness: 80
       }
     ]
   };
@@ -355,36 +289,17 @@ const refreshData = async () => {
   toast.add({ severity: 'success', summary: 'Sincronizado', detail: 'Datos actualizados.', life: 3000 });
 };
 
-const logout = () => { iamStore.signOut(router); };
+const logout = () => {
+  iamStore.signOut();
+  router.push({ name: 'login' });
+};
 
 const scrollToTasks = () => {
   document.getElementById('tasks-table')?.scrollIntoView({ behavior: 'smooth' });
 };
 
-const assignStaff = (task) => {
-  toast.add({ severity: 'info', summary: 'Procesando', detail: 'Asignando personal...', life: 1000 });
-  setTimeout(() => {
-    const index = operationalTasks.value.findIndex(t => t.id === task.id);
-    if(index !== -1) operationalTasks.value[index].assignedTo = "Staff #42";
-    toast.add({ severity: 'success', summary: 'Asignado', detail: 'Tarea actualizada.', life: 2000 });
-  }, 800);
-};
-
-const completeTask = (task) => {
-  operationalTasks.value = operationalTasks.value.filter(t => t.id !== task.id);
-  toast.add({ severity: 'success', summary: 'Completado', detail: 'Tarea finalizada.', life: 2000 });
-};
-
-const createNewTask = () => {
-  toast.add({ severity: 'info', summary: 'Nuevo', detail: 'Abrir modal de nueva tarea.', life: 2000 });
-};
-
-// --- HELPERS ---
-const getPrioritySeverity = (p) => ({ 'Baja': 'success', 'Media': 'info', 'Alta': 'warning', 'Crítica': 'danger' }[p] || 'info');
-const getTaskIcon = (t) => (t.includes('Limpieza') ? 'pi pi-trash text-blue-500' : t.includes('Mantenimiento') ? 'pi pi-cog text-orange-500' : 'pi pi-bell text-purple-500');
-
 onMounted(async () => {
-  currentUser.value = { username: localStorage.getItem('user_username') || 'Staff' };
+  currentUser.value = { username: iamStore.currentUsername || 'Staff' };
   await analyticsStore.fetchMonthlyMetrics();
   updateCharts();
 });

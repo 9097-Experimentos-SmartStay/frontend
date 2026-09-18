@@ -25,36 +25,19 @@ import { computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import PvButton from 'primevue/button';
+import useIamStore from '../../../iam/application/iam.store.js';
 
-// --- Inicializa "Armas" ---
 const router = useRouter();
 const { t } = useI18n();
+const iamStore = useIamStore();
 
-// --- "Táctica" de Redirección (¡LA "EVOLUCIÓN"!) ---
+// Signed in: /dashboard sends each role to its own dashboard. Otherwise: login.
+const homeRouteName = computed(() => (iamStore.isSignedIn ? 'dashboard' : 'login'));
 
-// 1. Lee el "uniforme" (rol) del jugador desde el localStorage
-const userRole = localStorage.getItem('user_role');
-
-// 2. Determina el "campo de juego" (la ruta del dashboard)
-const homeRouteName = computed(() => {
-  switch (userRole) {
-    case 'admin':
-      return 'admin-dashboard'; // Va al dashboard de admin
-    case 'staff':
-      return 'staff-dashboard'; // Va al dashboard de staff
-    case 'guest':
-      return 'guest-dashboard'; // Va al dashboard de guest
-    default:
-      return 'login'; // Si no hay rol (o es desconocido), va al login
-  }
-});
-
-// 3. Define la "etiqueta" del botón basada en el rol
 const buttonLabel = computed(() => {
-  return userRole ? t('page-not-found.goHome') : t('nav.login');
+  return iamStore.isSignedIn ? t('page-not-found.goHome') : t('nav.login');
 });
 
-// 4. La "jugada" de "disparo" (la acción de clic)
 function goHome() {
   router.push({ name: homeRouteName.value });
 }

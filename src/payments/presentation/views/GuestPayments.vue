@@ -108,6 +108,7 @@
 </template>
 
 <script setup>
+import { reportError } from '@/shared/infrastructure/logging/report-error.js';
 /**
  * @file GuestPayment.vue
  * @description View component for handling guest payments within the Booking Context.
@@ -228,7 +229,7 @@ onMounted(async () => {
     // roomPrice.value = hotelStore.getRateForRoom(room.value.roomTypeId);
 
   } catch (err) {
-    console.error('Error initializing payment view:', err);
+    reportError('Error initializing payment view', err);
     toast.add({ severity: 'error', summary: 'Error', detail: 'Could not load payment details.' });
     goBack();
   } finally {
@@ -293,7 +294,7 @@ const submitPayment = async () => {
     }, 1500);
 
   } catch (err) {
-    console.error('Payment processing failed:', err);
+    reportError('Payment processing failed', err);
     toast.add({ severity: 'error', summary: 'Payment Declined', detail: 'Please check your card details or balance.', life: 4000 });
   }
 };

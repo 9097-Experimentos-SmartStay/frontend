@@ -1,9 +1,13 @@
 ﻿import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { HotelApi } from '../infrastructure/api/hotel-api.js';
+import { AccommodationOptionsApi } from '../infrastructure/api/accommodation-options-api.js';
 import { HotelAssembler } from '../infrastructure/hotel.assembler.js';
+import { uploadImage } from '@/shared/infrastructure/services/image-upload.service.js';
+import { reportError } from '@/shared/infrastructure/logging/report-error.js';
 
 const hotelApi = new HotelApi();
+const optionsApi = new AccommodationOptionsApi();
 
 /**
  * Pinia Store for Hotel Management.
@@ -52,7 +56,7 @@ export const useHotelStore = defineStore('hotel', () => {
             // Assembler transforms API Resource -> Domain Entity
             hotels.value = HotelAssembler.toEntitiesFromResponse(response);
         } catch (err) {
-            console.error('Error fetching hotels:', err);
+            reportError('Error fetching hotels', err);
             error.value = err;
         } finally {
             loading.value = false;
@@ -70,7 +74,7 @@ export const useHotelStore = defineStore('hotel', () => {
             const response = await hotelApi.getById(id);
             currentHotel.value = HotelAssembler.toEntityFromResponse(response);
         } catch (err) {
-            console.error(`Error fetching hotel ${id}:`, err);
+            reportError(`Error fetching hotel ${id}`, err);
             error.value = err;
         } finally {
             loading.value = false;
@@ -108,7 +112,7 @@ export const useHotelStore = defineStore('hotel', () => {
             }
             return newHotel;
         } catch (err) {
-            console.error('Error creating hotel:', err);
+            reportError('Error creating hotel', err);
             error.value = err;
             throw err; // Re-throw to handle in UI (e.g., Toast)
         } finally {
@@ -123,14 +127,14 @@ export const useHotelStore = defineStore('hotel', () => {
     async function fetchOptions() {
         try {
             const [catResponse, amResponse] = await Promise.all([
-                hotelApi.getHotelCategories(),
-                hotelApi.getAmenities()
+                optionsApi.getCategories(),
+                optionsApi.getAmenities()
             ]);
-            // El backend devuelve array de strings directo: ["Hotel", "Resort"]
+            // The backend returns plain string arrays: ["Hotel", "Resort"]
             categories.value = catResponse.data;
             amenitiesList.value = amResponse.data;
         } catch (err) {
-            console.error('Error fetching options:', err);
+            reportError('Error fetching options', err);
         }
     }
 
@@ -141,14 +145,11 @@ export const useHotelStore = defineStore('hotel', () => {
      */
     async function createCategory(name) {
         try {
-            // Asumiendo que tienes un endpoint POST /api/v1/accommodations/options/categories
-            // Si no lo tienes, el backend fallará. Asegúrate de crearlo.
-            await hotelApi.createCategory({ name });
-
-            // Recargamos la lista para que aparezca en el select
+            await optionsApi.createCategory({ name });
+            // Reload so the new category shows up in the select
             await fetchOptions();
         } catch (err) {
-            console.error('Error creating category:', err);
+            reportError('Error creating category', err);
             throw err;
         }
     }
@@ -160,11 +161,11 @@ export const useHotelStore = defineStore('hotel', () => {
      */
     async function createAmenity(name) {
         try {
-            await hotelApi.createAmenity({ name });
+            await optionsApi.createAmenity({ name });
             // Refresh options to show the new amenity immediately
             await fetchOptions();
         } catch (err) {
-            console.error('Error creating amenity:', err);
+            reportError('Error creating amenity', err);
             throw err;
         }
     }
@@ -190,7 +191,7 @@ export const useHotelStore = defineStore('hotel', () => {
             }
             return updatedHotel;
         } catch (err) {
-            console.error(`Error updating hotel ${id}:`, err);
+            reportError(`Error updating hotel ${id}`, err);
             throw err;
         } finally {
             loading.value = false;
@@ -210,11 +211,20 @@ export const useHotelStore = defineStore('hotel', () => {
             // Remove from local state immediately
             hotels.value = hotels.value.filter(h => h.id !== id);
         } catch (err) {
-            console.error(`Error deleting hotel ${id}:`, err);
+            reportError(`Error deleting hotel ${id}`, err);
             throw err;
         } finally {
             loading.value = false;
         }
+    }
+
+    /**
+     * Uploads a hotel photo and returns its public URL.
+     * @param {File} file - The image file selected by the user.
+     * @returns {Promise<string>} The image URL to store in the hotel.
+     */
+    async function uploadHotelImage(file) {
+        return uploadImage(file);
     }
 
     return {
@@ -231,6 +241,7 @@ export const useHotelStore = defineStore('hotel', () => {
         createCategory,
         createAmenity,
         updateHotel,
-        deleteHotel
+        deleteHotel,
+        uploadHotelImage
     };
 });

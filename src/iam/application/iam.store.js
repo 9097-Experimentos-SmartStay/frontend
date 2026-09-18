@@ -4,178 +4,130 @@ import {computed, ref} from "vue";
 import {SignInAssembler} from "../infrastructure/sign-in.assembler.js";
 import {UserAssembler} from "../infrastructure/user.assembler.js";
 import {SignUpAssembler} from "../infrastructure/sign-up.assembler.js";
-import {SignInCommand} from "../domain/sign-in.command.js";
-import {SignUpCommand} from "../domain/sign-up.command.js";
+import {resolveUserRole} from "../domain/user-role.js";
+import {
+    clearSession,
+    getToken,
+    getUserId,
+    getUsername,
+    saveSession
+} from "@/shared/infrastructure/session/session-storage.js";
 
 const iamApi = new IamApi();
 
 /**
- * Pinia store for managing Identity and Access Management (IAM) state.
- * Handles user authentication, registration, and user data fetching within the DDD architecture.
- * Uses the Resource pattern for data transfer and Entities for domain logic.
- * @returns {Object} The store object with reactive state and actions.
+ * Pinia store for Identity and Access Management (IAM).
+ * Handles sign-in, sign-up, sign-out and the user list.
+ *
+ * Actions return promises and throw on failure, so the views can show the real error.
+ * Navigation is a presentation concern: views decide where to go after each action.
  */
 const useIamStore = defineStore('iam', () => {
 
-    // --- STATE INITIALIZATION (MEMORY RECOVERY) ---
-    // We initialize the state from LocalStorage to maintain the session across page reloads.
-    const storedToken = localStorage.getItem('token');
-    const storedUserId = localStorage.getItem('user_id');
-    const storedUsername = localStorage.getItem('user_username');
-
-    /** @type {ref<Array>} List of user entities. */
+    /** @type {import('vue').Ref<Array>} List of users. */
     const users = ref([]);
 
-    /** @type {ref<Array<Error>>} List of application errors. */
+    /** @type {import('vue').Ref<Array<Error>>} Errors of the last actions. */
     const errors = ref([]);
 
-    /** @type {ref<boolean>} Flag indicating if users have been loaded. */
+    /** @type {import('vue').Ref<boolean>} Flag indicating if users have been loaded. */
     const usersLoaded = ref(false);
 
-    /** @type {ref<boolean>} Authentication status flag. */
-    const isSignedIn = ref(!!storedToken);
+    /** @type {import('vue').Ref<boolean>} Authentication status flag (restored from storage). */
+    const isSignedIn = ref(!!getToken());
 
-    /** @type {ref<string|null>} Current authenticated user's username. */
-    const currentUsername = ref(storedUsername || null);
+    /** @type {import('vue').Ref<string|null>} Current authenticated user's username. */
+    const currentUsername = ref(getUsername());
 
-    /** @type {ref<number>} Current authenticated user's ID. */
-    const currentUserId = ref(storedUserId ? Number(storedUserId) : 0);
+    /** @type {import('vue').Ref<number>} Current authenticated user's ID. */
+    const currentUserId = ref(getUserId() ?? 0);
 
-    /** @type {computed<string|null>} Computed property for the current token. */
-    const currentToken = computed(() => isSignedIn.value ? localStorage.getItem('token') : null);
+    /** @type {import('vue').ComputedRef<string|null>} The current token. */
+    const currentToken = computed(() => isSignedIn.value ? getToken() : null);
 
     /**
-     * Signs in a user with the provided credentials.
-     * Transforming the Infrastructure Response into a Domain Entity via Assemblers.
-     * @param {SignInCommand} signInCommand - The command containing credentials.
-     * @param {Object} router - The Vue Router instance for navigation.
+     * Signs in a user and persists the session.
+     * @param {import('../domain/sign-in.command.js').SignInCommand} signInCommand
+     * @returns {Promise<{id: number, username: string, role: string}>} The signed-in user.
+     * @throws The HTTP error (e.g. 401) or an Error when the response is unusable.
      */
-    function signIn(signInCommand, router) {
-        console.log("Executing SignIn Command:", signInCommand);
+    async function signIn(signInCommand) {
+        try {
+            const response = await iamApi.signIn(signInCommand);
+            const signInResource = SignInAssembler.toResourceFromResponse(response);
+            if (!signInResource?.token) {
+                throw new Error('Sign-in response has no token');
+            }
 
-        iamApi.signIn(signInCommand)
-            .then(response => {
-                // Transform Response to Resource
-                let signInResource = SignInAssembler.toResourceFromResponse(response);
+            const currentUser = UserAssembler.toEntityFromResource(signInResource);
+            const role = resolveUserRole(currentUser);
 
-                if (signInResource) {
-                    // Transform Resource to Domain Entity
-                    let currentUser = UserAssembler.toEntityFromResource(signInResource);
-
-                    // --- ROBUST ROLE EXTRACTION LOGIC ---
-                    // Handles scenarios where roles come as an array (ASP.NET default) or a single string.
-                    let role = 'guest'; // Default fallback
-
-                    if (currentUser.roles && Array.isArray(currentUser.roles) && currentUser.roles.length > 0) {
-                        role = currentUser.roles[0]; // Take the first role if array
-                    } else if (currentUser.role) {
-                        role = currentUser.role; // Take direct property
-                    }
-
-                    // Normalize to lowercase/trim to match Router Guard ('staff', 'guest')
-                    role = String(role).toLowerCase().trim();
-
-                    // --- UPDATE STATE ---
-                    currentUsername.value = currentUser.username;
-                    currentUserId.value = currentUser.id;
-                    isSignedIn.value = true;
-
-                    // --- PERSISTENCE LAYER (LOCAL STORAGE) ---
-                    // Vital for session recovery on page reload and Router Guards
-                    localStorage.setItem('token', signInResource.token);
-                    localStorage.setItem('user_token', signInResource.token); // Compatibility
-                    localStorage.setItem('user_id', currentUser.id);
-                    localStorage.setItem('user_username', currentUser.username);
-                    localStorage.setItem('user_role', role);
-
-                    console.log(`User signed in successfully: ID ${currentUser.id}, Role: ${role}`);
-                    errors.value = [];
-
-                    // Navigate to Dashboard (Router Guard will handle specific redirection based on role)
-                    router.push({name: 'dashboard'});
-                } else {
-                    handleSignInError(new Error('Sign-in resource is null'), router);
-                }
-            })
-            .catch(error => {
-                handleSignInError(error, router);
+            saveSession({
+                token: signInResource.token,
+                userId: currentUser.id,
+                username: currentUser.username,
+                role
             });
+
+            currentUsername.value = currentUser.username;
+            currentUserId.value = currentUser.id;
+            isSignedIn.value = true;
+            errors.value = [];
+
+            return {id: currentUser.id, username: currentUser.username, role};
+        } catch (error) {
+            isSignedIn.value = false;
+            errors.value.push(error);
+            throw error;
+        }
     }
 
     /**
-     * Helper to handle sign-in failures.
-     * @param {Error} error - The error object.
-     * @param {Object} router - Router instance.
+     * Registers a new user.
+     * @param {import('../domain/sign-up.command.js').SignUpCommand} signUpCommand
+     * @returns {Promise<import('../infrastructure/sign-up.resource.js').SignUpResource>}
+     * @throws The HTTP error (e.g. 400/409) or an Error when the response is unusable.
      */
-    function handleSignInError(error, router) {
-        isSignedIn.value = false;
-        console.error("Sign-in failed:", error);
-        errors.value.push(error);
-        router.push({name: 'login'});
+    async function signUp(signUpCommand) {
+        try {
+            const response = await iamApi.signUp(signUpCommand);
+            const signUpResource = SignUpAssembler.toResourceFromResponse(response);
+            if (!signUpResource) {
+                throw new Error('Sign-up failed');
+            }
+            errors.value = [];
+            return signUpResource;
+        } catch (error) {
+            errors.value.push(error);
+            throw error;
+        }
     }
 
     /**
-     * Signs up a new user.
-     * @param {SignUpCommand} signUpCommand - The command containing registration details.
-     * @param {Object} router - The Vue Router instance.
+     * Ends the session: clears storage and resets the state.
+     * Also used when the API answers 401 on an authenticated request.
      */
-    function signUp(signUpCommand, router) {
-        iamApi.signUp(signUpCommand)
-            .then(response => {
-                let signUpResource = SignUpAssembler.toResourceFromResponse(response);
-
-                if (signUpResource) {
-                    console.log("Sign-up successful:", signUpResource.message);
-                    errors.value = [];
-                    router.push({name: 'login'});
-                } else {
-                    console.warn('Sign-up resource returned null');
-                    errors.value.push(new Error('Sign-up failed'));
-                    router.push({name: 'register'});
-                }
-            })
-            .catch(error => {
-                console.error("Sign-up error:", error);
-                errors.value.push(error);
-                router.push({name: 'register'});
-            });
-    }
-
-    /**
-     * Signs out the current user and clears persistence layer.
-     * @param {Object} router - The Vue Router instance.
-     */
-    function signOut(router) {
-        // Reset State
+    function signOut() {
+        clearSession();
         currentUsername.value = null;
         currentUserId.value = 0;
         isSignedIn.value = false;
-
-        // Clear Persistence (All keys related to session)
-        localStorage.removeItem('token');
-        localStorage.removeItem('user_token');
-        localStorage.removeItem('user_role');
-        localStorage.removeItem('user_id');
-        localStorage.removeItem('user_username');
-
-        console.log('User session terminated');
         errors.value = [];
-        router.push({name: 'login'});
     }
 
     /**
-     * Fetches all users from the API and maps them to Domain Entities.
+     * Fetches all users.
+     * @returns {Promise<void>}
      */
-    function fetchUsers() {
-        iamApi.getUsers().then(response => {
+    async function fetchUsers() {
+        try {
+            const response = await iamApi.getUsers();
             users.value = UserAssembler.toEntitiesFromResponse(response);
             usersLoaded.value = true;
-            console.log(`Loaded ${users.value.length} user entities.`);
             errors.value = [];
-        }).catch(error => {
-            console.error('Error fetching users:', error);
+        } catch (error) {
             errors.value.push(error);
-        });
+        }
     }
 
     return {

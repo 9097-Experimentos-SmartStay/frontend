@@ -11,7 +11,7 @@ export class Hotel {
      * @param {string} params.name - The name of the hotel.
      * @param {string} params.description - The description of the hotel.
      * @param {string} params.location - The location of the hotel.
-     * @param {number} params.rating - The rating of the hotel.
+     * @param {number|null} params.rating - The rating of the hotel (null when unknown).
      * @param {string} params.photoUrl - The URL of the hotel's photo.
      * @param {number} params.basePrice - The base price of the hotel.
      * @param {Array<string>} [params.amenities=[]] - The list of amenities provided by the hotel.
@@ -34,7 +34,7 @@ export class Hotel {
          */
         this.location = location;
         /**
-         * @property {number} rating - The rating of the hotel.
+         * @property {number|null} rating - The rating of the hotel (null when unknown).
          */
         this.rating = rating;
         /**
