@@ -112,6 +112,7 @@
 </template>
 
 <script setup>
+import { reportError } from '@/shared/infrastructure/logging/report-error.js';
 /**
  * @file StaffCreateRoom.vue
  * @description View component for creating new Room Resources within the Accommodations Bounded Context.
@@ -231,7 +232,7 @@ const submitForm = async () => {
     }, 1000);
 
   } catch (err) {
-    console.error(err);
+    reportError('Error creating room', err);
     toast.add({ severity: 'error', summary: 'Error', detail: 'No se pudo registrar la habitación.', life: 3000 });
   } finally {
     isSaving.value = false;

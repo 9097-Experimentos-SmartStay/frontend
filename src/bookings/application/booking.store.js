@@ -2,6 +2,7 @@
 import { ref } from 'vue';
 import { BookingApi } from '../infrastructure/api/booking-api.js';
 import { BookingAssembler } from '../infrastructure/booking.assembler.js';
+import { reportError } from '@/shared/infrastructure/logging/report-error.js';
 
 const bookingApi = new BookingApi();
 
@@ -43,7 +44,7 @@ export const useBookingStore = defineStore('booking', () => {
             const response = await bookingApi.getAllBookings();
             bookings.value = BookingAssembler.toEntitiesFromResponse(response);
         } catch (err) {
-            console.error('Error fetching bookings:', err);
+            reportError('Error fetching bookings', err);
             error.value = err;
         } finally {
             loading.value = false;
@@ -71,7 +72,7 @@ export const useBookingStore = defineStore('booking', () => {
             if(newBooking) bookings.value.push(newBooking);
             return newBooking;
         } catch (err) {
-            console.error('Error creating booking:', err);
+            reportError('Error creating booking', err);
             error.value = err;
             throw err;
         } finally {
@@ -94,7 +95,7 @@ export const useBookingStore = defineStore('booking', () => {
                 bookings.value[index].status = 'Cancelled';
             }
         } catch (err) {
-            console.error('Error cancelling booking:', err);
+            reportError('Error cancelling booking', err);
             error.value = err;
             throw err;
         } finally {

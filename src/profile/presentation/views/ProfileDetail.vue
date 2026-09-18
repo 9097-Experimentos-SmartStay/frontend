@@ -227,6 +227,7 @@
 </template>
 
 <script setup>
+import { reportError } from '@/shared/infrastructure/logging/report-error.js';
 import { ref, computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useToast } from 'primevue/usetoast';
@@ -286,7 +287,7 @@ const loadProfile = async () => {
       await profileStore.fetchProfileByEmail(email);
     }
   } catch (err) {
-    console.error('Error loading profile:', err);
+    reportError('Error loading profile', err);
   }
 };
 

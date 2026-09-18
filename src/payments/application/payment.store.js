@@ -2,6 +2,7 @@
 import { ref } from 'vue';
 import { PaymentApi } from '../infrastructure/api/payment-api.js';
 import { PaymentAssembler } from '../infrastructure/payment.assembler.js';
+import { reportError } from '@/shared/infrastructure/logging/report-error.js';
 
 const paymentApi = new PaymentApi();
 
@@ -43,7 +44,7 @@ export const usePaymentStore = defineStore('payment', () => {
             currentPayment.value = PaymentAssembler.toEntityFromResponse(response);
             return currentPayment.value;
         } catch (err) {
-            console.error('Error processing payment:', err);
+            reportError('Error processing payment', err);
             error.value = err;
             throw err;
         } finally {
@@ -64,11 +65,10 @@ export const usePaymentStore = defineStore('payment', () => {
             return currentPayment.value;
         } catch (err) {
             if (err.response && err.response.status === 404) {
-                console.log(`No payment found for booking ${bookingId}. User needs to pay.`);
                 currentPayment.value = null; // Estado limpio
                 return null;
             }
-            console.error('Error fetching payment:', err);
+            reportError('Error fetching payment', err);
             error.value = err;
             throw err;
         } finally {
