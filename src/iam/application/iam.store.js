@@ -340,6 +340,19 @@ const useIamStore = defineStore('iam', () => {
     }
 
     /**
+     * Replaces the session with the tokens an operation issued for the signed-in user after changing their own
+     * permissions (OWASP: new credentials on privilege change). Today: an admin registering their hotel gets a token
+     * that carries it; the previous tokens were revoked by the backend. "Recordarme" is kept only when the
+     * backend returned a refresh token (the previous session was a remembered one).
+     * @param {Object} sessionResource - `{ token, expiresAt, refreshToken?, refreshTokenExpiresAt? }`.
+     * @param {Partial<import('../domain/model/user.entity.js').User>} userChanges - E.g. `{ hotelId }`.
+     */
+    function adoptReissuedSession(sessionResource, userChanges = {}) {
+        if (!session.value) return;
+        persist(SessionAssembler.toEntityFromReissued(sessionResource, session.value.user.with(userChanges)));
+    }
+
+    /**
      * Updates profile data of the signed-in user kept in the session (e-mail verified, fresh profile).
      * @param {Partial<import('../domain/model/user.entity.js').User>} changes
      */
@@ -454,6 +467,7 @@ const useIamStore = defineStore('iam', () => {
         refreshSession,
         signOut,
         endSession,
+        adoptReissuedSession,
         updateCurrentUser,
         refreshProfile,
         verifyEmail,

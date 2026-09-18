@@ -11,7 +11,6 @@ import { classifyAccommodationProblem, hotelFieldViolations } from '../infrastru
 /** @param {unknown} error @returns {OperationFailure} */
 const hotelFailure = (error) => OperationFailure.from(error, { classify: classifyAccommodationProblem, fields: hotelFieldViolations });
 import useIamStore from '@/iam/application/iam.store.js';
-import { UserRole } from '@/iam/domain/user-role.js';
 
 const hotelApi = new HotelApi();
 const optionsApi = new AccommodationOptionsApi();
@@ -91,9 +90,9 @@ export const useHotelStore = defineStore('hotel', () => {
 
     /**
      * Registers a hotel (POST /hotels).
-     * D2: an admin can register ONE hotel, which becomes their `hotelId`; a second one answers 409. The admin's
-     * token carries no hotel, so the backend ends their sessions: the session of this browser ends here too and
-     * the view sends them to sign in again (their new token brings the hotel).
+     * D2: an admin can register ONE hotel, which becomes their `hotelId`; a second one answers 409. The backend
+     * revokes the admin's previous tokens (they carry no hotel) and returns a new session whose token carries it:
+     * it replaces the session of this browser at once, so the admin goes on managing the hotel without signing in.
      * @param {Object} form - See HotelAssembler.toSaveResource.
      * @returns {Promise<Hotel>} The created hotel entity.
      * @throws {OperationFailure} hotelAlreadyRegistered (409, D2) | invalidData (per field) | forbidden
@@ -102,14 +101,11 @@ export const useHotelStore = defineStore('hotel', () => {
         loading.value = true;
         try {
             const response = await hotelApi.create(HotelAssembler.toSaveResource(form));
-            const newHotel = HotelAssembler.toEntityFromResponse(response);
-            if (newHotel) {
-                hotels.value.push(newHotel);
-                const iamStore = useIamStore();
-                if (iamStore.role === UserRole.ADMIN && iamStore.currentUser?.hotelId == null) {
-                    iamStore.endSession();
-                }
+            const { hotel: newHotel, session } = HotelAssembler.toRegistrationFromResponse(response);
+            if (session && newHotel) {
+                useIamStore().adoptReissuedSession(session, { hotelId: newHotel.id });
             }
+            if (newHotel) hotels.value.push(newHotel);
             return newHotel;
         } catch (err) {
             reportError('Error creating hotel', err);

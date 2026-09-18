@@ -107,7 +107,6 @@ const SESSION_END_REASONS = [
   'password-changed',
   'signed-out-everywhere',
   'mfa-reset',
-  'hotel-registered',
   'account-deactivated',
   'mfa-expired',
 ];
