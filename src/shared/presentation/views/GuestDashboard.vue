@@ -175,7 +175,7 @@
                       <div class="bg-gray-100 border-round-lg h-12rem w-full flex align-items-center justify-content-center mb-3">
                         <i class="pi pi-home text-4xl text-gray-300"></i>
                       </div>
-                      <pv-tag :value="slotProps.data.formattedPrice" severity="warn" class="absolute shadow-1" style="top: 10px; left: 10px" />
+                      <pv-tag :value="formatMoney(slotProps.data.price, locale)" severity="warn" class="absolute shadow-1" style="top: 10px; left: 10px" />
                     </div>
                     <div class="flex-1">
                       <div class="font-bold text-lg mb-2 text-900">{{ slotProps.data.roomTypeName }}</div>
@@ -260,7 +260,7 @@ import { useRoomStore } from '@/accommodations/application/room.store.js';
 import { useHotelStore } from '@/accommodations/application/hotel.store.js';
 import { useBookingStore } from '@/bookings/application/booking.store.js';
 import { bookingStatusLabel, bookingStatusSeverity } from '@/bookings/presentation/utils/booking-status.js';
-import { formatDay } from '@/shared/presentation/utils/formatters.js';
+import { formatDay, formatMoney } from '@/shared/presentation/utils/formatters.js';
 import { apiErrorKey } from '@/shared/presentation/utils/api-error.js';
 
 /**

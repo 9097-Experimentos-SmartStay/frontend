@@ -104,7 +104,7 @@
               <div class="border-top-1 border-200 pt-3 flex justify-content-between align-items-center mt-auto">
                 <div>
                   <span class="text-xs text-500 block">{{ $t('hotels.pricePerNight') }}</span>
-                  <span class="text-xl font-bold text-900">${{ hotel.basePrice }}</span>
+                  <span class="text-xl font-bold text-900">{{ formatMoney(hotel.basePrice, locale) }}</span>
                 </div>
                 <pv-button icon="pi pi-arrow-right" class="p-button-rounded p-button-outlined" />
               </div>
@@ -123,6 +123,7 @@ import { useI18n } from 'vue-i18n';
 import { useToast } from 'primevue/usetoast';
 // Import the store created previously
 import { useHotelStore } from '../../application/hotel.store.js';
+import { formatMoney } from '@/shared/presentation/utils/formatters.js';
 
 const router = useRouter();
 const hotelStore = useHotelStore();
