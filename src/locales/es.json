@@ -158,7 +158,8 @@
         "challengeExpired": "El tiempo para completar el segundo paso venció. Inicia sesión de nuevo.",
         "enrollmentNotStarted": "Primero escanea el código QR para configurar tu app.",
         "alreadyEnabled": "Tu cuenta ya tiene una app de autenticación. Inicia sesión de nuevo."
-      }
+      },
+      "digitLabel": "Dígito {position} de {total}"
     }
   },
   "authoring-phrase": {
