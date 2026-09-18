@@ -14,8 +14,12 @@ export class AuditDetails {
      * @param {string|null} [params.method] - Second factor used: AuthenticatorCode or RecoveryCode.
      * @param {Date|null} [params.lockedUntil]
      * @param {number|null} [params.remainingRecoveryCodes]
+     * @param {number|null} [params.previousHotelId] - Hotel before an assignment change.
+     * @param {number|null} [params.newHotelId] - Hotel after an assignment change.
+     * @param {number|null} [params.previousChainId] - Chain before an assignment change.
+     * @param {number|null} [params.newChainId] - Chain after an assignment change.
      */
-    constructor({ role = null, previousRole = null, newRole = null, reason = null, method = null, lockedUntil = null, remainingRecoveryCodes = null } = {}) {
+    constructor({ role = null, previousRole = null, newRole = null, reason = null, method = null, lockedUntil = null, remainingRecoveryCodes = null, previousHotelId = null, newHotelId = null, previousChainId = null, newChainId = null } = {}) {
         this.role = role;
         this.previousRole = previousRole;
         this.newRole = newRole;
@@ -23,6 +27,20 @@ export class AuditDetails {
         this.method = method;
         this.lockedUntil = lockedUntil;
         this.remainingRecoveryCodes = remainingRecoveryCodes;
+        this.previousHotelId = previousHotelId;
+        this.newHotelId = newHotelId;
+        this.previousChainId = previousChainId;
+        this.newChainId = newChainId;
+    }
+
+    /** @returns {boolean} The hotel of the account changed. */
+    get isHotelChange() {
+        return this.previousHotelId !== this.newHotelId && (this.previousHotelId != null || this.newHotelId != null);
+    }
+
+    /** @returns {boolean} The chain of the account changed. */
+    get isChainChange() {
+        return this.previousChainId !== this.newChainId && (this.previousChainId != null || this.newChainId != null);
     }
 
     /** @returns {boolean} */

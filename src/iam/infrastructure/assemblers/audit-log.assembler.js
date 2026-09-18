@@ -1,9 +1,6 @@
 import { AuditLogEntry, AuditLogPage } from '../../domain/model/audit-log-entry.entity.js';
 import { AuditDetails } from '../../domain/model/audit-details.js';
 
-const LOCKED_UNTIL = /^Locked until (\S+)$/;
-const ROLE_CHANGE = /^(\S+) -> (\S+)$/;
-
 /**
  * GET /audit-logs (§3.1) ↔ {@link AuditLogPage}.
  */
@@ -24,40 +21,33 @@ export class AuditLogAssembler {
             targetEmail: resource.targetEmail ?? null,
             hotelId: resource.hotelId ?? null,
             ipAddress: resource.ipAddress ?? null,
-            details: AuditLogAssembler.toDetailsFromText(resource.details),
+            details: AuditLogAssembler.toDetailsFromResource(resource.details),
         });
     }
 
     /**
-     * The API records the details as English text ("Role: reception -> housekeeping", "Method: RecoveryCode; Reason:
-     * InvalidRecoveryCode", "Locked until 2026-09-18T10:00:00Z", "Remaining recovery codes: 9"). They are parsed here
-     * so the view shows them translated; text in an unknown format is left out rather than shown in English.
-     * @param {string|null|undefined} text
+     * The API records the details as structured facts with stable values (§3.1: `{ "reason": "WrongPassword" }`,
+     * `{ "previousRole": "reception", "newRole": "housekeeping" }`, `{ "lockedUntil": "..." }`...); the view words
+     * them in the user's language.
+     * @param {Object|null|undefined} details
      * @returns {AuditDetails|null}
      */
-    static toDetailsFromText(text) {
-        if (!text) return null;
-        const locked = LOCKED_UNTIL.exec(text.trim());
-        if (locked) {
-            const lockedUntil = new Date(locked[1]);
-            return Number.isNaN(lockedUntil.getTime()) ? null : new AuditDetails({ lockedUntil });
-        }
-        const fields = {};
-        for (const part of text.split(';')) {
-            const separator = part.indexOf(':');
-            if (separator < 0) return null;
-            const key = part.slice(0, separator).trim();
-            const value = part.slice(separator + 1).trim();
-            if (key === 'Role') {
-                const change = ROLE_CHANGE.exec(value);
-                if (change) [fields.previousRole, fields.newRole] = [change[1], change[2]];
-                else fields.role = value;
-            } else if (key === 'Reason') fields.reason = value;
-            else if (key === 'Method') fields.method = value;
-            else if (key === 'Remaining recovery codes' && /^\d+$/.test(value)) fields.remainingRecoveryCodes = Number(value);
-            else return null;
-        }
-        return new AuditDetails(fields);
+    static toDetailsFromResource(details) {
+        if (!details || typeof details !== 'object') return null;
+        const lockedUntil = details.lockedUntil ? new Date(details.lockedUntil) : null;
+        return new AuditDetails({
+            role: details.role ?? null,
+            previousRole: details.previousRole ?? null,
+            newRole: details.newRole ?? null,
+            reason: details.reason ?? null,
+            method: details.method ?? null,
+            lockedUntil: lockedUntil && !Number.isNaN(lockedUntil.getTime()) ? lockedUntil : null,
+            remainingRecoveryCodes: details.remainingRecoveryCodes ?? null,
+            previousHotelId: details.previousHotelId ?? null,
+            newHotelId: details.newHotelId ?? null,
+            previousChainId: details.previousChainId ?? null,
+            newChainId: details.newChainId ?? null,
+        });
     }
 
     /**

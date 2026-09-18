@@ -705,7 +705,8 @@
       "MfaFailed": "Second step failed",
       "MfaRecoveryCodeUsed": "Recovery code used",
       "MfaReset": "Two-step verification reset",
-      "SignedOutEverywhere": "Signed out on all devices"
+      "SignedOutEverywhere": "Signed out on all devices",
+      "AssignmentChanged": "Hotel or chain changed"
     },
     "details": {
       "role": "Role: {role}",
@@ -725,7 +726,10 @@
         "InvalidRecoveryCode": "Invalid recovery code"
       },
       "lockedUntil": "Locked until {time}",
-      "remainingCodes": "{count} recovery code left | {count} recovery codes left"
+      "remainingCodes": "{count} recovery code left | {count} recovery codes left",
+      "hotelChange": "Hotel: {from} → {to}",
+      "chainChange": "Chain: {from} → {to}",
+      "none": "none"
     },
     "errors": {
       "load": "We could not load the audit log."

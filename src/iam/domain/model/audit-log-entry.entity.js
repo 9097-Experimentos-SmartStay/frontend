@@ -16,6 +16,7 @@ export const AuditAction = Object.freeze({
     MFA_RECOVERY_CODE_USED: 'MfaRecoveryCodeUsed',
     MFA_RESET: 'MfaReset',
     SIGNED_OUT_EVERYWHERE: 'SignedOutEverywhere',
+    ASSIGNMENT_CHANGED: 'AssignmentChanged',
 });
 
 export const AuditOutcome = Object.freeze({
