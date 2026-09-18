@@ -1,7 +1,8 @@
 import { Payment } from '../domain/model/payment.entity.js';
+import { Money } from '@/shared/domain/money.js';
 
 /**
- * `paymentDate` is "yyyy-MM-dd HH:mm:ss" in UTC (not ISO): read it as UTC.
+ * `paymentDate` is "yyyy-MM-dd HH:mm:ss" in UTC (not ISO): read it as UTC. Other instants are ISO with offset.
  * @param {string|null} value
  * @returns {Date|null}
  */
@@ -26,11 +27,14 @@ export class PaymentAssembler {
             id: resource.id,
             bookingId: resource.bookingId,
             transactionId: resource.transactionId,
-            amount: resource.amount,
+            amount: Money.from(resource.amount),
             status: resource.status,
-            method: resource.method ?? resource.paymentMethod ?? null,
-            cardNumberMasked: resource.cardNumberMasked ?? null,
+            method: resource.method,
+            operationNumber: resource.operationNumber,
+            note: resource.note,
+            recordedByUserId: resource.recordedByUserId,
             paymentDate: parseUtcTimestamp(resource.paymentDate),
+            refundedAt: parseUtcTimestamp(resource.refundedAt),
         });
     }
 
@@ -43,13 +47,12 @@ export class PaymentAssembler {
     }
 
     /**
-     * Body of the staff payment registration. PROVISIONAL shape until the backend publishes the
-     * contract (audit/09-frontend-gaps.md); adapt only this method when it does.
+     * Body of POST /bookings/{id}/payments. No amount: the backend always charges the booking total.
      * @param {import('../domain/commands/register-payment.command.js').RegisterPaymentCommand} command
-     * @returns {Object}
+     * @returns {{method: string, operationNumber?: string, note?: string}}
      */
     static toRegisterResource(command) {
-        const resource = { bookingId: command.bookingId, method: command.method };
+        const resource = { method: command.method };
         if (command.operationNumber) resource.operationNumber = command.operationNumber;
         if (command.note) resource.note = command.note;
         return resource;

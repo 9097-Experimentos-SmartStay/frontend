@@ -51,7 +51,6 @@ Los archivos `.env.*` reales no se versionan; usa `.env.example` como plantilla.
 | `VITE_CLOUDINARY_CLOUD_NAME` | Para subir imágenes | Nombre de la cuenta de Cloudinary. |
 | `VITE_CLOUDINARY_UPLOAD_PRESET` | Para subir imágenes | Upload preset **sin firma** de Cloudinary. |
 | `VITE_*_ENDPOINT_PATH` | No | Rutas de cada recurso (`/authentication`, `/users`, `/audit-logs`, `/guests`, `/staff`, `/hotels`, ...). Tienen valores por defecto en `src/shared/infrastructure/config/api-config.js`. |
-| `VITE_PAYMENT_REGISTRATION_ENDPOINT_PATH` | No (pendiente) | Endpoint con el que recepción registra un pago. El backend aún no lo publica: sin esta variable, el diálogo "Registrar pago" se muestra pero no se puede enviar. |
 
 El backend arma los enlaces de sus correos con `App__WebBaseUrl` (por ejemplo `https://<app>.vercel.app`):
 esa URL debe apuntar a esta aplicación para que funcionen `/verify-email` y `/reset-password`.

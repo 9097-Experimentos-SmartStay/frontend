@@ -1,43 +1,58 @@
-/** Payment status strings the API returns (§9). `Pending` only exists inside the backend. */
+import { Money } from '@/shared/domain/money.js';
+
+/** Payment status strings of the API (§9). */
 export const PaymentStatus = Object.freeze({
     COMPLETED: 'Completed',
+    /** Only if a future online gateway rejects a payment. */
     FAILED: 'Failed',
+    /** Its booking was cancelled: the hotel returns the money outside the system. */
+    REFUNDED: 'Refunded',
 });
 
 /**
- * Payment Domain Entity (PaymentResource, §9).
- * The amount is computed by the backend: room price per night × nights of the booking.
- * @class
+ * A payment registered by the hotel (PaymentResource, §9). The amount is always the booking total (snapshot).
  */
 export class Payment {
     /**
      * @param {Object} params
      * @param {number} params.id
      * @param {number} params.bookingId
-     * @param {string} params.transactionId
-     * @param {number} params.amount - Charged by the backend.
+     * @param {string|null} params.transactionId
+     * @param {Money} params.amount
      * @param {string} params.status - One of {@link PaymentStatus}.
-     * @param {string|null} [params.method] - How it was paid (Yape, Plin, transfer, cash, card).
-     * @param {string|null} [params.cardNumberMasked] - Only for card payments.
+     * @param {string|null} params.method - One of PaymentMethod.
+     * @param {string|null} params.operationNumber - Yape/Plin/transfer/card operation number (none for cash).
+     * @param {string|null} params.note
+     * @param {number|null} params.recordedByUserId
      * @param {Date|null} params.paymentDate
+     * @param {Date|null} params.refundedAt
      */
-    constructor({ id, bookingId, transactionId, amount, status, method = null, cardNumberMasked = null, paymentDate }) {
+    constructor({ id, bookingId, transactionId, amount, status, method, operationNumber, note, recordedByUserId, paymentDate, refundedAt }) {
         this.id = id;
         this.bookingId = bookingId;
-        this.transactionId = transactionId;
-        this.amount = Number(amount ?? 0);
+        this.transactionId = transactionId ?? null;
+        this.amount = amount ?? Money.zero();
         this.status = status;
-        this.method = method;
-        this.cardNumberMasked = cardNumberMasked;
-        this.paymentDate = paymentDate;
+        this.method = method ?? null;
+        this.operationNumber = operationNumber ?? null;
+        this.note = note ?? null;
+        this.recordedByUserId = recordedByUserId ?? null;
+        this.paymentDate = paymentDate ?? null;
+        this.refundedAt = refundedAt ?? null;
+        Object.freeze(this);
     }
 
-    /** @returns {boolean} Approved: the booking became Confirmed in the same transaction. */
+    /** @returns {boolean} The booking is confirmed by this payment. */
     isCompleted() {
         return this.status === PaymentStatus.COMPLETED;
     }
 
-    /** @returns {boolean} Declined card (the response is still 201); the booking can be paid again. */
+    /** @returns {boolean} */
+    isRefunded() {
+        return this.status === PaymentStatus.REFUNDED;
+    }
+
+    /** @returns {boolean} */
     isFailed() {
         return this.status === PaymentStatus.FAILED;
     }

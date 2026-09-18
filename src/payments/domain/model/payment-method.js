@@ -1,14 +1,13 @@
 /**
- * How a guest pays a booking outside the app (decision of the backlog round: no card form in the app).
- * Reception registers the payment with one of these methods.
- * The API strings are provisional until the backend publishes the contract (audit/09-frontend-gaps.md).
+ * How a guest pays a booking outside the app (§9, D1: no card data in the app). The hotel registers the payment
+ * with one of these methods and that confirms the booking.
  */
 export const PaymentMethod = Object.freeze({
     YAPE: 'Yape',
     PLIN: 'Plin',
     BANK_TRANSFER: 'BankTransfer',
     CASH: 'Cash',
-    CARD_AT_RECEPTION: 'CardAtReception',
+    CARD_AT_FRONT_DESK: 'CardAtFrontDesk',
 });
 
 /**
@@ -19,8 +18,5 @@ export function requiresOperationNumber(method) {
     return !!method && method !== PaymentMethod.CASH;
 }
 
-/** Methods the guest can use before arriving (shown in the payment instructions). */
+/** Methods the guest can use before arriving (shown in the payment instructions, US-51 scenario 2). */
 export const REMOTE_PAYMENT_METHODS = Object.freeze([PaymentMethod.YAPE, PaymentMethod.PLIN, PaymentMethod.BANK_TRANSFER]);
-
-/** Hours the guest has to pay a pending booking. */
-export const PAYMENT_DEADLINE_HOURS = 24;
