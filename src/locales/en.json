@@ -810,15 +810,18 @@
   "guestPayment": {
     "pricePerNight": "Price per night",
     "howToPay": "How to pay",
-    "instructionsIntro": "Pay {total} by Yape, Plin or bank transfer and quote the code {code}. When the hotel registers your payment, your booking is confirmed.",
+    "instructionsIntro": "Pay {total} with one of the hotel's methods and quote the code {code}. Once the hotel records your payment, your booking is confirmed.",
     "steps": {
       "reference": "Write the code {code} in the message or description of the payment.",
       "keepReceipt": "Keep the operation number or a screenshot of the payment.",
       "confirmation": "When the hotel registers your payment, we will send you the confirmation.",
-      "email": "Check the e-mail we sent to {email}: it has the Yape and Plin numbers, the bank account and the account holder."
+      "email": "Check the e-mail we sent to {email}: it has the hotel's payment details."
     },
     "bookingCode": "Booking code",
-    "atFrontDesk": "Arriving before the deadline? You can also pay at the front desk, in cash or by card."
+    "atFrontDesk": "Arriving before the deadline? You can also pay at the front desk, in cash or by card.",
+    "accountHolder": "Account holder",
+    "account": "Account",
+    "cci": "CCI"
   },
   "staffPayments": {
     "title": "Payment management",
@@ -1112,10 +1115,12 @@
     "noResults": "No rooms are free for those dates. Try other dates or another hotel.",
     "confirmTitle": "Confirm your booking",
     "total": "Total",
-    "pendingNote": "Your booking will await payment. You will have 24 hours to pay by Yape, Plin or bank transfer; we will e-mail you the code and the payment details.",
+    "pendingNote": "Your booking will be pending payment. You will have 24 hours to pay with the hotel's methods; we show them in your booking and e-mail you the code and the payment details.",
     "noLongerAvailable": "This room is no longer available for those dates: someone else booked it. Search again.",
     "searchAgain": "Search again",
-    "confirm": "Confirm booking"
+    "confirm": "Confirm booking",
+    "hotelNotAccepting": "This hotel does not accept online bookings yet: it has not set up its payment methods. Choose another hotel or try again later.",
+    "hotelNotAcceptingBadge": "Not accepting bookings yet"
   },
   "paymentStatus": {
     "Completed": "Paid",
@@ -1157,7 +1162,8 @@
       "guestEmail": "Enter a valid e-mail (for example name{'@'}domain.com): the booking e-mails go there.",
       "guestPhone": "The phone must have 7 to 15 digits and may start with +.",
       "roomRequired": "Choose a room."
-    }
+    },
+    "hotelNotAccepting": "The hotel does not accept bookings yet because it has no payment methods. The hotel administrator must set them up in Hotels → Payment methods."
   },
   "changeBooking": {
     "title": "Change booking {code}",

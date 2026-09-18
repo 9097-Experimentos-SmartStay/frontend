@@ -42,11 +42,13 @@ export class Booking {
      * @param {Date|null} [params.cancelledAt]
      * @param {string|null} [params.cancellationReason] - One of {@link CancellationReason}.
      * @param {number|null} [params.userId] - Guest account (null for a desk booking of a guest without account).
+     * @param {import('./payment-instructions.js').PaymentInstructions|null} [params.paymentInstructions] - The
+     *   hotel's payment methods; only for a Pending booking read by id or just created.
      */
     constructor({
         id, code = null, hotelId = null, roomId, roomNumber = null, guestName, guestEmail, guestPhone = null, stay,
         pricePerNight = null, total = null, status, createdAt = null, paymentDueAt = null, confirmedAt = null,
-        cancelledAt = null, cancellationReason = null, userId = null,
+        cancelledAt = null, cancellationReason = null, userId = null, paymentInstructions = null,
     }) {
         this.id = id;
         this.code = code;
@@ -66,6 +68,7 @@ export class Booking {
         this.cancelledAt = cancelledAt;
         this.cancellationReason = cancellationReason;
         this.userId = userId;
+        this.paymentInstructions = paymentInstructions;
         Object.freeze(this);
     }
 

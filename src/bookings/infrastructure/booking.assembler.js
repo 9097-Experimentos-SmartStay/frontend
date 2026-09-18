@@ -2,6 +2,7 @@ import { Booking } from '../domain/model/booking.entity.js';
 import { BookingCode } from '../domain/model/booking-code.js';
 import { StayPeriod } from '../domain/model/stay-period.js';
 import { AvailableRoom } from '../domain/model/available-room.js';
+import { PaymentInstructions } from '../domain/model/payment-instructions.js';
 import { BookingCalendar, CalendarDay } from '../domain/model/booking-calendar.js';
 import { CalendarDate } from '@/shared/domain/calendar-date.js';
 import { Money } from '@/shared/domain/money.js';
@@ -40,6 +41,7 @@ export class BookingAssembler {
             cancelledAt: toInstant(resource.cancelledAt),
             cancellationReason: resource.cancellationReason ?? null,
             userId: resource.userId ?? null,
+            paymentInstructions: PaymentInstructions.from(resource.paymentInstructions),
         });
     }
 
