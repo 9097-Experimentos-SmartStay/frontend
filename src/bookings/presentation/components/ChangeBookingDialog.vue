@@ -6,9 +6,8 @@
       :style="{ width: '44rem' }"
       :breakpoints="{ '768px': '95vw' }"
       @update:visible="emit('update:visible', $event)"
-      @show="reset"
   >
-    <template v-if="booking">
+    <template v-if="booking && stay">
       <p class="mt-0 text-color-secondary">
         {{ t('changeBooking.current', {
           room: booking.roomLabel,
@@ -48,7 +47,7 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useBookingStore } from '../../application/booking.store.js';
 import { BookingFailureReason } from '../../application/booking-failure.js';
@@ -99,6 +98,11 @@ function reset() {
   bookingStore.clearSearch();
   loadRooms();
 }
+
+// Reset before the dialog renders its content: the StayPicker needs the booking's stay on its first render.
+watch(() => props.visible, (open) => {
+  if (open && props.booking) reset();
+}, { immediate: true });
 
 function onStayChange(value) {
   stay.value = value;
