@@ -48,7 +48,7 @@ import { useHotelStore } from '@/accommodations/application/hotel.store.js';
 import { validateRoomForm } from '@/accommodations/domain/room-rules.js';
 import useIamStore from '@/iam/application/iam.store.js';
 import { Capability, canManageHotel } from '@/iam/domain/user-role.js';
-import { apiErrorKey } from '@/shared/presentation/utils/api-error.js';
+import { failureMessageKey, violationMessages } from '@/shared/presentation/utils/failure-message.js';
 import RoomForm from '../components/RoomForm.vue';
 import AddRoomTypeDialog from '../components/AddRoomTypeDialog.vue';
 import AddAmenityDialog from '../components/AddAmenityDialog.vue';
@@ -70,7 +70,7 @@ const isAmenityDialogVisible = ref(false);
 const errors = ref({});
 const errorMessage = ref('');
 
-const form = reactive({ hotelId: null, roomTypeId: null, price: null, description: '', amenities: [] });
+const form = reactive({ hotelId: null, number: '', roomTypeId: null, price: null, description: '', amenities: [] });
 const manageableHotels = computed(() => hotelStore.hotels.filter((hotel) => canManageHotel(iamStore.currentUser, hotel.id)));
 
 watch(manageableHotels, (hotels) => {
@@ -84,14 +84,15 @@ onMounted(async () => {
 
 const goBack = () => router.push({ name: 'staff-rooms' });
 
-function onAmenityAdded(name) {
+async function onAmenityAdded(name) {
+  await roomStore.fetchAmenities();
   if (!form.amenities.includes(name)) form.amenities.push(name);
 }
 
 async function submitForm() {
   errorMessage.value = '';
   const invalid = validateRoomForm(form);
-  errors.value = Object.fromEntries(Object.entries(invalid).map(([field, rule]) => [field, t(`staffRooms.rules.${rule}`)]));
+  errors.value = violationMessages(t, invalid, 'staffRooms.rules');
   if (Object.keys(invalid).length > 0) return;
 
   isSaving.value = true;
@@ -100,7 +101,9 @@ async function submitForm() {
     toast.add({ severity: 'success', summary: t('common.success'), detail: t('staffRooms.created'), life: 3000 });
     router.push({ name: 'staff-rooms' });
   } catch (err) {
-    errorMessage.value = t(apiErrorKey(err, { 403: 'staffHotels.outOfScope', 409: 'staffRooms.unknownType' }));
+    // Per-field errors (number repeated in the hotel, price, type...) go under each input; nothing was saved.
+    if (err.hasFieldViolations) errors.value = violationMessages(t, err.fieldViolations, 'staffRooms.rules');
+    else errorMessage.value = t(failureMessageKey(err, { forbidden: 'staffHotels.outOfScope' }));
   } finally {
     isSaving.value = false;
   }

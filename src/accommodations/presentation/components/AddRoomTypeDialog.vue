@@ -1,87 +1,84 @@
-﻿<template>
+<template>
   <pv-dialog
       v-model:visible="visible"
-      header="Nuevo Tipo de Habitación"
-      :modal="true"
+      :header="t('roomTypes.newTitle')"
+      modal
       class="p-fluid"
       :style="{ width: '450px' }"
+      :breakpoints="{ '640px': '95vw' }"
   >
     <div class="field">
-      <label for="typeName" class="font-bold">Nombre</label>
-      <pv-input-text
-          id="typeName"
-          v-model="typeName"
-          placeholder="Ej. Suite Presidencial, Doble Deluxe..."
-          autofocus
-          :class="{'p-invalid': submitted && !typeName}"
-      />
-      <small v-if="submitted && !typeName" class="p-error">El nombre es requerido.</small>
+      <label for="type-name" class="font-bold">{{ t('masterData.name') }} *</label>
+      <pv-input-text id="type-name" v-model="form.name" :placeholder="t('roomTypes.namePlaceholder')" autofocus :invalid="!!errors.name" />
+      <small v-if="errors.name" class="p-error">{{ errors.name }}</small>
     </div>
 
     <div class="field">
-      <label for="typeDescription" class="font-bold">Descripción</label>
-      <pv-textarea
-          id="typeDescription"
-          v-model="typeDescription"
-          rows="3"
-          placeholder="Ej. Habitación espaciosa con vista al mar y cama King..."
-          :class="{'p-invalid': submitted && !typeDescription}"
-      />
-      <small v-if="submitted && !typeDescription" class="p-error">La descripción es requerida.</small>
+      <label for="type-description" class="font-bold">{{ t('staffRooms.description') }} *</label>
+      <pv-textarea id="type-description" v-model="form.description" rows="3" :placeholder="t('roomTypes.descriptionPlaceholder')" :invalid="!!errors.description" />
+      <small v-if="errors.description" class="p-error">{{ errors.description }}</small>
     </div>
 
+    <pv-message v-if="errorMessage" severity="error">{{ errorMessage }}</pv-message>
+
     <template #footer>
-      <pv-button label="Cancelar" icon="pi pi-times" class="p-button-text" @click="closeDialog" />
-      <pv-button label="Guardar" icon="pi pi-check" class="p-button-primary" :loading="loading" @click="saveType" />
+      <pv-button :label="t('common.cancel')" icon="pi pi-times" class="p-button-text" @click="visible = false" />
+      <pv-button :label="t('common.save')" icon="pi pi-check" :loading="loading" @click="save" />
     </template>
   </pv-dialog>
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
+import { reactive, ref, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { useToast } from 'primevue/usetoast';
 import { useRoomStore } from '@/accommodations/application/room.store.js';
+import { validateRoomTypeForm } from '@/accommodations/domain/room-rules.js';
+import { failureMessageKey, violationMessages } from '@/shared/presentation/utils/failure-message.js';
 
+/**
+ * US-53 scenario 2: a room type (name and description) of the shared catalog, used to classify rooms.
+ * Emits the id of the new type so the room form can select it.
+ */
 const props = defineProps({ modelValue: Boolean });
 const emit = defineEmits(['update:modelValue', 'type-added']);
-
+const { t } = useI18n();
 const toast = useToast();
 const roomStore = useRoomStore();
 
 const visible = ref(props.modelValue);
-const typeName = ref('');
-const typeDescription = ref('');
+const form = reactive({ name: '', description: '' });
+const errors = ref({});
+const errorMessage = ref('');
 const loading = ref(false);
-const submitted = ref(false);
 
-watch(() => props.modelValue, (val) => {
-  visible.value = val;
-  if(val) { typeName.value = ''; typeDescription.value = ''; submitted.value = false; }
+watch(() => props.modelValue, (value) => {
+  visible.value = value;
+  if (value) {
+    Object.assign(form, { name: '', description: '' });
+    errors.value = {};
+    errorMessage.value = '';
+  }
 });
+watch(visible, (value) => emit('update:modelValue', value));
 
-watch(visible, (val) => emit('update:modelValue', val));
-
-const closeDialog = () => { visible.value = false; };
-
-const saveType = async () => {
-  submitted.value = true;
-  if (!typeName.value.trim() || !typeDescription.value.trim()) return;
+async function save() {
+  errorMessage.value = '';
+  const violations = validateRoomTypeForm(form);
+  errors.value = violationMessages(t, violations, 'staffRooms.rules');
+  if (Object.keys(violations).length > 0) return;
 
   loading.value = true;
   try {
-    // Payload para el backend (CreateRoomTypeResource)
-    const newType = await roomStore.createRoomType({
-      name: typeName.value,
-      description: typeDescription.value
-    });
-
-    toast.add({ severity: 'success', summary: 'Creado', detail: 'Tipo de habitación agregado.', life: 3000 });
-    emit('type-added', newType.id); // Devolvemos el ID para seleccionarlo
-    closeDialog();
-  } catch (error) {
-    toast.add({ severity: 'error', summary: 'Error', detail: 'No se pudo crear el tipo.', life: 3000 });
+    const created = await roomStore.createRoomType({ name: form.name.trim(), description: form.description.trim() });
+    toast.add({ severity: 'success', summary: t('common.success'), detail: t('roomTypes.created', { name: created?.name ?? form.name }), life: 3000 });
+    emit('type-added', created?.id);
+    visible.value = false;
+  } catch (failure) {
+    if (failure.hasFieldViolations) errors.value = violationMessages(t, failure.fieldViolations, 'staffRooms.rules');
+    else errorMessage.value = t(failureMessageKey(failure));
   } finally {
     loading.value = false;
   }
-};
+}
 </script>
