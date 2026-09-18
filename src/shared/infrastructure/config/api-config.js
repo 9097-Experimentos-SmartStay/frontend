@@ -26,10 +26,6 @@ export const endpoints = Object.freeze({
     /** GET /payments/booking/{id}. Registering a payment is POST /bookings/{id}/payments (§9). */
     payments: env.VITE_PAYMENTS_ENDPOINT_PATH || '/payments',
     analytics: env.VITE_ANALYTICS_ENDPOINT_PATH || '/analytics',
-});
-
-/** Cloudinary unsigned upload settings (hotel images). */
-export const cloudinaryConfig = Object.freeze({
-    cloudName: env.VITE_CLOUDINARY_CLOUD_NAME || '',
-    uploadPreset: env.VITE_CLOUDINARY_UPLOAD_PRESET || '',
+    /** POST /media/hotel-images/signature: signature of a direct upload to Cloudinary (the cloud comes with it). */
+    media: env.VITE_MEDIA_ENDPOINT_PATH || '/media',
 });

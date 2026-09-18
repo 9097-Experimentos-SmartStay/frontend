@@ -51,6 +51,7 @@ import useIamStore from '@/iam/application/iam.store.js';
 import { canManageHotel } from '@/iam/domain/user-role.js';
 import { failureMessageKey, violationMessages } from '@/shared/presentation/utils/failure-message.js';
 import HotelForm from '../components/HotelForm.vue';
+import { hotelImageUploadMessage } from '../utils/hotel-image-messages.js';
 
 const router = useRouter();
 const route = useRoute();
@@ -92,8 +93,8 @@ const goBack = () => router.push({ name: 'staff-hotels' });
 async function onUploadImage(file) {
   try {
     form.imageUrl = await hotelStore.uploadHotelImage(file);
-  } catch {
-    toast.add({ severity: 'error', summary: t('common.error'), detail: t('staffHotels.uploadFailed'), life: 4000 });
+  } catch (failure) {
+    toast.add({ severity: 'error', summary: t('common.error'), detail: hotelImageUploadMessage(t, failure), life: 6000 });
   }
 }
 

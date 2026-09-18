@@ -18,7 +18,7 @@ Consume la API REST del backend de SmartStay (`/api/v1`).
 | Idiomas | vue-i18n (español por defecto, inglés) |
 | HTTP | axios (un único cliente compartido) |
 | Gráficos | Chart.js (vía PrimeVue Chart) |
-| Imágenes | Cloudinary (subida sin firma desde el navegador) |
+| Imágenes | Cloudinary (subida firmada: la API firma y el navegador sube directo) |
 | Códigos QR | `qrcode` (el URI `otpauth://` del segundo factor se dibuja en el navegador; el secreto nunca sale a otro servicio) |
 
 ## Requisitos
@@ -49,12 +49,17 @@ Los archivos `.env.*` reales no se versionan; usa `.env.example` como plantilla.
 |---|---|---|
 | `VITE_SMARTSTAY_API_URL` | Sí | URL base de la API. En desarrollo, una ruta relativa (`/api/v1`). En producción, la URL absoluta del backend, por ejemplo `https://<backend>.onrender.com/api/v1`. |
 | `VITE_DEV_PROXY_TARGET` | No (solo dev) | Destino del proxy de Vite. Por defecto `http://localhost:10000`. Si incluye una ruta (`https://host/api/v1`), esa ruta reemplaza al prefijo y nunca se duplica `/api/v1`. |
-| `VITE_CLOUDINARY_CLOUD_NAME` | Para subir imágenes | Nombre de la cuenta de Cloudinary. |
-| `VITE_CLOUDINARY_UPLOAD_PRESET` | Para subir imágenes | Upload preset **sin firma** de Cloudinary. |
 | `VITE_*_ENDPOINT_PATH` | No | Rutas de cada recurso (`/authentication`, `/users`, `/audit-logs`, `/guests`, `/staff`, `/hotels`, ...). Tienen valores por defecto en `src/shared/infrastructure/config/api-config.js`. |
 
 El backend arma los enlaces de sus correos con `App__WebBaseUrl` (por ejemplo `https://<app>.vercel.app`):
 esa URL debe apuntar a esta aplicación para que funcionen `/verify-email` y `/reset-password`.
+
+**Imágenes de hoteles (subida firmada).** La web no tiene credenciales ni variables de Cloudinary: al elegir una foto
+pide una firma de corta vida a la API (`POST /media/hotel-images/signature`, solo administradores) y sube el archivo
+directo a Cloudinary con esa firma (sin el token de SmartStay). El nombre de la cuenta, la API key, el preset y la
+carpeta llegan en la respuesta; el API secret solo vive en el backend (`Cloudinary__*`). Antes de pedir la firma se
+valida el archivo: JPG, PNG o WebP, máximo 10 MB. Si la API no tiene Cloudinary configurado responde 503 y la web
+muestra que la subida no está disponible.
 
 ## Scripts
 
@@ -71,7 +76,6 @@ esa URL debe apuntar a esta aplicación para que funcionen `/verify-email` y `/r
    `/staff/hotels` no da 404).
 2. En **Settings → Environment Variables** define, como mínimo:
    - `VITE_SMARTSTAY_API_URL=https://<backend>/api/v1`
-   - `VITE_CLOUDINARY_CLOUD_NAME` y `VITE_CLOUDINARY_UPLOAD_PRESET`
 3. Agrega el dominio de Vercel a los orígenes permitidos (CORS) del backend.
 4. Cada cambio de variables requiere un nuevo deploy, porque se incrustan al compilar.
 

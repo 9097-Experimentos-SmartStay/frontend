@@ -49,7 +49,7 @@
       </div>
       <div v-else-if="!form.imageUrl" class="border-2 border-dashed surface-border border-round p-5 flex flex-column align-items-center surface-ground">
         <i class="pi pi-cloud-upload text-4xl text-color-secondary mb-3"></i>
-        <pv-file-upload mode="basic" name="file" accept="image/*" :max-file-size="1000000" custom-upload auto :choose-label="t('staffHotels.form.chooseFile')" class="p-button-outlined" @uploader="emit('upload', $event.files[0])" />
+        <pv-file-upload mode="basic" name="file" custom-upload auto :choose-label="t('staffHotels.form.chooseFile')" class="p-button-outlined" @uploader="emit('upload', $event.files[0])" />
         <small class="text-color-secondary mt-2">{{ t('staffHotels.form.fileHint') }}</small>
       </div>
       <small v-if="errors.imageUrl" class="p-error block">{{ errors.imageUrl }}</small>
@@ -80,7 +80,10 @@ import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 /**
- * Hotel data form shared by "register" and "edit". The parent owns the reactive `form` object.
+ * Hotel data form shared by "register" and "edit".
+ * "Subir foto" emits the chosen file; the store checks it (JPG, PNG or WebP, 10 MB) with the hotel image rules and
+ * uploads it with a signature from the API. The file chooser has no `accept`/size limits of its own on purpose:
+ * PrimeVue would reject with its own untranslated message before those rules run. The parent owns the reactive `form` object.
  * Categories and amenities are master data: only a chain_admin can add new ones (`canAddMasterData`).
  */
 const props = defineProps({
