@@ -1,84 +1,63 @@
-﻿<template>
+<template>
   <div class="surface-ground min-h-screen p-4 md:p-6">
     <pv-toast position="bottom-right" />
+    <pv-confirm-dialog />
 
-    <pv-confirm-dialog></pv-confirm-dialog>
-
-    <div class="surface-card p-4 shadow-2 border-round mb-4 flex justify-content-between align-items-center">
+    <div class="surface-card p-4 shadow-2 border-round mb-4 flex flex-wrap gap-3 justify-content-between align-items-center">
       <div class="flex align-items-center gap-3">
-        <pv-button icon="pi pi-arrow-left" class="p-button-text p-button-secondary" @click="goBack" />
+        <pv-button icon="pi pi-arrow-left" class="p-button-text p-button-secondary" :aria-label="t('common.back')" @click="goBack" />
         <div>
-          <h1 class="text-2xl font-bold text-color m-0">Gestión de Hoteles</h1>
-          <p class="text-color-secondary m-0">Administra las propiedades de la cadena.</p>
+          <h1 class="text-2xl font-bold text-color m-0">{{ t('staffHotels.title') }}</h1>
+          <p class="text-color-secondary m-0">{{ subtitle }}</p>
         </div>
       </div>
-      <pv-button label="Nuevo Hotel" icon="pi pi-plus" class="p-button-primary" @click="goToCreateHotel" />
+      <pv-button v-if="canRegister" :label="t('staffHotels.newHotel')" icon="pi pi-plus" @click="router.push({ name: 'create-hotel' })" />
     </div>
 
     <div class="surface-card p-4 shadow-2 border-round">
-      <pv-data-table
-          :value="hotelStore.hotels"
-          :loading="hotelStore.loading"
-          responsiveLayout="scroll"
-          :paginator="true"
-          :rows="10"
-          class="p-datatable-sm"
-      >
-        <template #empty>No se encontraron hoteles.</template>
+      <pv-data-table :value="hotelStore.hotels" :loading="hotelStore.loading" responsive-layout="scroll" paginator :rows="10" class="p-datatable-sm">
+        <template #empty>{{ t('staffHotels.empty') }}</template>
 
-        <pv-column field="id" header="ID" sortable style="width: 80px"></pv-column>
+        <pv-column field="id" header="ID" sortable style="width: 80px" />
 
-        <pv-column header="Propiedad" sortable field="name">
+        <pv-column :header="t('staffHotels.property')" sortable field="name">
           <template #body="{ data }">
             <div class="flex align-items-center gap-3">
-              <div class="w-3rem h-3rem border-circle overflow-hidden surface-ground border-1 surface-border">
-                <img :src="data.photoUrl || 'https://placehold.co/100'" class="w-full h-full object-cover" alt="Hotel" @error="onImageError" />
+              <div class="w-3rem h-3rem border-circle overflow-hidden surface-ground border-1 surface-border flex align-items-center justify-content-center">
+                <img v-if="data.photoUrl" :src="data.photoUrl" class="w-full h-full object-cover" :alt="data.name" />
+                <i v-else class="pi pi-building text-color-secondary"></i>
               </div>
               <div class="flex flex-column">
-                <span class="font-bold text-color">{{ data.name }}</span>
+                <span class="font-bold text-color">
+                  {{ data.name }}
+                  <pv-tag v-if="data.id === currentUser?.hotelId" :value="t('staffHotels.yourHotel')" severity="info" class="ml-1" />
+                </span>
                 <span class="text-sm text-color-secondary">{{ data.type }}</span>
               </div>
             </div>
           </template>
         </pv-column>
 
-        <pv-column field="location" header="Ubicación" sortable>
+        <pv-column field="location" :header="t('staffHotels.location')" sortable>
           <template #body="{ data }">
             <div class="flex align-items-center gap-2">
               <i class="pi pi-map-marker text-primary"></i>
-              <span class="text-color">{{ data.location || data.city }}</span>
+              <span class="text-color">{{ data.location }}</span>
             </div>
           </template>
         </pv-column>
 
-        <pv-column field="basePrice" header="Precio Base" sortable>
+        <pv-column field="basePrice" :header="t('staffHotels.fromPrice')" sortable>
           <template #body="{ data }">
-            <span class="font-medium text-color">${{ data.basePrice }}</span>
+            <span class="font-medium text-color">{{ formatMoney(data.basePrice, locale) }}</span>
           </template>
         </pv-column>
 
-        <pv-column header="Rating" sortable field="rating">
+        <pv-column :header="t('common.actions')" style="width: 150px">
           <template #body="{ data }">
-            <pv-tag v-if="data.rating != null" :value="data.rating + ' ★'" severity="warning" rounded />
-            <span v-else class="text-color-secondary">{{ $t('common.notAvailable') }}</span>
-          </template>
-        </pv-column>
-
-        <pv-column header="Acciones" style="width: 150px">
-          <template #body="{ data }">
-            <div class="flex gap-2">
-              <pv-button
-                  icon="pi pi-pencil"
-                  class="p-button-rounded p-button-text p-button-info"
-                  v-tooltip="'Editar'"
-                  @click="editHotel(data.id)"
-              />
-              <pv-button
-                  icon="pi pi-trash"
-                  class="p-button-rounded p-button-text p-button-danger"
-                  v-tooltip="'Eliminar'"
-                  @click="confirmDelete(data)"
-              />
+            <div v-if="canManage(data)" class="flex gap-2">
+              <pv-button icon="pi pi-pencil" class="p-button-rounded p-button-text p-button-info" :aria-label="t('common.edit')" v-tooltip="t('common.edit')" @click="router.push({ name: 'edit-hotel', params: { hotelId: data.id } })" />
+              <pv-button icon="pi pi-trash" class="p-button-rounded p-button-text p-button-danger" :aria-label="t('common.delete')" v-tooltip="t('common.delete')" @click="confirmDelete(data)" />
             </div>
           </template>
         </pv-column>
@@ -88,81 +67,56 @@
 </template>
 
 <script setup>
-import { onMounted } from 'vue';
+import { computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useToast } from 'primevue/usetoast';
-import { useConfirm } from 'primevue/useconfirm'; // Importar Confirmación
+import { useConfirm } from 'primevue/useconfirm';
+import { useI18n } from 'vue-i18n';
 import { useHotelStore } from '@/accommodations/application/hotel.store.js';
+import useIamStore from '@/iam/application/iam.store.js';
+import { UserRole, canManageHotel, canRegisterHotel } from '@/iam/domain/user-role.js';
+import { apiErrorKey } from '@/shared/presentation/utils/api-error.js';
+import { formatMoney } from '@/shared/presentation/utils/formatters.js';
 
+/**
+ * Hotels of the staff area. Every staff role can read them; an admin edits only their hotel
+ * and registers at most one (D2); a chain_admin manages all of them.
+ */
 const router = useRouter();
 const toast = useToast();
-const confirm = useConfirm(); // Instancia de confirmación
+const confirm = useConfirm();
+const { t, locale } = useI18n();
 const hotelStore = useHotelStore();
+const iamStore = useIamStore();
 
-onMounted(async () => {
-  await hotelStore.fetchAllHotels();
+const currentUser = computed(() => iamStore.currentUser);
+const canRegister = computed(() => canRegisterHotel(currentUser.value));
+const subtitle = computed(() => {
+  if (iamStore.role === UserRole.ADMIN && currentUser.value?.hotelId == null) return t('staffHotels.subtitleNoHotel');
+  return iamStore.role === UserRole.CHAIN_ADMIN ? t('staffHotels.subtitleChain') : t('staffHotels.subtitle');
 });
 
-/**
- * Navigates back to the staff dashboard.
- */
+const canManage = (hotel) => canManageHotel(currentUser.value, hotel.id);
+
+onMounted(() => hotelStore.fetchAllHotels());
+
 const goBack = () => router.push({ name: 'staff-dashboard' });
 
-/**
- * Navigates to the create hotel page.
- */
-const goToCreateHotel = () => {
-  router.push({ name: 'create-hotel' });
-};
-
-/**
- * Handles image loading errors by setting a placeholder.
- * @param {Event} event - The error event.
- */
-const onImageError = (event) => {
-  event.target.src = 'https://placehold.co/100?text=No+Image';
-};
-
-// --- ACCIONES NUEVAS ---
-
-/**
- * Navigates to the edit hotel page for the given hotel ID.
- * @param {number} hotelId - The hotel identifier.
- */
-const editHotel = (hotelId) => {
-  // Redirige a la vista de edición (asegúrate de tener la ruta creada)
-  router.push({ name: 'edit-hotel', params: { hotelId } });
-};
-
-/**
- * Shows a confirmation dialog for deleting a hotel.
- * @param {Object} hotel - The hotel object to delete.
- * @param {number} hotel.id - The hotel identifier.
- * @param {string} hotel.name - The hotel name.
- */
-const confirmDelete = (hotel) => {
+function confirmDelete(hotel) {
   confirm.require({
-    message: `¿Estás seguro de que deseas eliminar "${hotel.name}"? Esta acción borrará todas sus habitaciones asociadas.`,
-    header: 'Confirmar Eliminación',
+    header: t('staffHotels.deleteHeader'),
+    message: t('staffHotels.deleteMessage', { name: hotel.name }),
     icon: 'pi pi-exclamation-triangle',
-    acceptClass: 'p-button-danger',
-    accept: () => deleteHotel(hotel.id),
-    reject: () => {
-      // Opcional: toast de cancelado
-    }
+    acceptProps: { label: t('common.delete'), severity: 'danger' },
+    rejectProps: { label: t('common.cancel'), severity: 'secondary', outlined: true },
+    accept: async () => {
+      try {
+        await hotelStore.deleteHotel(hotel.id);
+        toast.add({ severity: 'success', summary: t('common.success'), detail: t('staffHotels.deleted'), life: 3000 });
+      } catch (err) {
+        toast.add({ severity: 'error', summary: t('common.error'), detail: t(apiErrorKey(err, { 403: 'staffHotels.outOfScope' })), life: 4000 });
+      }
+    },
   });
-};
-
-/**
- * Deletes a hotel by ID.
- * @param {number} id - The hotel identifier.
- */
-const deleteHotel = async (id) => {
-  try {
-    await hotelStore.deleteHotel(id);
-    toast.add({ severity: 'success', summary: 'Eliminado', detail: 'El hotel ha sido eliminado.', life: 3000 });
-  } catch (err) {
-    toast.add({ severity: 'error', summary: 'Error', detail: 'No se pudo eliminar el hotel.', life: 3000 });
-  }
-};
+}
 </script>
