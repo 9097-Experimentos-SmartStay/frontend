@@ -209,7 +209,6 @@ onBeforeUnmount(() => clearInterval(clock));
   font-weight: 700;
   padding: 0.15rem 0.45rem;
   border-radius: 999px;
-  text-transform: uppercase;
 }
 .legend-chip {
   display: inline-flex;
