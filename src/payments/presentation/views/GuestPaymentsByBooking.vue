@@ -5,13 +5,8 @@
     <div class="w-full max-w-6xl mx-auto">
       <div class="flex justify-content-between align-items-center mb-6">
         <div class="flex align-items-center gap-3">
-          <pv-button
-              icon="pi pi-arrow-left"
-              label="Volver"
-              class="p-button-outlined p-button-sm"
-              @click="goBack"
-          />
-          <h3 class="text-3xl font-bold text-color m-0">Pagos de la Reserva #{{ bookingId }}</h3>
+          <pv-button icon="pi pi-arrow-left" :label="t('common.back')" class="p-button-outlined p-button-sm" @click="goBack" />
+          <h1 class="text-3xl font-bold text-color m-0">{{ t('guestPayment.byBookingTitle', { id: bookingId }) }}</h1>
         </div>
       </div>
 
@@ -25,92 +20,56 @@
           responsive-layout="scroll"
           class="shadow-2 border-round-xl overflow-hidden"
       >
-        <template #header>
-          <div class="p-3 surface-card border-bottom-1 surface-border">
-            <span class="text-lg font-semibold text-color">Historial de transacciones</span>
-          </div>
-        </template>
-
-        <pv-column field="id" header="ID" sortable />
-        <pv-column field="amount" header="Monto" sortable>
+        <pv-column field="id" header="ID" />
+        <pv-column field="amount" :header="t('payments.amount')">
           <template #body="{ data }">
-            <span class="font-bold text-900">${{ data.amount?.toFixed(2) || '0.00' }}</span>
+            <span class="font-bold text-900">{{ formatMoney(data.amount, locale) }}</span>
           </template>
         </pv-column>
-        <pv-column field="paymentMethod" header="Método" /> <pv-column field="status" header="Estado" sortable>
-        <template #body="{ data }">
-          <pv-tag
-              :value="data.status"
-              :severity="getStatusSeverity(data.status)"
-              rounded
-          />
-        </template>
-      </pv-column>
-        <pv-column field="paymentDate" header="Fecha" sortable>
+        <pv-column field="cardNumberMasked" :header="t('guestPayment.card')" />
+        <pv-column field="status" :header="t('bookings.status')">
           <template #body="{ data }">
-            {{ formatDate(data.paymentDate) }}
+            <pv-tag :value="paymentStatusLabel(t, data.status)" :severity="paymentStatusSeverity(data.status)" rounded />
           </template>
         </pv-column>
-        <pv-column field="transactionId" header="Transacción ID"> <template #body="{ data }">
-          <span class="text-sm text-500">{{ data.transactionId || 'N/A' }}</span>
-        </template>
+        <pv-column field="paymentDate" :header="t('payments.date')">
+          <template #body="{ data }">{{ formatDateTime(data.paymentDate, locale) }}</template>
+        </pv-column>
+        <pv-column field="transactionId" :header="t('guestPayment.transactionColumn')">
+          <template #body="{ data }">
+            <span class="text-sm text-500">{{ data.transactionId || '—' }}</span>
+          </template>
         </pv-column>
       </pv-data-table>
 
       <div v-else class="text-center p-8 surface-card border-round-xl shadow-1">
         <i class="pi pi-credit-card text-500 text-6xl mb-3"></i>
-        <p class="text-xl text-color font-medium">No hay pagos registrados para esta reserva</p>
+        <p class="text-xl text-color font-medium">{{ t('guestPayment.noPayments') }}</p>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import { usePaymentStore } from '../../application/payment.store.js';
+import { paymentStatusLabel, paymentStatusSeverity } from '../utils/payment-status.js';
+import { formatDateTime, formatMoney } from '@/shared/presentation/utils/formatters.js';
 
 const props = defineProps({
-  bookingId: {
-    type: [String, Number],
-    required: true
-  }
+  bookingId: { type: [String, Number], required: true }
 });
 
 const router = useRouter();
+const { t, locale } = useI18n();
 const paymentStore = usePaymentStore();
 
-const paymentsList = computed(() => {
-  return paymentStore.currentPayment ? [paymentStore.currentPayment] : [];
-});
+/** GET /payments/booking/{id} returns ONE payment: the completed one, or the latest attempt. */
+const paymentsList = computed(() => (paymentStore.currentPayment ? [paymentStore.currentPayment] : []));
 
-onMounted(async () => {
-  await paymentStore.fetchPaymentByBooking(Number(props.bookingId));
-});
+onMounted(() => paymentStore.fetchPaymentByBooking(Number(props.bookingId)).catch(() => {}));
 
-const goBack = () => {
-  router.push({ name: 'guest-booking-detail', params: { bookingId: props.bookingId } });
-};
-
-const getStatusSeverity = (status) => {
-  const statusMap = {
-    'Pending': 'warning',
-    'Completed': 'success',
-    'Failed': 'danger',
-    'Refunded': 'info'
-  };
-  return statusMap[status] || 'secondary';
-};
-
-const formatDate = (dateString) => {
-  if (!dateString) return 'N/A';
-  const date = new Date(dateString);
-  return date.toLocaleDateString('es-ES', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  });
-};
+const goBack = () => router.push({ name: 'guest-booking-detail', params: { bookingId: props.bookingId } });
 </script>
