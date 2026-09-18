@@ -810,15 +810,18 @@
   "guestPayment": {
     "pricePerNight": "Precio por noche",
     "howToPay": "Cómo pagar",
-    "instructionsIntro": "Paga {total} por Yape, Plin o transferencia bancaria e indica el código {code}. Cuando el hotel registre tu pago, tu reserva quedará confirmada.",
+    "instructionsIntro": "Paga {total} con uno de los métodos del hotel e indica el código {code}. Cuando el hotel registre tu pago, tu reserva quedará confirmada.",
     "steps": {
       "reference": "Escribe el código {code} en el mensaje o la descripción del pago.",
       "keepReceipt": "Guarda el número de operación o la captura del pago.",
       "confirmation": "Cuando el hotel registre tu pago, te enviaremos la confirmación.",
-      "email": "Revisa el correo que te enviamos a {email}: tiene los números de Yape y Plin, la cuenta bancaria y el titular."
+      "email": "Revisa el correo que te enviamos a {email}: tiene los datos de pago del hotel."
     },
     "bookingCode": "Código de reserva",
-    "atFrontDesk": "¿Llegas antes del plazo? También puedes pagar en la recepción del hotel, en efectivo o con tarjeta."
+    "atFrontDesk": "¿Llegas antes del plazo? También puedes pagar en la recepción del hotel, en efectivo o con tarjeta.",
+    "accountHolder": "Titular",
+    "account": "Cuenta",
+    "cci": "CCI"
   },
   "staffPayments": {
     "title": "Gestión de pagos",
@@ -1112,10 +1115,12 @@
     "noResults": "No hay habitaciones libres para esas fechas. Prueba con otras fechas u otro hotel.",
     "confirmTitle": "Confirma tu reserva",
     "total": "Total",
-    "pendingNote": "Tu reserva quedará pendiente de pago. Tendrás 24 horas para pagar por Yape, Plin o transferencia; te enviaremos un correo con el código y los datos de pago.",
+    "pendingNote": "Tu reserva quedará pendiente de pago. Tendrás 24 horas para pagar con los métodos del hotel; te los mostraremos en tu reserva y te enviaremos un correo con el código y los datos de pago.",
     "noLongerAvailable": "Esta habitación ya no está disponible para esas fechas: otra persona la reservó. Busca de nuevo.",
     "searchAgain": "Buscar de nuevo",
-    "confirm": "Confirmar reserva"
+    "confirm": "Confirmar reserva",
+    "hotelNotAccepting": "Este hotel aún no acepta reservas en línea: todavía no configuró sus métodos de pago. Elige otro hotel o inténtalo más tarde.",
+    "hotelNotAcceptingBadge": "Aún no acepta reservas"
   },
   "paymentStatus": {
     "Completed": "Pagado",
@@ -1157,7 +1162,8 @@
       "guestEmail": "Ingresa un correo válido (por ejemplo, nombre{'@'}dominio.com): ahí llegan los correos de la reserva.",
       "guestPhone": "El teléfono debe tener de 7 a 15 dígitos y puede empezar con +.",
       "roomRequired": "Elige una habitación."
-    }
+    },
+    "hotelNotAccepting": "El hotel aún no acepta reservas porque no tiene métodos de pago. El administrador del hotel debe configurarlos en Hoteles → Métodos de pago."
   },
   "changeBooking": {
     "title": "Modificar la reserva {code}",
