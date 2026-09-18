@@ -18,6 +18,7 @@ const REASON_BY_CODE = Object.freeze({
     'booking.change_not_allowed': BookingFailureReason.NOT_CHANGEABLE,
     'booking.room_of_other_hotel': BookingFailureReason.OTHER_HOTEL_ROOM,
     'booking.check_in_in_past': BookingFailureReason.CHECK_IN_IN_PAST,
+    'booking.hotel_payment_settings_missing': BookingFailureReason.HOTEL_NOT_ACCEPTING_BOOKINGS,
 });
 
 /** Stay problems (whole-request codes) → violation of the stay picker. */

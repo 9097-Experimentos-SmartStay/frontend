@@ -12,4 +12,6 @@ export const BookingFailureReason = Object.freeze({
     OTHER_HOTEL_ROOM: 'otherHotelRoom',
     /** 400: check-in before today (hotel time). */
     CHECK_IN_IN_PAST: 'checkInInPast',
+    /** 409: the hotel has no payment methods yet, so it does not accept bookings (US-53). */
+    HOTEL_NOT_ACCEPTING_BOOKINGS: 'hotelNotAcceptingBookings',
 });

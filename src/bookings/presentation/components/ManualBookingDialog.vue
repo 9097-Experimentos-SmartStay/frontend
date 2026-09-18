@@ -178,7 +178,7 @@ async function create() {
     } else if (failure.hasFieldViolations) {
       errors.value = messages(failure.fieldViolations);
     } else {
-      errorMessage.value = t(failureMessageKey(failure, { forbidden: 'manualBooking.otherHotel' }));
+      errorMessage.value = t(failureMessageKey(failure, { forbidden: 'manualBooking.otherHotel', hotelNotAcceptingBookings: 'manualBooking.hotelNotAccepting' }));
     }
   }
 }

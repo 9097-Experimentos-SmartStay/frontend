@@ -27,7 +27,14 @@
                     :placeholder="t('guestSearch.hotelPlaceholder')"
                     :invalid="!!hotelError"
                     filter
-                />
+                >
+                  <template #option="{ option }">
+                    <div class="flex align-items-center justify-content-between gap-2 w-full">
+                      <span>{{ option.name }}</span>
+                      <pv-tag v-if="!option.acceptsBookings" :value="t('guestSearch.hotelNotAcceptingBadge')" severity="warn" />
+                    </div>
+                  </template>
+                </pv-select>
                 <small v-if="hotelError" class="p-error">{{ hotelError }}</small>
               </div>
               <div class="col-12 lg:col-8">
@@ -41,10 +48,12 @@
         </template>
       </pv-card>
 
+      <!-- A hotel without payment methods does not accept bookings (409 booking.hotel_payment_settings_missing) -->
+      <pv-message v-if="hotelNotAccepting" severity="warn" class="mb-3">{{ t('guestSearch.hotelNotAccepting') }}</pv-message>
       <pv-message v-if="searchError" severity="error" class="mb-3">{{ searchError }}</pv-message>
 
       <!-- Results: only rooms free for the whole stay, with price per night and total -->
-      <template v-if="searched && !bookingStore.searching">
+      <template v-if="searched && !bookingStore.searching && !hotelNotAccepting">
         <p class="text-color-secondary mb-3">
           {{ t('guestSearch.results', { count: results.length, nights: stay.nights }, results.length) }}
         </p>
@@ -158,6 +167,9 @@ const confirmation = reactive({ visible: false, room: null, unavailable: false, 
 const results = computed(() => [...bookingStore.availableRooms].sort((a, b) => (b.roomId === highlightedRoomId) - (a.roomId === highlightedRoomId)));
 
 const hotelName = (id) => hotelStore.hotels.find((hotel) => hotel.id === id)?.name ?? '';
+const selectedHotel = computed(() => hotelStore.hotels.find((hotel) => hotel.id === hotelId.value) ?? null);
+/** The selected hotel has no payment methods yet: nothing can be booked there. */
+const hotelNotAccepting = computed(() => selectedHotel.value?.acceptsBookings === false);
 
 async function search() {
   searchError.value = '';
@@ -165,7 +177,7 @@ async function search() {
   const query = new SearchAvailabilityQuery({ hotelId: hotelId.value, stay: stay.value });
   const rule = query.validate();
   stayError.value = rule ? t(`stayRules.${rule}`) : '';
-  if (rule || hotelError.value) return;
+  if (rule || hotelError.value || hotelNotAccepting.value) return;
 
   try {
     await bookingStore.searchAvailability(query);
@@ -196,6 +208,7 @@ async function book() {
     await router.push({ name: 'guest-booking-detail', params: { bookingId: booking.id }, query: { created: '1' } });
   } catch (failure) {
     if (failure.reason === BookingFailureReason.ROOM_UNAVAILABLE) confirmation.unavailable = true;
+    else if (failure.reason === BookingFailureReason.HOTEL_NOT_ACCEPTING_BOOKINGS) confirmation.error = t('guestSearch.hotelNotAccepting');
     else if (failure.fieldViolations?.stay) confirmation.error = t(`stayRules.${failure.fieldViolations.stay.code}`);
     else confirmation.error = t(failureMessageKey(failure));
   }
