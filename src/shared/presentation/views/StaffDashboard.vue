@@ -60,6 +60,7 @@
 
     <main class="flex-1 p-4 md:p-6 w-full max-w-8xl mx-auto">
       <EmailVerificationBanner />
+      <PaymentSettingsBanner />
 
       <div class="mb-4">
         <h1 class="text-3xl font-bold text-color m-0">{{ t('staffPanel.welcome', { name: user?.firstName || user?.displayName }) }}</h1>
@@ -168,6 +169,7 @@ import { useI18n } from 'vue-i18n';
 import useIamStore from '@/iam/application/iam.store.js';
 import { Capability, canRegisterHotel } from '@/iam/domain/user-role.js';
 import EmailVerificationBanner from '@/iam/presentation/components/email-verification-banner.vue';
+import PaymentSettingsBanner from '@/accommodations/presentation/components/PaymentSettingsBanner.vue';
 import LanguageSwitcher from '@/shared/presentation/components/language-switcher.vue';
 import { useAnalyticsStore } from '@/analytics/application/analytics.store.js';
 import { formatMoney } from '@/shared/presentation/utils/formatters.js';
