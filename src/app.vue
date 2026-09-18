@@ -23,9 +23,13 @@ watch(locale, (value) => {
 </script>
 
 <style>
-/* Reset y estilos base */
-#app {
+/* Reset y estilos base. The font goes on body so PrimeVue overlays teleported to body (toasts, date pickers,
+   select panels, menus) use it too. */
+body {
   font-family: 'Poppins', sans-serif;
+}
+
+#app {
   min-height: 100vh;
   background-color: #f8f9fa;
   color: #333;
