@@ -68,6 +68,7 @@ export const useRoomStore = defineStore('room', () => {
     async function fetchRoomById(id) {
         loading.value = true;
         error.value = null;
+        currentRoom.value = null;
         try {
             const response = await roomApi.getById(id);
             currentRoom.value = RoomAssembler.toEntityFromResponse(response);
@@ -120,7 +121,7 @@ export const useRoomStore = defineStore('room', () => {
             if (!roomData.roomTypeId) throw new Error('Room Type is required');
             if (!roomData.description) throw new Error('Description is required');
 
-            const response = await roomApi.create(roomData);
+            const response = await roomApi.create(RoomAssembler.toCreateResource(roomData));
             const newRoom = RoomAssembler.toEntityFromResponse(response);
 
             if(newRoom) {
@@ -189,7 +190,7 @@ export const useRoomStore = defineStore('room', () => {
     async function updateRoom(id, roomData) {
         loading.value = true;
         try {
-            const response = await roomApi.update(id, roomData);
+            const response = await roomApi.update(id, RoomAssembler.toUpdateResource(roomData));
             const updatedRoom = RoomAssembler.toEntityFromResponse(response);
 
             // Optimistic Update: Update local state

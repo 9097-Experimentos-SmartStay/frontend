@@ -1,56 +1,73 @@
-﻿import { Hotel } from '../domain/model/hotel.entity.js';
+import { Hotel } from '../domain/model/hotel.entity.js';
+import { HotelLocation } from '../domain/model/hotel-location.js';
 
 /**
- * Assembler to convert data between Infrastructure (API Resource) and Domain (Entity).
+ * HotelResource (§4) ↔ {@link Hotel}.
  * @class
  */
 export class HotelAssembler {
     /**
-     * Converts a raw resource object from the API into a Hotel Entity.
-     * @param {Object} resource - The raw data from the API response.
-     * @param {number} resource.id - The unique identifier.
-     * @param {string} resource.name - The name of the hotel.
-     * @param {string} resource.description - The description.
-     * @param {string} resource.location - The location.
-     * @param {string} resource.imageUrl - The URL of the image.
-     * @param {number} resource.basePrice - The base price.
-     * @param {Array<string>} resource.amenities - The list of amenities.
-     * @returns {Hotel} The domain entity.
+     * @param {Object} resource
+     * @returns {Hotel|null}
      */
     static toEntityFromResource(resource) {
         if (!resource) return null;
         return new Hotel({
             id: resource.id,
+            hostId: resource.hostId ?? null,
             name: resource.name,
             description: resource.description,
-            location: resource.location,
-            // No fabricated ratings: null until the backend provides one (reviews are out of scope).
-            rating: resource.rating ?? null,
+            location: HotelLocation.parse(resource.location),
+            type: resource.type,
             photoUrl: resource.imageUrl,
             basePrice: resource.basePrice,
-            amenities: resource.amenities
+            amenities: resource.amenities,
+            rating: resource.rating ?? null,
         });
     }
 
     /**
-     * Converts a list of resources into a list of Hotel Entities.
-     * @param {Object} response - The Axios response object.
-     * @param {Array} response.data - The array of resource objects.
-     * @returns {Array<Hotel>} List of Hotel entities.
+     * @param {Object} response - Axios response.
+     * @returns {Hotel[]}
      */
     static toEntitiesFromResponse(response) {
-        if (!response.data || !Array.isArray(response.data)) return [];
-        return response.data.map(resource => HotelAssembler.toEntityFromResource(resource));
+        if (!Array.isArray(response?.data)) return [];
+        return response.data.map(HotelAssembler.toEntityFromResource);
     }
 
     /**
-     * Converts a single resource response into a Hotel Entity.
-     * @param {Object} response - The Axios response object.
-     * @param {Object} response.data - The resource object.
-     * @returns {Hotel} The domain entity.
+     * @param {Object} response - Axios response.
+     * @returns {Hotel|null}
      */
     static toEntityFromResponse(response) {
-        if (!response.data) return null;
-        return HotelAssembler.toEntityFromResource(response.data);
+        return HotelAssembler.toEntityFromResource(response?.data);
+    }
+
+    /**
+     * Body of POST /hotels and PUT /hotels/{id} (every string is required).
+     * `hostId` is never sent: an admin always hosts their own hotel, and for a chain_admin
+     * the backend defaults to the caller.
+     * @param {Object} form
+     * @param {string} form.name
+     * @param {string} form.address
+     * @param {string} form.city
+     * @param {string} form.country
+     * @param {string} form.description
+     * @param {string} form.imageUrl
+     * @param {string} form.type
+     * @param {string[]} form.amenities
+     * @returns {Object}
+     */
+    static toSaveResource(form) {
+        return {
+            name: form.name.trim(),
+            address: form.address.trim(),
+            city: form.city.trim(),
+            country: form.country.trim(),
+            description: form.description.trim(),
+            imageUrl: form.imageUrl.trim(),
+            type: form.type,
+            amenities: [...form.amenities],
+        };
     }
 }

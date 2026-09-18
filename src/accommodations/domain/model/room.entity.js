@@ -1,3 +1,11 @@
+/** Operational status of a room (US-29). New rooms start Available. */
+export const RoomStatus = Object.freeze({
+    AVAILABLE: 'Available',
+    OCCUPIED: 'Occupied',
+    CLEANING: 'Cleaning',
+    MAINTENANCE: 'Maintenance',
+});
+
 /**
  * Room Domain Entity.
  * Represents a room within the business logic.
@@ -14,8 +22,9 @@ export class Room {
      * @param {number} params.price - The price of the room.
      * @param {string} params.description - The description of the room.
      * @param {string[]} params.amenities - The list of amenities for the room.
+     * @param {string|null} [params.status] - One of {@link RoomStatus} (null when the API does not send it).
      */
-    constructor({ id, hotelId, roomTypeId, roomTypeName, price, description, amenities }) {
+    constructor({ id, hotelId, roomTypeId, roomTypeName, price, description, amenities, status = null }) {
         /**
          * @property {number} id - The unique identifier of the room.
          */
@@ -44,6 +53,10 @@ export class Room {
          * @property {string[]} amenities - The list of amenities for the room.
          */
         this.amenities = amenities || [];
+        /**
+         * @property {string|null} status - Operational status (Available, Occupied, Cleaning, Maintenance).
+         */
+        this.status = status;
     }
 
     /**

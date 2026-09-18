@@ -5,6 +5,8 @@ import { AccommodationOptionsApi } from '../infrastructure/api/accommodation-opt
 import { HotelAssembler } from '../infrastructure/hotel.assembler.js';
 import { uploadImage } from '@/shared/infrastructure/services/image-upload.service.js';
 import { reportError } from '@/shared/infrastructure/logging/report-error.js';
+import useIamStore from '@/iam/application/iam.store.js';
+import { UserRole } from '@/iam/domain/user-role.js';
 
 const hotelApi = new HotelApi();
 const optionsApi = new AccommodationOptionsApi();
@@ -70,6 +72,7 @@ export const useHotelStore = defineStore('hotel', () => {
      */
     async function fetchHotelById(id) {
         loading.value = true;
+        currentHotel.value = null;
         try {
             const response = await hotelApi.getById(id);
             currentHotel.value = HotelAssembler.toEntityFromResponse(response);
@@ -82,39 +85,30 @@ export const useHotelStore = defineStore('hotel', () => {
     }
 
     /**
-     * Creates a new hotel.
-     * Includes Domain Validation logic (previously in Service).
-     * @param {Object} hotelData - The data for the new hotel.
-     * @param {string} hotelData.name - The name of the hotel.
-     * @param {string} hotelData.address - The address.
-     * @param {string} hotelData.city - The city.
-     * @param {string} hotelData.country - The country.
+     * Registers a hotel (POST /hotels).
+     * D2: an admin can register ONE hotel, which becomes their `hotelId` from the next request
+     * (the session is updated here so the UI reflects it at once); a second one answers 409.
+     * @param {Object} form - See HotelAssembler.toSaveResource.
      * @returns {Promise<Hotel>} The created hotel entity.
+     * @throws The HTTP error (409 admin already has a hotel, 403, 400).
      */
-    async function createHotel(hotelData) {
+    async function createHotel(form) {
         loading.value = true;
         try {
-            // --- Domain Validation Logic ---
-            if (!hotelData.name) {
-                throw new Error('Hotel name is required');
-            }
-            if (!hotelData.address || !hotelData.city || !hotelData.country) {
-                throw new Error('Full location (Address, City, Country) is required');
-            }
-
-            // --- API Call ---
-            const response = await hotelApi.create(hotelData);
-
-            // Update state with the new entity
+            const response = await hotelApi.create(HotelAssembler.toSaveResource(form));
             const newHotel = HotelAssembler.toEntityFromResponse(response);
             if (newHotel) {
                 hotels.value.push(newHotel);
+                const iamStore = useIamStore();
+                if (iamStore.role === UserRole.ADMIN && iamStore.currentUser?.hotelId == null) {
+                    iamStore.updateCurrentUser({ hotelId: newHotel.id });
+                }
             }
             return newHotel;
         } catch (err) {
             reportError('Error creating hotel', err);
             error.value = err;
-            throw err; // Re-throw to handle in UI (e.g., Toast)
+            throw err;
         } finally {
             loading.value = false;
         }
@@ -173,15 +167,13 @@ export const useHotelStore = defineStore('hotel', () => {
     /**
      * Updates an existing hotel.
      * @param {number} id - The ID of the hotel to update.
-     * @param {Object} hotelData - The updated data (UpdateHotelResource).
+     * @param {Object} hotelData - Form data (see HotelAssembler.toSaveResource).
      * @returns {Promise<Hotel>} The updated hotel entity.
      */
     async function updateHotel(id, hotelData) {
         loading.value = true;
         try {
-            // Validation Logic could go here
-
-            const response = await hotelApi.update(id, hotelData);
+            const response = await hotelApi.update(id, HotelAssembler.toSaveResource(hotelData));
             const updatedHotel = HotelAssembler.toEntityFromResponse(response);
 
             // Optimistic Update: Update the item in the local list
