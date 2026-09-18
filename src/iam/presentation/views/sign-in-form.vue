@@ -53,6 +53,17 @@
             :to="{ name: 'forgot-password', query: { email: form.email } }"
             class="block mt-2 font-semibold"
         >{{ t('auth.resetPasswordAction') }}</router-link>
+        <template v-if="needsVerification">
+          <span v-if="verificationSent" class="block mt-2 font-semibold">{{ t('auth.verifyEmail.resent') }}</span>
+          <pv-button
+              v-else
+              :label="t('auth.verificationBanner.resend')"
+              icon="pi pi-envelope"
+              class="p-button-sm p-button-outlined mt-2"
+              :loading="resending"
+              @click="resendVerification"
+          />
+        </template>
       </pv-message>
 
       <pv-button type="submit" :label="t('auth.signInButton')" class="w-full" :loading="loading" />
@@ -99,6 +110,9 @@ const noticeKey = computed(() => {
 });
 
 const isLocked = computed(() => failure.value?.reason === AuthFailureReason.ACCOUNT_LOCKED);
+const needsVerification = computed(() => failure.value?.reason === AuthFailureReason.EMAIL_NOT_VERIFIED);
+const resending = ref(false);
+const verificationSent = ref(false);
 const failureText = computed(() => (failure.value ? authFailureMessage(t, locale.value, failure.value) : ''));
 
 function validate() {
@@ -116,8 +130,22 @@ function safeRedirect() {
   return typeof target === 'string' && target.startsWith('/') && !target.startsWith('//') ? target : null;
 }
 
+/** Sign-in requires a verified e-mail: offer a new verification link right there. */
+async function resendVerification() {
+  resending.value = true;
+  try {
+    await iamStore.resendVerification(form.email.trim());
+    verificationSent.value = true;
+  } catch (error) {
+    failure.value = AuthFailure.from(error);
+  } finally {
+    resending.value = false;
+  }
+}
+
 async function submit() {
   failure.value = null;
+  verificationSent.value = false;
   if (!validate()) return;
 
   loading.value = true;

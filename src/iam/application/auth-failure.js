@@ -5,6 +5,7 @@ export const AuthFailureReason = Object.freeze({
     INVALID_CREDENTIALS: 'invalidCredentials',
     ACCOUNT_LOCKED: 'accountLocked',
     ACCOUNT_DEACTIVATED: 'accountDeactivated',
+    EMAIL_NOT_VERIFIED: 'emailNotVerified',
     EMAIL_ALREADY_REGISTERED: 'emailAlreadyRegistered',
     LINK_EXPIRED: 'linkExpired',
     LINK_INVALID: 'linkInvalid',
