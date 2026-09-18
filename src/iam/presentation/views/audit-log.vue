@@ -96,7 +96,7 @@
           </template>
         </pv-column>
         <pv-column field="details" :header="t('audit.columns.details')">
-          <template #body="{ data }"><span class="text-sm">{{ data.details ?? '—' }}</span></template>
+          <template #body="{ data }"><span class="text-sm">{{ detailsLabel(data.details) }}</span></template>
         </pv-column>
         <pv-column field="ipAddress" :header="t('audit.columns.ip')">
           <template #body="{ data }"><span class="text-sm text-color-secondary">{{ data.ipAddress ?? '—' }}</span></template>
@@ -121,7 +121,7 @@ import { CalendarDate } from '@/shared/domain/calendar-date.js';
 /**
  * US-03 scenario 4: access audit with date, time, user and action, filtered and paginated by the API.
  */
-const { t, locale } = useI18n();
+const { t, te, locale } = useI18n();
 const router = useRouter();
 const toast = useToast();
 const iamStore = useIamStore();
@@ -139,6 +139,22 @@ const userOptions = computed(() => store.users.map((user) => ({ value: user.id, 
 const actionOptions = computed(() => Object.values(AuditAction).map((action) => ({ value: action, label: actionLabel(action) })));
 
 const actionLabel = (action) => t(`audit.actions.${action}`);
+const roleLabel = (role) => (te(`roles.${role}`) ? t(`roles.${role}`) : role);
+
+/** @param {import('../../domain/model/audit-details.js').AuditDetails|null} details */
+function detailsLabel(details) {
+  if (!details) return '—';
+  const parts = [];
+  if (details.isRoleChange) parts.push(t('audit.details.roleChange', { from: roleLabel(details.previousRole), to: roleLabel(details.newRole) }));
+  else if (details.role) parts.push(t('audit.details.role', { role: roleLabel(details.role) }));
+  if (details.method && te(`audit.details.method.${details.method}`)) parts.push(t(`audit.details.method.${details.method}`));
+  if (details.reason && te(`audit.details.reason.${details.reason}`)) parts.push(t(`audit.details.reason.${details.reason}`));
+  if (details.lockedUntil) parts.push(t('audit.details.lockedUntil', { time: details.lockedUntil.toLocaleString(locale.value, { dateStyle: 'short', timeStyle: 'short' }) }));
+  if (details.remainingRecoveryCodes != null) {
+    parts.push(t('audit.details.remainingCodes', { count: details.remainingRecoveryCodes }, details.remainingRecoveryCodes));
+  }
+  return parts.length ? parts.join(' · ') : '—';
+}
 
 function goBack() {
   router.push(iamStore.can(Capability.MANAGE_USERS) ? { name: 'staff-users' } : { name: 'staff-dashboard' });

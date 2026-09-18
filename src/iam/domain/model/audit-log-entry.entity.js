@@ -10,6 +10,12 @@ export const AuditAction = Object.freeze({
     ROLE_CHANGED: 'RoleChanged',
     USER_DEACTIVATED: 'UserDeactivated',
     USER_ACTIVATED: 'UserActivated',
+    MFA_ENABLED: 'MfaEnabled',
+    MFA_VERIFIED: 'MfaVerified',
+    MFA_FAILED: 'MfaFailed',
+    MFA_RECOVERY_CODE_USED: 'MfaRecoveryCodeUsed',
+    MFA_RESET: 'MfaReset',
+    SIGNED_OUT_EVERYWHERE: 'SignedOutEverywhere',
 });
 
 export const AuditOutcome = Object.freeze({
@@ -33,7 +39,7 @@ export class AuditLogEntry {
      * @param {string|null} params.targetEmail
      * @param {number|null} params.hotelId
      * @param {string|null} params.ipAddress
-     * @param {string|null} params.details
+     * @param {import('./audit-details.js').AuditDetails|null} params.details
      */
     constructor({ id, occurredAt, action, outcome, actorUserId, actorEmail, targetUserId, targetEmail, hotelId, ipAddress, details }) {
         this.id = id;

@@ -701,6 +701,26 @@
       "MfaReset": "Verificación en dos pasos restablecida",
       "SignedOutEverywhere": "Cierre de sesión en todos los dispositivos"
     },
+    "details": {
+      "role": "Rol: {role}",
+      "roleChange": "Rol: {from} → {to}",
+      "method": {
+        "AuthenticatorCode": "Con la app de autenticación",
+        "RecoveryCode": "Con un código de recuperación"
+      },
+      "reason": {
+        "WrongPassword": "Contraseña incorrecta",
+        "UnknownEmail": "Correo no registrado",
+        "AccountLocked": "Cuenta bloqueada",
+        "AccountDeactivated": "Cuenta desactivada",
+        "EmailNotVerified": "Correo sin confirmar",
+        "InvalidCode": "Código incorrecto",
+        "CodeAlreadyUsed": "Código ya usado",
+        "InvalidRecoveryCode": "Código de recuperación incorrecto"
+      },
+      "lockedUntil": "Bloqueada hasta el {time}",
+      "remainingCodes": "Queda {count} código de recuperación | Quedan {count} códigos de recuperación"
+    },
     "errors": {
       "load": "No pudimos cargar la auditoría."
     }
