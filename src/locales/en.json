@@ -855,13 +855,21 @@
     "alreadyHasHotel": "You already registered your hotel. A hotel administrator manages a single hotel; for more properties, contact the chain administrator.",
     "goToMyHotel": "View my hotel",
     "adminSingleHotelNote": "This will be your hotel: you will manage it and create staff users for it. A hotel administrator registers a single hotel.",
-    "uploadFailed": "The image could not be uploaded. Enter a URL instead.",
+    "upload": {
+      "imageTypeNotAllowed": "Choose a JPG, PNG or WebP image.",
+      "imageTooLarge": "The image is larger than {maxMb} MB. Choose a smaller one.",
+      "notConfigured": "Image uploads are not available right now. Try again later or contact the administrator.",
+      "rejected": "The image could not be uploaded. Please try again.",
+      "rateLimited": "You uploaded many images in a row. Wait a few minutes and try again.",
+      "forbidden": "Only administrators can upload hotel images."
+    },
     "rules": {
       "required": "This field is required.",
       "noCommas": "Do not use commas in this field.",
       "lengthRange": "Use between {min} and {max} characters.",
       "tooLong": "Use at most {max} characters.",
       "imageUrl": "Enter a full URL starting with http:// or https://.",
+      "imageNotHosted": "Use “Upload photo”: only images uploaded to SmartStay are accepted.",
       "serverRejected": "Check the value of this field."
     },
     "form": {
@@ -882,7 +890,7 @@
       "upload": "Upload photo",
       "url": "Direct URL",
       "chooseFile": "Choose file",
-      "fileHint": "Up to 1 MB (JPG, PNG).",
+      "fileHint": "JPG, PNG or WebP, up to 10 MB.",
       "preview": "Preview",
       "removeImage": "Remove image",
       "amenities": "Amenities",

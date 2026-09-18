@@ -16,6 +16,8 @@ export const HotelRuleError = Object.freeze({
     TOO_LONG: 'tooLong',
     URL: 'imageUrl',
     NO_COMMAS: 'noCommas',
+    /** The API only accepts images uploaded to the SmartStay image library (`hotel.image_url_not_allowed`). */
+    IMAGE_NOT_HOSTED: 'imageNotHosted',
 });
 
 const HTTP_URL = /^https?:\/\/\S+$/i;

@@ -56,6 +56,7 @@ import { AccommodationFailureReason } from '@/accommodations/application/accommo
 import { Capability, UserRole, canRegisterHotel } from '@/iam/domain/user-role.js';
 import { failureMessageKey, violationMessages } from '@/shared/presentation/utils/failure-message.js';
 import HotelForm from '../components/HotelForm.vue';
+import { hotelImageUploadMessage } from '../utils/hotel-image-messages.js';
 import AddCategoryDialog from '../components/AddCategoryDialog.vue';
 import AddAmenityDialog from '../components/AddAmenityDialog.vue';
 
@@ -89,8 +90,8 @@ const goBack = () => router.push({ name: 'staff-hotels' });
 async function onUploadImage(file) {
   try {
     form.imageUrl = await hotelStore.uploadHotelImage(file);
-  } catch {
-    toast.add({ severity: 'error', summary: t('common.error'), detail: t('staffHotels.uploadFailed'), life: 4000 });
+  } catch (failure) {
+    toast.add({ severity: 'error', summary: t('common.error'), detail: hotelImageUploadMessage(t, failure), life: 6000 });
   }
 }
 

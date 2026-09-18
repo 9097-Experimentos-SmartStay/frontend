@@ -3,7 +3,10 @@ import { ref } from 'vue';
 import { HotelApi } from '../infrastructure/api/hotel-api.js';
 import { AccommodationOptionsApi } from '../infrastructure/api/accommodation-options-api.js';
 import { HotelAssembler } from '../infrastructure/hotel.assembler.js';
-import { uploadImage } from '@/shared/infrastructure/services/image-upload.service.js';
+import { HotelImageApi, ImageHostingError } from '../infrastructure/api/hotel-image-api.js';
+import { validateHotelImageFile, HotelImageRuleError } from '../domain/hotel-image.js';
+import { AccommodationFailureReason } from './accommodation-failure.js';
+import { ProblemDetails } from '@/shared/infrastructure/http/problem-details.js';
 import { reportError } from '@/shared/infrastructure/logging/report-error.js';
 import { OperationFailure } from '@/shared/application/operation-failure.js';
 import { classifyAccommodationProblem, hotelFieldViolations } from '../infrastructure/accommodation-problem.assembler.js';
@@ -14,6 +17,7 @@ import useIamStore from '@/iam/application/iam.store.js';
 
 const hotelApi = new HotelApi();
 const optionsApi = new AccommodationOptionsApi();
+const hotelImageApi = new HotelImageApi();
 
 /**
  * Pinia Store for Hotel Management.
@@ -214,12 +218,37 @@ export const useHotelStore = defineStore('hotel', () => {
     }
 
     /**
-     * Uploads a hotel photo and returns its public URL.
+     * Uploads a hotel photo with a signed upload and returns its public URL.
+     * The file is checked first (JPG, PNG or WebP, at most 10 MB); then the API signs the upload and the browser
+     * sends the file straight to the image service.
      * @param {File} file - The image file selected by the user.
      * @returns {Promise<string>} The image URL to store in the hotel.
+     * @throws {OperationFailure} imageTypeNotAllowed | imageTooLarge | imageUploadsNotConfigured (503) |
+     *   rateLimited (429) | forbidden | imageUploadRejected | network
      */
     async function uploadHotelImage(file) {
-        return uploadImage(file);
+        const rule = validateHotelImageFile(file);
+        if (rule) {
+            const reason = rule.code === HotelImageRuleError.TOO_LARGE
+                ? AccommodationFailureReason.IMAGE_TOO_LARGE
+                : AccommodationFailureReason.IMAGE_TYPE_NOT_ALLOWED;
+            throw new OperationFailure(reason, new ProblemDetails({ status: null, params: rule.params ?? {} }));
+        }
+
+        let signature;
+        try {
+            signature = await hotelImageApi.requestUploadSignature();
+        } catch (err) {
+            reportError('Error requesting the upload signature of a hotel image', err);
+            throw hotelFailure(err);
+        }
+        try {
+            return await hotelImageApi.upload(file, signature);
+        } catch (err) {
+            reportError('Error uploading a hotel image', err);
+            const status = err instanceof ImageHostingError ? err.status : null;
+            throw new OperationFailure(AccommodationFailureReason.IMAGE_UPLOAD_REJECTED, new ProblemDetails({ status }));
+        }
     }
 
     return {

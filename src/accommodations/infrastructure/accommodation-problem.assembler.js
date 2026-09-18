@@ -15,6 +15,7 @@ const REASON_BY_CODE = Object.freeze({
     'room.has_active_bookings': AccommodationFailureReason.HAS_ACTIVE_BOOKINGS,
     'hotel.has_active_bookings': AccommodationFailureReason.HAS_ACTIVE_BOOKINGS,
     'hotel.admin_already_has_hotel': AccommodationFailureReason.HOTEL_ALREADY_REGISTERED,
+    'media.uploads_not_configured': AccommodationFailureReason.IMAGE_UPLOADS_NOT_CONFIGURED,
 });
 
 /**
@@ -62,6 +63,7 @@ export function hotelFieldViolations(problem) {
         const codes = fieldViolations.map(({ code }) => code);
         const length = fieldViolations.find(({ code }) => code === 'field.length');
         if (codes.includes('field.required')) violations[field] = { code: HotelRuleError.REQUIRED };
+        else if (codes.includes('hotel.image_url_not_allowed')) violations[field] = { code: HotelRuleError.IMAGE_NOT_HOSTED };
         else if (codes.includes('field.invalid_url')) violations[field] = { code: HotelRuleError.URL };
         else if (length?.params.minLength != null) {
             violations[field] = { code: HotelRuleError.LENGTH, params: { min: length.params.minLength, max: length.params.maxLength } };
