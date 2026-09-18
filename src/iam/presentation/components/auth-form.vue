@@ -77,11 +77,12 @@
 
 <script setup>
 import { reactive, ref, watch } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import useIamStore from '../../application/iam.store.js';
 import { SignInCommand } from '../../domain/sign-in.command.js';
 import { SignUpCommand } from '../../domain/sign-up.command.js';
+import { apiErrorKey } from '../../../shared/presentation/utils/api-error.js';
 
 const props = defineProps({
   startInLoginMode: {
@@ -91,6 +92,7 @@ const props = defineProps({
 });
 
 const router = useRouter();
+const route = useRoute();
 const { t } = useI18n();
 const store = useIamStore();
 const { signIn, signUp } = store;
@@ -112,7 +114,9 @@ const errors = reactive({
 });
 
 const loading = ref(false);
-const errorMessage = ref('');
+const errorMessage = ref(
+    isLoginMode.value && route.query.reason === 'session-expired' ? t('auth.sessionExpired') : ''
+);
 const successMessage = ref('');
 
 const roleOptions = [
@@ -175,39 +179,55 @@ async function handleSubmit() {
   errorMessage.value = '';
   successMessage.value = '';
 
-  try {
-    if (isLoginMode.value) {
-      // Login: We only send username and password.
-      // The backend (IAM Bounded Context) determines the role internally.
-      const signInCommand = new SignInCommand({
-        username: form.username,
-        password: form.password
-      });
-
-      await signIn(signInCommand, router);
-      // If we reach here, login was successful and router has redirected
-      loading.value = false;
-    } else {
-      // Register: Here we send the selected role as part of the Command
-      const signUpCommand = new SignUpCommand({
-        username: form.username,
-        password: form.password,
-        role: form.role,
-        name: form.name
-      });
-
-      await signUp(signUpCommand, router);
-      loading.value = false;
-      successMessage.value = t('auth.registerSuccess');
-      setTimeout(() => {
-        router.push('/login');
-      }, 2000);
-    }
-  } catch (error) {
-    loading.value = false;
-    errorMessage.value = t('auth.authFailedGeneric');
-    console.error('Auth error:', error);
+  if (isLoginMode.value) {
+    await submitSignIn();
+  } else {
+    await submitSignUp();
   }
+  loading.value = false;
+}
+
+async function submitSignIn() {
+  // Login: only username and password. The backend decides the role.
+  const signInCommand = new SignInCommand({
+    username: form.username,
+    password: form.password
+  });
+
+  try {
+    await signIn(signInCommand);
+  } catch (error) {
+    errorMessage.value = t(apiErrorKey(error, {
+      400: 'auth.invalidCredentials',
+      401: 'auth.invalidCredentials'
+    }));
+    return;
+  }
+  // The /dashboard route sends each role to its own dashboard.
+  await router.push({ name: 'dashboard' });
+}
+
+async function submitSignUp() {
+  const signUpCommand = new SignUpCommand({
+    username: form.username,
+    password: form.password,
+    role: form.role,
+    name: form.name
+  });
+
+  try {
+    await signUp(signUpCommand);
+  } catch (error) {
+    errorMessage.value = t(apiErrorKey(error, {
+      400: 'auth.registerInvalid',
+      409: 'auth.userAlreadyExists'
+    }));
+    return;
+  }
+  successMessage.value = t('auth.registerSuccess');
+  setTimeout(() => {
+    router.push({ name: 'login' });
+  }, 2000);
 }
 </script>
 

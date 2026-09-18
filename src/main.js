@@ -7,6 +7,8 @@ import 'primeflex/primeflex.css';
 import 'primeicons/primeicons.css';
 import router from "./router.js";
 import pinia from "./pinia.js";
+import { onUnauthorized } from './shared/infrastructure/http/http-client.js';
+import useIamStore from './iam/application/iam.store.js';
 import Carousel from 'primevue/carousel';
 
 import ConfirmationService from 'primevue/confirmationservice';
@@ -46,7 +48,7 @@ import InputMask from 'primevue/inputmask';
 import Skeleton from 'primevue/skeleton';
 
 // noinspection JSCheckFunctionSignatures
-createApp(App)
+const app = createApp(App)
     .use(i18n)
     .use(PrimeVue, { theme: { preset: Aura}, ripple: true })
     .use(ConfirmationService)
@@ -87,5 +89,14 @@ createApp(App)
     .component('pv-skeleton', Skeleton)
     .directive('tooltip', Tooltip)
     .use(router)
-    .use(pinia)
-    .mount('#app')
+    .use(pinia);
+
+// Session rejected by the API (401): reset the IAM state and go to login.
+onUnauthorized(() => {
+    useIamStore(pinia).signOut();
+    if (router.currentRoute.value.name !== 'login') {
+        router.push({ name: 'login', query: { reason: 'session-expired' } });
+    }
+});
+
+app.mount('#app');

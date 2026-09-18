@@ -355,7 +355,10 @@ const refreshData = async () => {
   toast.add({ severity: 'success', summary: 'Sincronizado', detail: 'Datos actualizados.', life: 3000 });
 };
 
-const logout = () => { iamStore.signOut(router); };
+const logout = () => {
+  iamStore.signOut();
+  router.push({ name: 'login' });
+};
 
 const scrollToTasks = () => {
   document.getElementById('tasks-table')?.scrollIntoView({ behavior: 'smooth' });
