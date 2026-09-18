@@ -701,6 +701,26 @@
       "MfaReset": "Two-step verification reset",
       "SignedOutEverywhere": "Signed out on all devices"
     },
+    "details": {
+      "role": "Role: {role}",
+      "roleChange": "Role: {from} → {to}",
+      "method": {
+        "AuthenticatorCode": "With the authenticator app",
+        "RecoveryCode": "With a recovery code"
+      },
+      "reason": {
+        "WrongPassword": "Wrong password",
+        "UnknownEmail": "Unregistered e-mail",
+        "AccountLocked": "Account locked",
+        "AccountDeactivated": "Account deactivated",
+        "EmailNotVerified": "E-mail not confirmed",
+        "InvalidCode": "Invalid code",
+        "CodeAlreadyUsed": "Code already used",
+        "InvalidRecoveryCode": "Invalid recovery code"
+      },
+      "lockedUntil": "Locked until {time}",
+      "remainingCodes": "{count} recovery code left | {count} recovery codes left"
+    },
     "errors": {
       "load": "We could not load the audit log."
     }
