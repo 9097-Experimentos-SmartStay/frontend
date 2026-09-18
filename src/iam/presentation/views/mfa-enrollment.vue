@@ -44,8 +44,14 @@
       <!-- Step 2: confirm with the first code -->
       <form v-if="enrollment" class="auth-form" novalidate @submit.prevent="confirm">
         <div class="field">
-          <label for="enrollment-code" class="block mb-2">{{ t('auth.mfa.codeLabel') }}</label>
-          <pv-input-otp v-model="code" :length="AUTHENTICATOR_CODE_LENGTH" integer-only :invalid="!!codeError" aria-describedby="enrollment-code-error" />
+          <span id="enrollment-code-label" class="block mb-2">{{ t('auth.mfa.codeLabel') }}</span>
+          <AuthenticatorCodeInput
+              v-model="code"
+              :length="AUTHENTICATOR_CODE_LENGTH"
+              :invalid="!!codeError"
+              labelled-by="enrollment-code-label"
+              :described-by="codeError ? 'enrollment-code-error' : undefined"
+          />
           <small v-if="codeError" id="enrollment-code-error" class="field-error">{{ codeError }}</small>
         </div>
 
@@ -70,6 +76,7 @@ import { computed, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import AuthLayout from '../components/auth-layout.vue';
+import AuthenticatorCodeInput from '../components/authenticator-code-input.vue';
 import TotpQrCode from '../components/totp-qr-code.vue';
 import RecoveryCodesPanel from '../components/recovery-codes-panel.vue';
 import useIamStore from '../../application/iam.store.js';

@@ -7,9 +7,16 @@
 
     <form v-else class="auth-form" novalidate @submit.prevent="submit">
       <div v-if="!usesRecoveryCode" class="field">
-        <label class="block mb-2">{{ t('auth.mfa.codeLabel') }}</label>
-        <pv-input-otp v-model="code" :length="AUTHENTICATOR_CODE_LENGTH" integer-only :invalid="!!fieldError" @change="onCodeChange" />
-        <small class="field-hint">{{ t('auth.mfa.verification.codeHint') }}</small>
+        <span id="verification-code-label" class="block mb-2">{{ t('auth.mfa.codeLabel') }}</span>
+        <AuthenticatorCodeInput
+            v-model="code"
+            :length="AUTHENTICATOR_CODE_LENGTH"
+            :invalid="!!fieldError"
+            labelled-by="verification-code-label"
+            described-by="verification-code-hint"
+            @change="onCodeChange"
+        />
+        <small id="verification-code-hint" class="field-hint">{{ t('auth.mfa.verification.codeHint') }}</small>
       </div>
 
       <div v-else class="field">
@@ -53,6 +60,7 @@ import { computed, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import AuthLayout from '../components/auth-layout.vue';
+import AuthenticatorCodeInput from '../components/authenticator-code-input.vue';
 import useIamStore from '../../application/iam.store.js';
 import { AuthFailure, AuthFailureReason } from '../../application/auth-failure.js';
 import { SecondFactorMethod, VerifySecondFactorCommand } from '../../domain/commands/verify-second-factor.command.js';

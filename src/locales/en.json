@@ -158,7 +158,8 @@
         "challengeExpired": "The time to finish the second step ran out. Sign in again.",
         "enrollmentNotStarted": "Scan the QR code first to set up your app.",
         "alreadyEnabled": "Your account already has an authenticator app. Sign in again."
-      }
+      },
+      "digitLabel": "Digit {position} of {total}"
     }
   },
   "authoring-phrase": {
