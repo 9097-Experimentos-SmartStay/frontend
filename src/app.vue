@@ -15,7 +15,10 @@ const { locale } = useI18n();
 const primevue = usePrimeVue();
 
 watch(locale, (value) => {
-  Object.assign(primevue.config.locale, primeVueLocales[value] ?? primeVueLocales.es);
+  const { aria, ...texts } = primeVueLocales[value] ?? primeVueLocales.es;
+  Object.assign(primevue.config.locale, texts);
+  // Merge the accessible labels: PrimeVue has more of them than the ones translated here.
+  primevue.config.locale.aria = { ...primevue.config.locale.aria, ...aria };
 }, { immediate: true });
 </script>
 
