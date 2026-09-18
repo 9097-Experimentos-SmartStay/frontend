@@ -49,7 +49,7 @@ import { useHotelStore } from '@/accommodations/application/hotel.store.js';
 import { validateHotelForm, validateLocationParts } from '@/accommodations/domain/hotel-rules.js';
 import useIamStore from '@/iam/application/iam.store.js';
 import { canManageHotel } from '@/iam/domain/user-role.js';
-import { apiErrorKey } from '@/shared/presentation/utils/api-error.js';
+import { failureMessageKey, violationMessages } from '@/shared/presentation/utils/failure-message.js';
 import HotelForm from '../components/HotelForm.vue';
 
 const router = useRouter();
@@ -100,7 +100,7 @@ async function onUploadImage(file) {
 async function submitForm() {
   errorMessage.value = '';
   const invalid = { ...validateHotelForm(form), ...validateLocationParts(form) };
-  errors.value = Object.fromEntries(Object.entries(invalid).map(([field, rule]) => [field, t(`staffHotels.rules.${rule}`)]));
+  errors.value = violationMessages(t, invalid, 'staffHotels.rules');
   if (Object.keys(invalid).length > 0) return;
 
   isSaving.value = true;
@@ -109,7 +109,8 @@ async function submitForm() {
     toast.add({ severity: 'success', summary: t('common.success'), detail: t('staffHotels.updated'), life: 3000 });
     router.push({ name: 'staff-hotels' });
   } catch (err) {
-    errorMessage.value = t(apiErrorKey(err, { 403: 'staffHotels.outOfScope' }));
+    if (err.hasFieldViolations) errors.value = violationMessages(t, err.fieldViolations, 'staffHotels.rules');
+    else errorMessage.value = t(failureMessageKey(err, { forbidden: 'staffHotels.outOfScope', notFound: 'staffHotels.notFound' }));
   } finally {
     isSaving.value = false;
   }

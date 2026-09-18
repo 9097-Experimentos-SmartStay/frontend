@@ -1,10 +1,15 @@
-﻿import { defineStore } from 'pinia';
+import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { HotelApi } from '../infrastructure/api/hotel-api.js';
 import { AccommodationOptionsApi } from '../infrastructure/api/accommodation-options-api.js';
 import { HotelAssembler } from '../infrastructure/hotel.assembler.js';
 import { uploadImage } from '@/shared/infrastructure/services/image-upload.service.js';
 import { reportError } from '@/shared/infrastructure/logging/report-error.js';
+import { OperationFailure } from '@/shared/application/operation-failure.js';
+import { classifyAccommodationProblem, hotelFieldViolations } from '../infrastructure/accommodation-problem.assembler.js';
+
+/** @param {unknown} error @returns {OperationFailure} */
+const hotelFailure = (error) => OperationFailure.from(error, { classify: classifyAccommodationProblem, fields: hotelFieldViolations });
 import useIamStore from '@/iam/application/iam.store.js';
 import { UserRole } from '@/iam/domain/user-role.js';
 
@@ -90,7 +95,7 @@ export const useHotelStore = defineStore('hotel', () => {
      * (the session is updated here so the UI reflects it at once); a second one answers 409.
      * @param {Object} form - See HotelAssembler.toSaveResource.
      * @returns {Promise<Hotel>} The created hotel entity.
-     * @throws The HTTP error (409 admin already has a hotel, 403, 400).
+     * @throws {OperationFailure} hotelAlreadyRegistered (409, D2) | invalidData (per field) | forbidden
      */
     async function createHotel(form) {
         loading.value = true;
@@ -107,8 +112,9 @@ export const useHotelStore = defineStore('hotel', () => {
             return newHotel;
         } catch (err) {
             reportError('Error creating hotel', err);
-            error.value = err;
-            throw err;
+            const failure = hotelFailure(err);
+            error.value = failure;
+            throw failure;
         } finally {
             loading.value = false;
         }
@@ -184,7 +190,7 @@ export const useHotelStore = defineStore('hotel', () => {
             return updatedHotel;
         } catch (err) {
             reportError(`Error updating hotel ${id}`, err);
-            throw err;
+            throw hotelFailure(err);
         } finally {
             loading.value = false;
         }
@@ -204,7 +210,7 @@ export const useHotelStore = defineStore('hotel', () => {
             hotels.value = hotels.value.filter(h => h.id !== id);
         } catch (err) {
             reportError(`Error deleting hotel ${id}`, err);
-            throw err;
+            throw hotelFailure(err);
         } finally {
             loading.value = false;
         }

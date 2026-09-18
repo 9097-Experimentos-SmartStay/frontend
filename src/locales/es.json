@@ -642,18 +642,16 @@
     "roomNotFound": "Habitación no encontrada",
     "backToList": "Volver al listado",
     "defaultRoomName": "Habitación",
-    "available": "Disponible",
     "description": "Descripción",
     "defaultDescription": "Disfruta de una estancia inolvidable con todas las comodidades que necesitas para relajarte.",
     "amenities": "Amenidades",
     "noAmenities": "No especificadas",
     "bookYourStay": "Reserva tu estancia",
-    "cancellationPolicy": "Cancelación gratuita hasta 24h antes del check-in.",
-    "bookNow": "Reservar Ahora",
-    "contactHost": "Contactar Anfitrión"
+    "cancellationPolicy": "Puedes cancelar hasta el día anterior a tu llegada. Si ya pagaste, el hotel te devuelve el pago.",
+    "bookNow": "Buscar fechas y reservar"
   },
   "guestRooms": {
-    "title": "Habitaciones Disponibles",
+    "title": "Habitaciones",
     "subtitle": "Encuentra el espacio perfecto para tu estancia.",
     "filterByType": "Filtrar por Tipo",
     "loadingRooms": "Buscando las mejores habitaciones...",
@@ -664,7 +662,8 @@
     "standard": "Estándar",
     "room": "Habitación",
     "noDescription": "Sin descripción disponible.",
-    "viewDetails": "Ver Detalles"
+    "viewDetails": "Ver Detalles",
+    "roomNumber": "Habitación {number}"
   },
   "guestBookings": {
     "title": "Mis Reservas",
@@ -1100,7 +1099,11 @@
     "uploadFailed": "No se pudo subir la imagen. Ingresa una URL.",
     "rules": {
       "required": "Este campo es obligatorio.",
-      "noCommas": "No uses comas en este campo."
+      "noCommas": "No uses comas en este campo.",
+      "lengthRange": "Usa entre {min} y {max} caracteres.",
+      "tooLong": "Usa como máximo {max} caracteres.",
+      "imageUrl": "Ingresa una URL completa que empiece con http:// o https://.",
+      "serverRejected": "Revisa este campo: {reason}"
     },
     "form": {
       "name": "Nombre de la propiedad",
@@ -1125,7 +1128,8 @@
       "removeImage": "Quitar imagen",
       "amenities": "Comodidades",
       "newAmenity": "Nueva comodidad"
-    }
+    },
+    "deleteBlocked": "No puedes eliminar «{name}»: alguna de sus habitaciones tiene reservas pendientes, confirmadas o en curso. Cancélalas primero."
   },
   "staffRooms": {
     "title": "Habitaciones",
@@ -1145,19 +1149,24 @@
       "Maintenance": "Mantenimiento"
     },
     "createTitle": "Nueva habitación",
-    "editTitle": "Editar habitación #{id}",
+    "editTitle": "Editar habitación {number}",
     "create": "Registrar habitación",
     "created": "Habitación agregada al inventario.",
     "updated": "Cambios guardados.",
     "deleted": "La habitación fue eliminada.",
     "deleteHeader": "Eliminar habitación",
-    "deleteMessage": "¿Deseas eliminar la habitación #{id}? Esta acción no se puede deshacer.",
+    "deleteMessage": "¿Deseas eliminar la habitación {number}? Esta acción no se puede deshacer.",
     "notFound": "No encontramos esa habitación.",
     "noHotel": "No tienes un hotel donde agregar habitaciones. Registra tu hotel primero.",
-    "unknownType": "El tipo de habitación ya no existe. Elige otro.",
     "rules": {
       "required": "Este campo es obligatorio.",
-      "negativePrice": "El precio no puede ser negativo."
+      "numberFormat": "Usa de 1 a 10 letras, números o guiones (por ejemplo, 101 o 2B).",
+      "duplicateNumber": "La habitación {number} ya existe en este hotel. Usa otro número.",
+      "priceRange": "El precio por noche debe ser mayor que 0 y como máximo {max}.",
+      "descriptionTooLong": "Usa como máximo {max} caracteres.",
+      "unknownType": "Ese tipo de habitación ya no existe. Elige otro.",
+      "unknownHotel": "Ese hotel ya no existe. Elige otro.",
+      "lengthRange": "Usa entre {min} y {max} caracteres."
     },
     "form": {
       "hotel": "Hotel",
@@ -1166,8 +1175,12 @@
       "type": "Tipo de habitación",
       "typePlaceholder": "Selecciona un tipo",
       "newType": "Nuevo tipo",
-      "descriptionPlaceholder": "Ej. Vista al mar, piso alto..."
-    }
+      "descriptionPlaceholder": "Ej. Vista al mar, piso alto...",
+      "numberPlaceholder": "Ej. 101",
+      "numberHint": "Es el número que ven los huéspedes y el personal. No se puede repetir en el hotel.",
+      "newPriceNote": "El nuevo precio solo aplica a reservas nuevas; las reservas existentes conservan su precio."
+    },
+    "deleteBlocked": "No puedes eliminar la habitación {number}: tiene reservas pendientes, confirmadas o en curso. Cancélalas o muévelas a otra habitación primero."
   },
   "paymentMethods": {
     "Yape": "Yape",
@@ -1225,5 +1238,15 @@
       "placeholder": "Ej. Piscina, Estacionamiento",
       "created": "Comodidad «{name}» agregada."
     }
+  },
+  "roomTypes": {
+    "title": "Tipos de habitación",
+    "subtitle": "Catálogo compartido para clasificar tus habitaciones.",
+    "new": "Nuevo tipo",
+    "newTitle": "Nuevo tipo de habitación",
+    "namePlaceholder": "Ej. Doble Deluxe, Suite",
+    "descriptionPlaceholder": "Ej. Habitación amplia con cama king y vista a la ciudad",
+    "created": "Tipo «{name}» creado.",
+    "empty": "Aún no hay tipos de habitación."
   }
 }

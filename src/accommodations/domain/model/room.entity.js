@@ -1,10 +1,7 @@
-/** Operational status of a room (US-29). New rooms start Available. */
-export const RoomStatus = Object.freeze({
-    AVAILABLE: 'Available',
-    OCCUPIED: 'Occupied',
-    CLEANING: 'Cleaning',
-    MAINTENANCE: 'Maintenance',
-});
+import { Money } from '@/shared/domain/money.js';
+import { RoomStatus } from './room-status.js';
+
+export { RoomStatus };
 
 /**
  * Room Domain Entity.
@@ -23,8 +20,9 @@ export class Room {
      * @param {string} params.description - The description of the room.
      * @param {string[]} params.amenities - The list of amenities for the room.
      * @param {string|null} [params.status] - One of {@link RoomStatus} (null when the API does not send it).
+     * @param {string|null} [params.number] - Room number shown to people (US-53), unique in its hotel.
      */
-    constructor({ id, hotelId, roomTypeId, roomTypeName, price, description, amenities, status = null }) {
+    constructor({ id, hotelId, roomTypeId, roomTypeName, price, description, amenities, status = null, number = null }) {
         /**
          * @property {number} id - The unique identifier of the room.
          */
@@ -57,6 +55,20 @@ export class Room {
          * @property {string|null} status - Operational status (Available, Occupied, Cleaning, Maintenance).
          */
         this.status = status;
+        /**
+         * @property {string|null} number - Room number (US-53). The id is only for URLs.
+         */
+        this.number = number || null;
+    }
+
+    /** @returns {string} The room number; "#id" only for data that has none. */
+    get label() {
+        return this.number ?? `#${this.id}`;
+    }
+
+    /** @returns {Money} Current price per night (new bookings take it; existing bookings keep their snapshot). */
+    get pricePerNight() {
+        return new Money(this.price);
     }
 
     /**
@@ -67,16 +79,5 @@ export class Room {
     hasAmenity(amenity) {
         if (!amenity) return false;
         return this.amenities.map(a => a.toLowerCase()).includes(amenity.toLowerCase());
-    }
-
-    /**
-     * Returns the formatted price.
-     * @returns {string} The price formatted as currency, e.g., "$150.00".
-     */
-    get formattedPrice() {
-        return new Intl.NumberFormat('en-US', {
-            style: 'currency',
-            currency: 'USD'
-        }).format(this.price);
     }
 }

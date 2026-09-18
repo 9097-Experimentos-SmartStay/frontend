@@ -5,7 +5,7 @@
     <div class="w-full max-w-5xl">
       <div class="flex align-items-center gap-3 mb-6">
         <pv-button icon="pi pi-arrow-left" :label="t('common.cancel')" class="p-button-outlined p-button-sm" @click="goBack" />
-        <h1 class="text-3xl font-bold text-color m-0">{{ t('staffRooms.editTitle', { id: roomId }) }}</h1>
+        <h1 class="text-3xl font-bold text-color m-0">{{ t('staffRooms.editTitle', { number: roomStore.currentRoom?.label ?? '' }) }}</h1>
       </div>
 
       <div v-if="loadingData" class="flex justify-content-center p-8">
@@ -24,6 +24,7 @@
               :room-types="roomStore.roomTypes"
               :amenities="roomStore.amenitiesList"
               hotel-locked
+              price-note
           />
           <pv-message v-if="errorMessage" severity="error" class="mb-3">{{ errorMessage }}</pv-message>
           <div class="flex justify-content-end gap-2 border-top-1 surface-border pt-4">
@@ -46,7 +47,7 @@ import { useHotelStore } from '@/accommodations/application/hotel.store.js';
 import { validateRoomForm } from '@/accommodations/domain/room-rules.js';
 import useIamStore from '@/iam/application/iam.store.js';
 import { canManageHotel } from '@/iam/domain/user-role.js';
-import { apiErrorKey } from '@/shared/presentation/utils/api-error.js';
+import { failureMessageKey, violationMessages } from '@/shared/presentation/utils/failure-message.js';
 import RoomForm from '../components/RoomForm.vue';
 
 /**
@@ -65,7 +66,7 @@ const loadingData = ref(true);
 const isSaving = ref(false);
 const errors = ref({});
 const errorMessage = ref('');
-const form = reactive({ hotelId: null, roomTypeId: null, price: null, description: '', amenities: [] });
+const form = reactive({ hotelId: null, number: '', roomTypeId: null, price: null, description: '', amenities: [] });
 
 const allowed = computed(() => canManageHotel(iamStore.currentUser, form.hotelId));
 
@@ -80,6 +81,7 @@ onMounted(async () => {
   if (room) {
     Object.assign(form, {
       hotelId: room.hotelId,
+      number: room.number ?? '',
       roomTypeId: room.roomTypeId,
       price: room.price,
       description: room.description,
@@ -94,7 +96,7 @@ const goBack = () => router.push({ name: 'staff-rooms' });
 async function submitForm() {
   errorMessage.value = '';
   const invalid = validateRoomForm(form);
-  errors.value = Object.fromEntries(Object.entries(invalid).map(([field, rule]) => [field, t(`staffRooms.rules.${rule}`)]));
+  errors.value = violationMessages(t, invalid, 'staffRooms.rules');
   if (Object.keys(invalid).length > 0) return;
 
   isSaving.value = true;
@@ -103,7 +105,8 @@ async function submitForm() {
     toast.add({ severity: 'success', summary: t('common.success'), detail: t('staffRooms.updated'), life: 3000 });
     router.push({ name: 'staff-rooms' });
   } catch (err) {
-    errorMessage.value = t(apiErrorKey(err, { 403: 'staffHotels.outOfScope' }));
+    if (err.hasFieldViolations) errors.value = violationMessages(t, err.fieldViolations, 'staffRooms.rules');
+    else errorMessage.value = t(failureMessageKey(err, { forbidden: 'staffHotels.outOfScope', notFound: 'staffRooms.notFound' }));
   } finally {
     isSaving.value = false;
   }

@@ -18,9 +18,9 @@
       <pv-data-table :value="roomStore.rooms" :loading="roomStore.loading" responsive-layout="scroll" paginator :rows="10" class="p-datatable-sm">
         <template #empty>{{ t('staffRooms.empty') }}</template>
 
-        <pv-column field="id" :header="t('staffRooms.number')" sortable style="width: 120px">
+        <pv-column field="number" :header="t('staffRooms.number')" sortable style="width: 120px">
           <template #body="{ data }">
-            <span class="font-bold text-lg text-primary">#{{ data.id }}</span>
+            <span class="font-bold text-lg text-primary">{{ data.label }}</span>
           </template>
         </pv-column>
 
@@ -62,11 +62,29 @@
         </pv-column>
       </pv-data-table>
     </div>
+
+    <!-- US-53 scenario 2: the shared catalog of room types that classifies the rooms -->
+    <div class="surface-card p-4 shadow-2 border-round mt-4">
+      <div class="flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+        <div>
+          <h2 class="text-xl font-bold text-color m-0">{{ t('roomTypes.title') }}</h2>
+          <p class="text-color-secondary m-0">{{ t('roomTypes.subtitle') }}</p>
+        </div>
+        <pv-button v-if="canCreateRoomTypes" :label="t('roomTypes.new')" icon="pi pi-plus" class="p-button-outlined" @click="isTypeDialogVisible = true" />
+      </div>
+      <pv-data-table :value="roomStore.roomTypes" responsive-layout="scroll" class="p-datatable-sm" :rows="5" paginator>
+        <template #empty>{{ t('roomTypes.empty') }}</template>
+        <pv-column field="name" :header="t('masterData.name')" sortable />
+        <pv-column field="description" :header="t('staffRooms.description')" />
+      </pv-data-table>
+    </div>
+
+    <AddRoomTypeDialog v-model="isTypeDialogVisible" />
   </div>
 </template>
 
 <script setup>
-import { computed, onMounted } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useToast } from 'primevue/usetoast';
 import { useConfirm } from 'primevue/useconfirm';
@@ -76,7 +94,8 @@ import { useHotelStore } from '@/accommodations/application/hotel.store.js';
 import { RoomStatus } from '@/accommodations/domain/model/room.entity.js';
 import useIamStore from '@/iam/application/iam.store.js';
 import { Capability, canManageHotel } from '@/iam/domain/user-role.js';
-import { apiErrorKey } from '@/shared/presentation/utils/api-error.js';
+import { failureMessageKey } from '@/shared/presentation/utils/failure-message.js';
+import AddRoomTypeDialog from '../components/AddRoomTypeDialog.vue';
 import { formatMoney } from '@/shared/presentation/utils/formatters.js';
 
 /**
@@ -92,6 +111,8 @@ const iamStore = useIamStore();
 
 const currentUser = computed(() => iamStore.currentUser);
 const canManageRooms = computed(() => iamStore.can(Capability.MANAGE_ROOMS));
+const canCreateRoomTypes = computed(() => iamStore.can(Capability.CREATE_ROOM_TYPES));
+const isTypeDialogVisible = ref(false);
 
 const STATUS_SEVERITY = {
   [RoomStatus.AVAILABLE]: 'success',
@@ -103,14 +124,14 @@ const statusSeverity = (status) => STATUS_SEVERITY[status] ?? 'secondary';
 const hotelName = (hotelId) => hotelStore.hotels.find((hotel) => hotel.id === hotelId)?.name ?? `#${hotelId}`;
 const truncate = (text, length) => (!text ? '' : text.length > length ? `${text.substring(0, length)}…` : text);
 
-onMounted(() => Promise.all([roomStore.fetchAllRooms(), hotelStore.fetchAllHotels()]));
+onMounted(() => Promise.all([roomStore.fetchAllRooms(), hotelStore.fetchAllHotels(), roomStore.fetchAllRoomTypes()]));
 
 const goBack = () => router.push({ name: 'staff-dashboard' });
 
 function confirmDelete(room) {
   confirm.require({
     header: t('staffRooms.deleteHeader'),
-    message: t('staffRooms.deleteMessage', { id: room.id }),
+    message: t('staffRooms.deleteMessage', { number: room.label }),
     icon: 'pi pi-exclamation-triangle',
     acceptProps: { label: t('common.delete'), severity: 'danger' },
     rejectProps: { label: t('common.cancel'), severity: 'secondary', outlined: true },
@@ -119,7 +140,13 @@ function confirmDelete(room) {
         await roomStore.deleteRoom(room.id);
         toast.add({ severity: 'success', summary: t('common.success'), detail: t('staffRooms.deleted'), life: 3000 });
       } catch (err) {
-        toast.add({ severity: 'error', summary: t('common.error'), detail: t(apiErrorKey(err, { 403: 'staffHotels.outOfScope' })), life: 4000 });
+        // 409: the room still has pending, confirmed or checked-in bookings (US-53 scenario 4).
+        toast.add({
+          severity: 'error',
+          summary: t('common.error'),
+          detail: t(failureMessageKey(err, { hasActiveBookings: 'staffRooms.deleteBlocked', forbidden: 'staffHotels.outOfScope' }), { number: room.label }),
+          life: 6000,
+        });
       }
     },
   });

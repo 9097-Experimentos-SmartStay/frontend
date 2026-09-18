@@ -52,8 +52,9 @@ import { useI18n } from 'vue-i18n';
 import { useHotelStore } from '@/accommodations/application/hotel.store.js';
 import { validateHotelForm, validateLocationParts } from '@/accommodations/domain/hotel-rules.js';
 import useIamStore from '@/iam/application/iam.store.js';
+import { AccommodationFailureReason } from '@/accommodations/application/accommodation-failure.js';
 import { Capability, UserRole, canRegisterHotel } from '@/iam/domain/user-role.js';
-import { apiErrorKey } from '@/shared/presentation/utils/api-error.js';
+import { failureMessageKey, violationMessages } from '@/shared/presentation/utils/failure-message.js';
 import HotelForm from '../components/HotelForm.vue';
 import AddCategoryDialog from '../components/AddCategoryDialog.vue';
 import AddAmenityDialog from '../components/AddAmenityDialog.vue';
@@ -74,7 +75,8 @@ const isAmenityDialogVisible = ref(false);
 const errors = ref({});
 const errorMessage = ref('');
 
-const allowed = computed(() => canRegisterHotel(iamStore.currentUser));
+const alreadyRegistered = ref(false);
+const allowed = computed(() => canRegisterHotel(iamStore.currentUser) && !alreadyRegistered.value);
 const isAdmin = computed(() => iamStore.role === UserRole.ADMIN);
 const canAddMasterData = computed(() => iamStore.can(Capability.MANAGE_MASTER_DATA));
 
@@ -95,7 +97,7 @@ async function onUploadImage(file) {
 async function submitForm() {
   errorMessage.value = '';
   const invalid = { ...validateHotelForm(form), ...validateLocationParts(form) };
-  errors.value = Object.fromEntries(Object.entries(invalid).map(([field, rule]) => [field, t(`staffHotels.rules.${rule}`)]));
+  errors.value = violationMessages(t, invalid, 'staffHotels.rules');
   if (Object.keys(invalid).length > 0) return;
 
   isSaving.value = true;
@@ -104,7 +106,14 @@ async function submitForm() {
     toast.add({ severity: 'success', summary: t('common.success'), detail: t('staffHotels.created', { name: hotel.name }), life: 3000 });
     router.push({ name: 'staff-hotels' });
   } catch (err) {
-    errorMessage.value = t(apiErrorKey(err, { 409: 'staffHotels.alreadyHasHotel' }));
+    if (err.reason === AccommodationFailureReason.HOTEL_ALREADY_REGISTERED) {
+      // D2 / US-53 scenario 1: an admin manages a single hotel; the form is hidden.
+      alreadyRegistered.value = true;
+    } else if (err.hasFieldViolations) {
+      errors.value = violationMessages(t, err.fieldViolations, 'staffHotels.rules');
+    } else {
+      errorMessage.value = t(failureMessageKey(err));
+    }
   } finally {
     isSaving.value = false;
   }

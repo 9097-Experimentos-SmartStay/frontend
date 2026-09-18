@@ -43,12 +43,37 @@
     </div>
 
     <div class="col-12 md:col-4 mb-4">
-      <label for="room-price" class="font-bold text-color block mb-2">{{ t('staffRooms.pricePerNight') }} *</label>
-      <pv-input-number v-model="form.price" input-id="room-price" mode="currency" currency="USD" :locale="locale" :min="0" :invalid="!!errors.price" />
-      <small v-if="errors.price" class="p-error">{{ errors.price }}</small>
+      <label for="room-number" class="font-bold text-color block mb-2">{{ t('staffRooms.number') }} *</label>
+      <pv-input-text
+          id="room-number"
+          v-model="form.number"
+          :maxlength="ROOM_NUMBER_MAX_LENGTH"
+          :placeholder="t('staffRooms.form.numberPlaceholder')"
+          :invalid="!!errors.number"
+          class="uppercase"
+      />
+      <small v-if="errors.number" class="p-error">{{ errors.number }}</small>
+      <small v-else class="text-color-secondary">{{ t('staffRooms.form.numberHint') }}</small>
     </div>
 
-    <div class="col-12 md:col-8 mb-4">
+    <div class="col-12 md:col-4 mb-4">
+      <label for="room-price" class="font-bold text-color block mb-2">{{ t('staffRooms.pricePerNight') }} *</label>
+      <pv-input-number
+          v-model="form.price"
+          input-id="room-price"
+          prefix="S/ "
+          :min-fraction-digits="2"
+          :max-fraction-digits="2"
+          :locale="locale"
+          :min="0"
+          :max="ROOM_PRICE_MAX"
+          :invalid="!!errors.price"
+      />
+      <small v-if="errors.price" class="p-error">{{ errors.price }}</small>
+      <small v-else-if="priceNote" class="text-color-secondary">{{ t('staffRooms.form.newPriceNote') }}</small>
+    </div>
+
+    <div class="col-12 md:col-4 mb-4">
       <label for="room-description" class="font-bold text-color block mb-2">{{ t('staffRooms.description') }} *</label>
       <pv-textarea id="room-description" v-model="form.description" rows="1" auto-resize :placeholder="t('staffRooms.form.descriptionPlaceholder')" :invalid="!!errors.description" />
       <small v-if="errors.description" class="p-error">{{ errors.description }}</small>
@@ -71,10 +96,13 @@
 
 <script setup>
 import { useI18n } from 'vue-i18n';
+import { ROOM_NUMBER_MAX_LENGTH } from '@/accommodations/domain/model/room-number.js';
+import { ROOM_PRICE_MAX } from '@/accommodations/domain/room-rules.js';
 
 /**
  * Room data form shared by "new room" and "edit room". The parent owns the reactive `form`.
  * `hotelLocked`: PUT /rooms cannot move a room to another hotel.
+ * `priceNote`: when editing, a new price only applies to new bookings (US-53 scenario 4).
  */
 defineProps({
   form: { type: Object, required: true },
@@ -85,6 +113,7 @@ defineProps({
   hotelLocked: { type: Boolean, default: false },
   canAddRoomType: { type: Boolean, default: false },
   canAddAmenity: { type: Boolean, default: false },
+  priceNote: { type: Boolean, default: false },
 });
 const emit = defineEmits(['add-type', 'add-amenity']);
 const { t, locale } = useI18n();

@@ -75,7 +75,7 @@ import { useI18n } from 'vue-i18n';
 import { useHotelStore } from '@/accommodations/application/hotel.store.js';
 import useIamStore from '@/iam/application/iam.store.js';
 import { UserRole, canManageHotel, canRegisterHotel } from '@/iam/domain/user-role.js';
-import { apiErrorKey } from '@/shared/presentation/utils/api-error.js';
+import { failureMessageKey } from '@/shared/presentation/utils/failure-message.js';
 import { formatMoney } from '@/shared/presentation/utils/formatters.js';
 
 /**
@@ -114,7 +114,13 @@ function confirmDelete(hotel) {
         await hotelStore.deleteHotel(hotel.id);
         toast.add({ severity: 'success', summary: t('common.success'), detail: t('staffHotels.deleted'), life: 3000 });
       } catch (err) {
-        toast.add({ severity: 'error', summary: t('common.error'), detail: t(apiErrorKey(err, { 403: 'staffHotels.outOfScope' })), life: 4000 });
+        // 409: some room of the hotel still has pending, confirmed or checked-in bookings (US-53).
+        toast.add({
+          severity: 'error',
+          summary: t('common.error'),
+          detail: t(failureMessageKey(err, { hasActiveBookings: 'staffHotels.deleteBlocked', forbidden: 'staffHotels.outOfScope' }), { name: hotel.name }),
+          life: 6000,
+        });
       }
     },
   });

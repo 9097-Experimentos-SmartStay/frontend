@@ -642,18 +642,16 @@
     "roomNotFound": "Room not found",
     "backToList": "Back to list",
     "defaultRoomName": "Room",
-    "available": "Available",
     "description": "Description",
     "defaultDescription": "Enjoy an unforgettable stay with all the amenities you need to relax.",
     "amenities": "Amenities",
     "noAmenities": "Not specified",
     "bookYourStay": "Book your stay",
-    "cancellationPolicy": "Free cancellation up to 24h before check-in.",
-    "bookNow": "Book Now",
-    "contactHost": "Contact Host"
+    "cancellationPolicy": "You can cancel until the day before your arrival. If you already paid, the hotel refunds you.",
+    "bookNow": "Choose dates and book"
   },
   "guestRooms": {
-    "title": "Available Rooms",
+    "title": "Rooms",
     "subtitle": "Find the perfect space for your stay.",
     "filterByType": "Filter by Type",
     "loadingRooms": "Searching for the best rooms...",
@@ -664,7 +662,8 @@
     "standard": "Standard",
     "room": "Room",
     "noDescription": "No description available.",
-    "viewDetails": "View Details"
+    "viewDetails": "View Details",
+    "roomNumber": "Room {number}"
   },
   "guestBookings": {
     "title": "My Bookings",
@@ -1100,7 +1099,11 @@
     "uploadFailed": "The image could not be uploaded. Enter a URL instead.",
     "rules": {
       "required": "This field is required.",
-      "noCommas": "Do not use commas in this field."
+      "noCommas": "Do not use commas in this field.",
+      "lengthRange": "Use between {min} and {max} characters.",
+      "tooLong": "Use at most {max} characters.",
+      "imageUrl": "Enter a full URL starting with http:// or https://.",
+      "serverRejected": "Check this field: {reason}"
     },
     "form": {
       "name": "Property name",
@@ -1125,7 +1128,8 @@
       "removeImage": "Remove image",
       "amenities": "Amenities",
       "newAmenity": "New amenity"
-    }
+    },
+    "deleteBlocked": "You cannot delete \"{name}\": some of its rooms have pending, confirmed or ongoing bookings. Cancel them first."
   },
   "staffRooms": {
     "title": "Rooms",
@@ -1145,19 +1149,24 @@
       "Maintenance": "Maintenance"
     },
     "createTitle": "New room",
-    "editTitle": "Edit room #{id}",
+    "editTitle": "Edit room {number}",
     "create": "Register room",
     "created": "Room added to the inventory.",
     "updated": "Changes saved.",
     "deleted": "The room was deleted.",
     "deleteHeader": "Delete room",
-    "deleteMessage": "Delete room #{id}? This cannot be undone.",
+    "deleteMessage": "Delete room {number}? This cannot be undone.",
     "notFound": "We could not find that room.",
     "noHotel": "You have no hotel to add rooms to. Register your hotel first.",
-    "unknownType": "The room type no longer exists. Choose another one.",
     "rules": {
       "required": "This field is required.",
-      "negativePrice": "The price cannot be negative."
+      "numberFormat": "Use 1 to 10 letters, digits or hyphens (for example 101 or 2B).",
+      "duplicateNumber": "Room {number} already exists in this hotel. Use another number.",
+      "priceRange": "The price per night must be greater than 0 and at most {max}.",
+      "descriptionTooLong": "Use at most {max} characters.",
+      "unknownType": "That room type no longer exists. Choose another one.",
+      "unknownHotel": "That hotel no longer exists. Choose another one.",
+      "lengthRange": "Use between {min} and {max} characters."
     },
     "form": {
       "hotel": "Hotel",
@@ -1166,8 +1175,12 @@
       "type": "Room type",
       "typePlaceholder": "Select a type",
       "newType": "New type",
-      "descriptionPlaceholder": "E.g. Sea view, high floor..."
-    }
+      "descriptionPlaceholder": "E.g. Sea view, high floor...",
+      "numberPlaceholder": "E.g. 101",
+      "numberHint": "The number guests and staff see. It cannot repeat within the hotel.",
+      "newPriceNote": "The new price only applies to new bookings; existing bookings keep their price."
+    },
+    "deleteBlocked": "You cannot delete room {number}: it has pending, confirmed or ongoing bookings. Cancel them or move them to another room first."
   },
   "paymentMethods": {
     "Yape": "Yape",
@@ -1225,5 +1238,15 @@
       "placeholder": "E.g. Pool, Parking",
       "created": "Amenity \"{name}\" added."
     }
+  },
+  "roomTypes": {
+    "title": "Room types",
+    "subtitle": "Shared catalog to classify your rooms.",
+    "new": "New type",
+    "newTitle": "New room type",
+    "namePlaceholder": "E.g. Double Deluxe, Suite",
+    "descriptionPlaceholder": "E.g. Spacious room with a king bed and city view",
+    "created": "Type \"{name}\" created.",
+    "empty": "There are no room types yet."
   }
 }
