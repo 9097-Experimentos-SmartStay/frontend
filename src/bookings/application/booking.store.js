@@ -105,25 +105,6 @@ export const useBookingStore = defineStore('booking', () => {
         }
     }
 
-    /**
-     * POST /bookings/{id}/confirm (reception, admin, chain_admin) → the updated booking.
-     * @param {number} id
-     * @returns {Promise<void>}
-     */
-    async function confirmBooking(id) {
-        loading.value = true;
-        try {
-            const updated = BookingAssembler.toEntityFromResponse(await bookingApi.confirmBooking(id));
-            if (updated) replace(updated);
-        } catch (err) {
-            reportError('Error confirming booking', err);
-            error.value = err;
-            throw err;
-        } finally {
-            loading.value = false;
-        }
-    }
-
     return {
         bookings,
         currentBooking,
@@ -132,7 +113,6 @@ export const useBookingStore = defineStore('booking', () => {
         fetchBookings,
         fetchBookingById,
         createBooking,
-        confirmBooking,
         cancelBooking,
     };
 });

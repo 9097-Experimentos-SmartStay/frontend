@@ -644,7 +644,8 @@
     "cancelBooking": "Cancelar Reserva",
     "payNow": "Pagar Ahora",
     "bookingNotFound": "No encontramos la reserva solicitada.",
-    "backToList": "Volver al listado"
+    "backToList": "Volver al listado",
+    "howToPay": "Cómo pagar"
   },
   "guestCreateBooking": {
     "title": "Confirmar Reserva",
@@ -956,44 +957,40 @@
     "dates": "Fechas",
     "nights": "{count} noche | {count} noches",
     "status": "Estado",
-    "confirm": "Confirmar reserva",
     "cancel": "Cancelar reserva",
-    "confirmed": "Reserva confirmada.",
     "cancelled": "Reserva cancelada.",
-    "confirmConflict": "No se puede confirmar una reserva cancelada.",
     "cancelConflict": "Esta reserva ya no se puede cancelar.",
     "empty": "No hay reservas registradas",
     "emptyHint": "Las nuevas reservas aparecerán aquí."
   },
   "guestPayment": {
-    "title": "Pago de la reserva",
+    "title": "Paga tu reserva",
     "summary": "Resumen de la reserva",
     "booking": "Reserva",
     "room": "Habitación",
     "stay": "Estadía",
     "pricePerNight": "Precio por noche",
-    "estimatedTotal": "Total estimado",
-    "serverComputes": "El monto final lo calcula el sistema al pagar (precio por noche × noches) y lo verás en el comprobante.",
-    "expiration": "Vencimiento (MM/AA)",
-    "cardHolderPlaceholder": "Como aparece en la tarjeta",
-    "card": "Tarjeta",
-    "simulationNote": "Pago simulado: no se realiza ningún cargo real. Una tarjeta que termina en 0000 se rechaza.",
-    "successTitle": "¡Pago aprobado!",
-    "successMessage": "Tu reserva quedó confirmada.",
-    "transaction": "Transacción {id}",
-    "viewBooking": "Ver mi reserva",
-    "declined": "Tu tarjeta fue rechazada. Revisa los datos o usa otra tarjeta.",
-    "invalidCard": "Revisa los datos de la tarjeta.",
-    "notPayable": "Esta reserva ya está pagada o fue cancelada.",
+    "serverComputes": "El monto es el precio por noche × noches; el sistema lo calcula al registrar el pago.",
     "byBookingTitle": "Pagos de la reserva #{id}",
     "transactionColumn": "Transacción",
     "noPayments": "No hay pagos registrados para esta reserva.",
-    "rules": {
-      "cardHolderRequired": "Ingresa el nombre del titular.",
-      "cardNumberInvalid": "Ingresa un número de tarjeta válido.",
-      "expirationInvalid": "Ingresa un vencimiento válido y no vencido (MM/AA).",
-      "cvvInvalid": "Ingresa el código de seguridad (3 o 4 dígitos)."
-    }
+    "howToPay": "Cómo pagar",
+    "instructionsIntro": "Tu reserva {code} está pendiente de pago. Paga fuera de la aplicación y recepción registrará tu pago.",
+    "steps": {
+      "choose": "Paga con Yape, Plin o transferencia bancaria a la cuenta del hotel.",
+      "reference": "Indica el código de tu reserva ({code}) en el mensaje o la descripción del pago.",
+      "keepReceipt": "Guarda el número de operación o el comprobante.",
+      "confirmation": "Cuando recepción registre tu pago, tu reserva pasará a Confirmada."
+    },
+    "deadline": "Tienes {hours} horas desde que hiciste la reserva para pagar. Si no, la reserva puede cancelarse.",
+    "accountDetailsNote": "Si necesitas los datos de la cuenta, comunícate con la recepción del hotel. También puedes pagar al llegar, en efectivo o con tarjeta.",
+    "bookingCode": "Código de reserva",
+    "total": "Total",
+    "paid": "Pagado",
+    "paidTitle": "¡Pago registrado!",
+    "paidMessage": "Tu reserva está confirmada.",
+    "paidAmount": "Monto pagado: {amount}",
+    "cancelled": "Esta reserva fue cancelada; ya no requiere pago."
   },
   "staffPayments": {
     "title": "Gestión de pagos",
@@ -1099,6 +1096,31 @@
       "typePlaceholder": "Selecciona un tipo",
       "newType": "Nuevo tipo",
       "descriptionPlaceholder": "Ej. Vista al mar, piso alto..."
+    }
+  },
+  "paymentMethods": {
+    "Yape": "Yape",
+    "Plin": "Plin",
+    "BankTransfer": "Transferencia",
+    "Cash": "Efectivo",
+    "CardAtReception": "Tarjeta en recepción"
+  },
+  "registerPayment": {
+    "action": "Registrar pago",
+    "title": "Registrar pago de la reserva {code}",
+    "method": "Método de pago",
+    "methodPlaceholder": "Selecciona el método",
+    "operationNumber": "Número de operación",
+    "note": "Nota",
+    "amountNote": "El monto lo calcula el sistema (precio por noche × noches). Al registrar el pago, la reserva queda confirmada.",
+    "submit": "Registrar pago",
+    "success": "Pago registrado. La reserva quedó confirmada.",
+    "conflict": "Esta reserva ya está pagada o fue cancelada.",
+    "notAvailable": "El registro de pagos estará disponible cuando la API lo publique.",
+    "rules": {
+      "methodRequired": "Selecciona el método de pago.",
+      "operationNumberRequired": "Ingresa el número de operación.",
+      "noteTooLong": "La nota no puede superar {max} caracteres."
     }
   }
 }

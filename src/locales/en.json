@@ -644,7 +644,8 @@
     "cancelBooking": "Cancel Booking",
     "payNow": "Pay Now",
     "bookingNotFound": "We couldn't find the requested booking.",
-    "backToList": "Back to list"
+    "backToList": "Back to list",
+    "howToPay": "How to pay"
   },
   "guestCreateBooking": {
     "title": "Confirm Booking",
@@ -956,44 +957,40 @@
     "dates": "Dates",
     "nights": "{count} night | {count} nights",
     "status": "Status",
-    "confirm": "Confirm booking",
     "cancel": "Cancel booking",
-    "confirmed": "Booking confirmed.",
     "cancelled": "Booking cancelled.",
-    "confirmConflict": "A cancelled booking cannot be confirmed.",
     "cancelConflict": "This booking can no longer be cancelled.",
     "empty": "There are no bookings",
     "emptyHint": "New bookings will show up here."
   },
   "guestPayment": {
-    "title": "Booking payment",
+    "title": "Pay your booking",
     "summary": "Booking summary",
     "booking": "Booking",
     "room": "Room",
     "stay": "Stay",
     "pricePerNight": "Price per night",
-    "estimatedTotal": "Estimated total",
-    "serverComputes": "The final amount is computed by the system when you pay (price per night × nights) and shown in the receipt.",
-    "expiration": "Expiration (MM/YY)",
-    "cardHolderPlaceholder": "As it appears on the card",
-    "card": "Card",
-    "simulationNote": "Simulated payment: no real charge is made. A card ending in 0000 is declined.",
-    "successTitle": "Payment approved!",
-    "successMessage": "Your booking is confirmed.",
-    "transaction": "Transaction {id}",
-    "viewBooking": "View my booking",
-    "declined": "Your card was declined. Check the details or use another card.",
-    "invalidCard": "Check the card details.",
-    "notPayable": "This booking is already paid or was cancelled.",
+    "serverComputes": "The amount is the price per night × nights; the system computes it when the payment is registered.",
     "byBookingTitle": "Payments of booking #{id}",
     "transactionColumn": "Transaction",
     "noPayments": "There are no payments for this booking.",
-    "rules": {
-      "cardHolderRequired": "Enter the cardholder name.",
-      "cardNumberInvalid": "Enter a valid card number.",
-      "expirationInvalid": "Enter a valid, not expired date (MM/YY).",
-      "cvvInvalid": "Enter the security code (3 or 4 digits)."
-    }
+    "howToPay": "How to pay",
+    "instructionsIntro": "Your booking {code} is pending payment. Pay outside the app and reception will register your payment.",
+    "steps": {
+      "choose": "Pay with Yape, Plin or a bank transfer to the hotel account.",
+      "reference": "Write your booking code ({code}) in the message or description of the payment.",
+      "keepReceipt": "Keep the operation number or the receipt.",
+      "confirmation": "When reception registers your payment, your booking becomes Confirmed."
+    },
+    "deadline": "You have {hours} hours from the moment you booked to pay. Otherwise the booking may be cancelled.",
+    "accountDetailsNote": "If you need the account details, contact the hotel reception. You can also pay on arrival, in cash or by card.",
+    "bookingCode": "Booking code",
+    "total": "Total",
+    "paid": "Paid",
+    "paidTitle": "Payment registered!",
+    "paidMessage": "Your booking is confirmed.",
+    "paidAmount": "Amount paid: {amount}",
+    "cancelled": "This booking was cancelled; it no longer needs a payment."
   },
   "staffPayments": {
     "title": "Payment management",
@@ -1099,6 +1096,31 @@
       "typePlaceholder": "Select a type",
       "newType": "New type",
       "descriptionPlaceholder": "E.g. Sea view, high floor..."
+    }
+  },
+  "paymentMethods": {
+    "Yape": "Yape",
+    "Plin": "Plin",
+    "BankTransfer": "Bank transfer",
+    "Cash": "Cash",
+    "CardAtReception": "Card at reception"
+  },
+  "registerPayment": {
+    "action": "Register payment",
+    "title": "Register payment of booking {code}",
+    "method": "Payment method",
+    "methodPlaceholder": "Select the method",
+    "operationNumber": "Operation number",
+    "note": "Note",
+    "amountNote": "The amount is computed by the system (price per night × nights). Registering the payment confirms the booking.",
+    "submit": "Register payment",
+    "success": "Payment registered. The booking is confirmed.",
+    "conflict": "This booking is already paid or was cancelled.",
+    "notAvailable": "Payment registration will be available when the API publishes it.",
+    "rules": {
+      "methodRequired": "Select the payment method.",
+      "operationNumberRequired": "Enter the operation number.",
+      "noteTooLong": "The note cannot exceed {max} characters."
     }
   }
 }
