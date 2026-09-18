@@ -37,8 +37,9 @@ function mfaFailure(error) {
     const { problem } = failure;
     if (problem.status === 401) {
         if (failure.lockedUntil) failure.reason = AuthFailureReason.ACCOUNT_LOCKED;
-        else if (problem.detailIncludes('already used')) failure.reason = AuthFailureReason.MFA_CODE_ALREADY_USED;
+        // "The recovery code is not valid or was already used." also says "already used": test recovery codes first.
         else if (problem.detailIncludes('recovery code')) failure.reason = AuthFailureReason.MFA_RECOVERY_CODE_INVALID;
+        else if (problem.detailIncludes('already used')) failure.reason = AuthFailureReason.MFA_CODE_ALREADY_USED;
         else if (problem.detailIncludes('verification code')) failure.reason = AuthFailureReason.MFA_CODE_INVALID;
         else failure.reason = AuthFailureReason.MFA_CHALLENGE_EXPIRED; // bearer token missing, invalid or expired
     } else if (problem.status === 409) {

@@ -125,6 +125,7 @@
       "verification": {
         "title": "Two-step verification",
         "subtitle": "Enter the code of your authenticator app for {email}.",
+        "subtitleRecovery": "Enter one of your recovery codes for {email}.",
         "codeHint": "The code changes every 30 seconds.",
         "recoveryCodeLabel": "Recovery code",
         "recoveryCodePlaceholder": "XXXXX-XXXXX",

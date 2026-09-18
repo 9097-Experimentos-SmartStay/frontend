@@ -125,6 +125,7 @@
       "verification": {
         "title": "Verificación en dos pasos",
         "subtitle": "Ingresa el código de tu app de autenticación para {email}.",
+        "subtitleRecovery": "Ingresa uno de tus códigos de recuperación para {email}.",
         "codeHint": "El código cambia cada 30 segundos.",
         "recoveryCodeLabel": "Código de recuperación",
         "recoveryCodePlaceholder": "XXXXX-XXXXX",

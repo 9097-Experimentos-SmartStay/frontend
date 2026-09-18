@@ -81,7 +81,7 @@ const challengeEmail = iamStore.pendingChallenge?.email ?? '';
 const isLocked = computed(() => failure.value?.reason === AuthFailureReason.ACCOUNT_LOCKED);
 const failureText = computed(() => (failure.value ? authFailureMessage(t, locale.value, failure.value) : ''));
 const subtitle = computed(() => {
-  const base = t('auth.mfa.verification.subtitle', { email: challengeEmail });
+  const base = t(`auth.mfa.verification.${usesRecoveryCode.value ? 'subtitleRecovery' : 'subtitle'}`, { email: challengeEmail });
   return iamStore.pendingChallenge?.rememberMe ? `${base} ${t('auth.mfa.rememberMeKept')}` : base;
 });
 
