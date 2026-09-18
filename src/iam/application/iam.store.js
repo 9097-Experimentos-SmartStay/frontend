@@ -3,6 +3,7 @@ import { computed, ref } from 'vue';
 import { AuthenticationApi } from '../infrastructure/api/authentication-api.js';
 import { UsersApi } from '../infrastructure/api/users-api.js';
 import { SessionAssembler } from '../infrastructure/assemblers/session.assembler.js';
+import { UserAssembler } from '../infrastructure/assemblers/user.assembler.js';
 import { MfaAssembler } from '../infrastructure/assemblers/mfa.assembler.js';
 import { AuthFailure, AuthFailureReason } from './auth-failure.js';
 import { areaFor, can as roleCan } from '../domain/user-role.js';
@@ -348,6 +349,30 @@ const useIamStore = defineStore('iam', () => {
     }
 
     /**
+     * Refreshes the profile data of the signed-in user from GET /users/me (names, e-mail, verification, MFA) for the
+     * profile page. Permissions are not synced here: they come with the token, and a change of role or hotel ends
+     * the session (401 `auth.session_revoked`).
+     * @returns {Promise<void>}
+     */
+    async function refreshProfile() {
+        if (!session.value) return;
+        try {
+            const { data } = await usersApi.getCurrentUser();
+            const fresh = UserAssembler.toEntityFromResource(data);
+            if (!fresh || fresh.id !== session.value.user.id) return;
+            updateCurrentUser({
+                email: fresh.email,
+                firstName: fresh.firstName,
+                lastName: fresh.lastName,
+                emailVerified: fresh.emailVerified,
+                mfaEnabled: fresh.mfaEnabled,
+            });
+        } catch (error) {
+            reportError('Error refreshing the profile of the signed-in user', error);
+        }
+    }
+
+    /**
      * US-01: confirms the e-mail with the token of the link.
      * @param {string} token
      * @returns {Promise<string>} One of {@link EmailVerificationResult}.
@@ -430,6 +455,7 @@ const useIamStore = defineStore('iam', () => {
         signOut,
         endSession,
         updateCurrentUser,
+        refreshProfile,
         verifyEmail,
         resendVerification,
         requestPasswordRecovery,

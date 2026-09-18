@@ -8,6 +8,14 @@ const auditLogsPath = endpoints.auditLogs;
  * User administration (US-03), contract §3. Only admin and chain_admin may call it.
  */
 export class UsersApi extends BaseApi {
+    /**
+     * GET /users/me → profile of the signed-in user (any role; like OpenID Connect userinfo): id, email, names, role,
+     * hotelId, chainId, emailVerified, mfaEnabled.
+     */
+    getCurrentUser() {
+        return this.http.get(`${usersPath}/me`);
+    }
+
     /** GET /users → UserResource[] filtered by the caller's scope (an admin sees their hotel). */
     getAll() {
         return this.http.get(usersPath);

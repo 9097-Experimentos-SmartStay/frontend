@@ -140,7 +140,9 @@ const guestProfile = computed(() => profileStore.guestProfile);
 const staffProfile = computed(() => profileStore.staffProfile);
 
 function loadProfile() {
-  if (user.value) profileStore.fetchMyProfile(user.value);
+  if (!user.value) return;
+  iamStore.refreshProfile();
+  profileStore.fetchMyProfile(user.value);
 }
 
 const handleBack = () => router.push({ name: 'dashboard' });
