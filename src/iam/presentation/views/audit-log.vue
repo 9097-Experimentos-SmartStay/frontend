@@ -141,6 +141,9 @@ const actionOptions = computed(() => Object.values(AuditAction).map((action) => 
 const actionLabel = (action) => t(`audit.actions.${action}`);
 const roleLabel = (role) => (te(`roles.${role}`) ? t(`roles.${role}`) : role);
 
+/** @param {number|null} id */
+const scopeLabel = (id) => (id == null ? t('audit.details.none') : `#${id}`);
+
 /** @param {import('../../domain/model/audit-details.js').AuditDetails|null} details */
 function detailsLabel(details) {
   if (!details) return '—';
@@ -150,6 +153,8 @@ function detailsLabel(details) {
   if (details.method && te(`audit.details.method.${details.method}`)) parts.push(t(`audit.details.method.${details.method}`));
   if (details.reason && te(`audit.details.reason.${details.reason}`)) parts.push(t(`audit.details.reason.${details.reason}`));
   if (details.lockedUntil) parts.push(t('audit.details.lockedUntil', { time: details.lockedUntil.toLocaleString(locale.value, { dateStyle: 'short', timeStyle: 'short' }) }));
+  if (details.isHotelChange) parts.push(t('audit.details.hotelChange', { from: scopeLabel(details.previousHotelId), to: scopeLabel(details.newHotelId) }));
+  if (details.isChainChange) parts.push(t('audit.details.chainChange', { from: scopeLabel(details.previousChainId), to: scopeLabel(details.newChainId) }));
   if (details.remainingRecoveryCodes != null) {
     parts.push(t('audit.details.remainingCodes', { count: details.remainingRecoveryCodes }, details.remainingRecoveryCodes));
   }

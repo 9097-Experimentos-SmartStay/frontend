@@ -705,7 +705,8 @@
       "MfaFailed": "Segundo paso fallido",
       "MfaRecoveryCodeUsed": "Código de recuperación usado",
       "MfaReset": "Verificación en dos pasos restablecida",
-      "SignedOutEverywhere": "Cierre de sesión en todos los dispositivos"
+      "SignedOutEverywhere": "Cierre de sesión en todos los dispositivos",
+      "AssignmentChanged": "Cambio de hotel o cadena"
     },
     "details": {
       "role": "Rol: {role}",
@@ -725,7 +726,10 @@
         "InvalidRecoveryCode": "Código de recuperación incorrecto"
       },
       "lockedUntil": "Bloqueada hasta el {time}",
-      "remainingCodes": "Queda {count} código de recuperación | Quedan {count} códigos de recuperación"
+      "remainingCodes": "Queda {count} código de recuperación | Quedan {count} códigos de recuperación",
+      "hotelChange": "Hotel: {from} → {to}",
+      "chainChange": "Cadena: {from} → {to}",
+      "none": "ninguno"
     },
     "errors": {
       "load": "No pudimos cargar la auditoría."
