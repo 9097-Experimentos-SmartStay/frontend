@@ -17,33 +17,92 @@
     "logoAlt": "Smart Stay Logo"
   },
   "auth": {
-    "signInTitle": "Sign In",
-    "registerTitle": "Register",
+    "signInTitle": "Sign in",
+    "registerTitle": "Create your account",
     "emailLabel": "Email",
-    "emailPlaceholder": "example.email.com",
-    "nameLabel": "Name",
-    "namePlaceholder": "Your full name",
+    "emailPlaceholder": "name{'@'}domain.com",
     "passwordLabel": "Password",
-    "passwordPlaceholder": "••••••",
-    "roleLabel": "Role",
-    "rolePlaceholder": "Select Role",
-    "roleAdmin": "Administrator",
-    "roleStaff": "Hotel Staff",
-    "roleGuest": "Guest",
-    "roleVisitor": "Visitor",
-    "signInButton": "Sign In",
-    "registerButton": "Register",
-    "registerLink": "Don't have an account? Register",
-    "signInLink": "Already have an account? Sign In",
-    "validationError": "Please fill in all required fields.",
-    "registerSuccess": "User registered successfully. Please sign in.",
-    "registerProfileError": "User registered, but failed to create profile. Please update it later.",
-    "authFailedPrefix": "Authentication failed",
-    "authFailedGeneric": "Please check your details and try again.",
-    "invalidCredentials": "Incorrect email or password.",
-    "userAlreadyExists": "An account with that email already exists.",
-    "registerInvalid": "Registration could not be completed. Check your details and try again.",
-    "sessionExpired": "Your session has expired. Please sign in again."
+    "passwordPlaceholder": "Enter your password",
+    "signInButton": "Sign in",
+    "registerButton": "Create account",
+    "registerLink": "Don't have an account? Sign up",
+    "signInLink": "Already have an account? Sign in",
+    "firstNameLabel": "First name",
+    "firstNamePlaceholder": "Ana",
+    "lastNameLabel": "Last name",
+    "lastNamePlaceholder": "Pérez",
+    "newPasswordLabel": "New password",
+    "confirmPasswordLabel": "Confirm the password",
+    "rememberMe": "Remember me",
+    "rememberMeHint": "Keep your session open on this device until you sign out.",
+    "forgotPasswordLink": "Forgot your password?",
+    "backToLogin": "Back to sign in",
+    "goToLogin": "Go to sign in",
+    "requiredFieldsNote": "Every field is required.",
+    "reasons": {
+      "session-expired": "Your session expired. Please sign in again.",
+      "session-revoked": "Your session was closed because your password changed. Please sign in again.",
+      "account-deactivated": "Your account was deactivated. Contact the administrator."
+    },
+    "notices": {
+      "password-updated": "Your password was updated. Sign in with the new password.",
+      "email-verified": "Your email is confirmed. You can sign in now."
+    },
+    "errors": {
+      "invalidCredentials": "The email or password is incorrect.",
+      "accountLocked": "We temporarily locked your account after too many failed attempts. Try again after {time} or reset your password. We sent you an email with the details.",
+      "accountLockedNoTime": "We temporarily locked your account after too many failed attempts. Try again later or reset your password.",
+      "accountDeactivated": "Your account is deactivated. Contact the administrator.",
+      "emailAlreadyRegistered": "Email already registered.",
+      "rateLimited": "Too many attempts. Wait {seconds} seconds and try again.",
+      "rateLimitedNoTime": "Too many attempts. Wait a moment and try again."
+    },
+    "resetPasswordAction": "Reset my password",
+    "recoverPasswordSuggestion": "Is it your account? Recover your password",
+    "register": {
+      "successTitle": "Check your email to confirm your account",
+      "successMessage": "We created your account and sent a confirmation link to {email}. The link expires in 24 hours.",
+      "successSignIn": "You can sign in while you confirm your email.",
+      "resendButton": "Resend confirmation email",
+      "resent": "If the account is not confirmed yet, we sent you a new link."
+    },
+    "verifyEmail": {
+      "title": "Email confirmation",
+      "verifying": "We are confirming your email...",
+      "verifiedTitle": "Email confirmed!",
+      "verifiedMessage": "Your account is confirmed.",
+      "expiredTitle": "The link expired",
+      "expiredMessage": "The confirmation link lasts 24 hours. Enter your email and we will send you a new one.",
+      "invalidTitle": "Invalid link",
+      "invalidMessage": "The link is invalid or was already used. If you have not confirmed your email yet, request a new one.",
+      "resendButton": "Send new link",
+      "resent": "If that email belongs to an unconfirmed account, we sent it a new link.",
+      "continue": "Continue"
+    },
+    "forgotPassword": {
+      "title": "Recover your password",
+      "subtitle": "Enter the email of your account and we will send you a link to create a new password.",
+      "submit": "Send link",
+      "sentTitle": "Check your email",
+      "sentMessage": "If an account exists for {email}, we sent it a link to reset the password. The link expires in 30 minutes.",
+      "sendAgain": "Send to another email"
+    },
+    "resetPassword": {
+      "title": "Create a new password",
+      "subtitle": "Your new password will close the sessions open on other devices.",
+      "submit": "Save password",
+      "expiredTitle": "The link expired",
+      "expiredMessage": "For security, the recovery link lasts 30 minutes. Request a new one to continue.",
+      "invalidTitle": "Invalid link",
+      "invalidMessage": "The link is invalid or was already used. Request a new one to continue.",
+      "requestNewLink": "Request a new link"
+    },
+    "verificationBanner": {
+      "message": "Confirm your email {email} with the link we sent you.",
+      "resend": "Resend link",
+      "resent": "We sent you a new confirmation link."
+    },
+    "signOut": "Sign out"
   },
   "authoring-phrase": {
     "intro": "Made with",
@@ -109,7 +168,7 @@
     "nameLabel": "Full Name",
     "namePlaceholder": "Enter full name",
     "emailLabel": "Email",
-    "emailPlaceholder": "user@example.com",
+    "emailPlaceholder": "user{'@'}example.com",
     "passwordLabel": "Password",
     "passwordPlaceholder": "Enter initial password",
     "roleLabel": "Role",
@@ -190,7 +249,10 @@
     "server": "The server had a problem. Try again in a few minutes.",
     "forbidden": "You do not have permission to do this.",
     "notFound": "The requested resource was not found.",
-    "unexpected": "An unexpected error occurred. Please try again."
+    "unexpected": "An unexpected error occurred. Please try again.",
+    "invalidData": "Check the data you entered and try again.",
+    "conflict": "The operation cannot be completed in the current state of the data.",
+    "tooManyRequests": "You made too many requests. Wait a moment and try again."
   },
   "common": {
     "cancel": "Cancel",
@@ -375,7 +437,10 @@
     "support247": "24/7 Support",
     "vipTransport": "VIP Transport",
     "vipTransportDesc": "Schedule your airport transfer and travel in total comfort.",
-    "manageBooking": "Manage"
+    "manageBooking": "Manage",
+    "roomNumber": "Room #{id}",
+    "loadError": "We could not load all your information.",
+    "supportSoon": "Online support will be available soon."
   },
   "accommodations": {
     "title": "Accommodations",
@@ -595,29 +660,39 @@
     "checkDatesAndRoom": "Check the dates and room.",
     "bookingCreated": "Booking Created!",
     "seeSoon": "See you soon.",
-    "couldNotCreate": "Could not create the booking."
+    "couldNotCreate": "Could not create the booking.",
+    "nightsSummary": "{count} night | {count} nights",
+    "roomNotAvailable": "The room is already booked for some of those nights. Choose other dates or another room.",
+    "invalidRequest": "Check the dates and the selected room.",
+    "rules": {
+      "roomRequired": "Select a room to continue.",
+      "datesRequired": "Select the arrival and departure dates.",
+      "checkInInPast": "The arrival date cannot be before today.",
+      "checkOutNotAfterCheckIn": "Departure must be at least one day after arrival."
+    }
   },
   "allProfiles": {
-    "title": "All Profiles",
+    "title": "Guests",
     "loading": "Loading profiles...",
     "retry": "Retry",
-    "noProfiles": "No profiles found",
+    "noProfiles": "There are no guest profiles yet.",
     "createFirst": "Create your first profile to get started",
     "createProfile": "Create Profile",
     "email": "Email",
     "address": "Address",
     "viewDetails": "View Details",
-    "errorMessage": "Failed to load profiles"
+    "errorMessage": "Failed to load profiles",
+    "name": "Name"
   },
   "createProfile": {
-    "title": "Create Profile",
+    "title": "Complete your profile",
     "personalInfo": "Personal Information",
     "firstName": "First Name",
     "firstNamePlaceholder": "Enter your first name",
     "lastName": "Last Name",
     "lastNamePlaceholder": "Enter your last name",
     "email": "Email",
-    "emailPlaceholder": "example@email.com",
+    "emailPlaceholder": "example{'@'}email.com",
     "address": "Address",
     "street": "Street",
     "streetPlaceholder": "Street name",
@@ -633,22 +708,32 @@
     "createButton": "Create Profile",
     "successTitle": "Profile Created",
     "successMessage": "Profile created successfully",
-    "errorMessage": "Error creating profile"
+    "errorMessage": "Error creating profile",
+    "phone": "Phone",
+    "emailFromAccount": "It is the email of your account.",
+    "documentType": "Document type",
+    "documentNumber": "Document number",
+    "optional": "Optional",
+    "addressHint": "Optional. If you add your address, fill in street, number, city and country.",
+    "conflict": "A profile with that email, document or account already exists.",
+    "rules": {
+      "required": "This field is required.",
+      "phoneFormat": "Enter 7 to 15 digits; you may start with +.",
+      "documentFormat": "The number does not match the document type (DNI: 8 digits; passport: 6 to 12; foreigner ID: 8 to 15).",
+      "addressIncomplete": "Fill in this field to register the address."
+    }
   },
   "profileDetail": {
     "loading": "Loading profile...",
     "retry": "Retry",
     "incompleteProfile": "Incomplete Profile",
     "accountInfo": "Account Information",
-    "username": "Username",
     "email": "Email",
-    "userId": "User ID",
     "role": "Role",
     "personalInfo": "Personal Information",
     "firstName": "First Name",
     "lastName": "Last Name",
     "phone": "Phone",
-    "profileId": "Profile ID",
     "notSpecified": "Not specified",
     "address": "Address",
     "street": "Street",
@@ -665,6 +750,256 @@
     "backToDashboard": "Back to Dashboard",
     "user": "User",
     "comingSoon": "Coming Soon",
-    "editFeatureComingSoon": "Edit feature will be available soon"
+    "editFeatureComingSoon": "Edit feature will be available soon",
+    "document": "Document",
+    "documentTypes": {
+      "0": "DNI",
+      "1": "Passport",
+      "2": "Foreigner ID"
+    },
+    "jobInfo": "Job information",
+    "employeeCode": "Code",
+    "position": "Position",
+    "shift": "Shift"
+  },
+  "validation": {
+    "required": "This field is required.",
+    "emailFormat": "Enter a valid email (for example, name{'@'}domain.com).",
+    "nameFormat": "Use 2 to 50 letters (spaces, hyphens and apostrophes allowed).",
+    "passwordMismatch": "The passwords do not match.",
+    "dateRange": "The end date cannot be earlier than the start date.",
+    "passwordTooShort": "The password must have at least {min} characters.",
+    "passwordTooLong": "The password cannot have more than {max} characters.",
+    "passwordBreached": "This password appears in data breaches or is too common. Choose another one.",
+    "passwordRejected": "The server rejected the password: {reason}"
+  },
+  "roles": {
+    "guest": "Guest",
+    "reception": "Reception",
+    "housekeeping": "Housekeeping",
+    "maintenance": "Maintenance",
+    "admin": "Hotel administrator",
+    "chain_admin": "Chain administrator"
+  },
+  "users": {
+    "title": "Users",
+    "subtitle": "Create staff accounts, assign roles and control access.",
+    "subtitleAdmin": "Staff of your hotel.",
+    "newUser": "New user",
+    "auditLog": "Audit",
+    "empty": "There are no users yet.",
+    "search": "Search by name or email",
+    "columns": {
+      "name": "Name",
+      "email": "Email",
+      "role": "Role",
+      "status": "Status",
+      "hotel": "Hotel",
+      "createdAt": "Created",
+      "actions": "Actions"
+    },
+    "status": {
+      "Active": "Active",
+      "Inactive": "Inactive",
+      "locked": "Locked",
+      "unverified": "Email not confirmed"
+    },
+    "you": "You",
+    "changeRole": "Change role",
+    "deactivate": "Deactivate",
+    "activate": "Activate",
+    "noHotelTitle": "Register your hotel first",
+    "noHotelMessage": "A hotel administrator creates staff users for their own hotel. Register your hotel to continue.",
+    "registerHotel": "Register my hotel",
+    "create": {
+      "title": "New staff user",
+      "initialPassword": "Initial password",
+      "initialPasswordHint": "Share this password with the person; they can change it later. They will also get an email to confirm their account.",
+      "role": "Role",
+      "rolePlaceholder": "Select a role",
+      "hotel": "Hotel",
+      "hotelPlaceholder": "Select the hotel",
+      "submit": "Create user",
+      "success": "User {email} created with the role {role}."
+    },
+    "roleDialog": {
+      "title": "Change the role of {name}",
+      "newRole": "New role",
+      "hint": "The change applies immediately: the person does not need to sign in again.",
+      "submit": "Save role",
+      "success": "The role of {name} is now {role}."
+    },
+    "confirmDeactivate": {
+      "header": "Deactivate user",
+      "message": "{name} will lose access immediately. Their bookings, profile and history are kept and you can reactivate them anytime. Continue?",
+      "success": "{name} was deactivated."
+    },
+    "confirmActivate": {
+      "header": "Activate user",
+      "message": "{name} will be able to sign in again. Continue?",
+      "success": "{name} was activated."
+    },
+    "errors": {
+      "load": "We could not load the users.",
+      "noHotel": "Register your hotel before creating staff users.",
+      "hotelRequired": "Select the hotel the user belongs to.",
+      "forbiddenRole": "You cannot assign that role.",
+      "notFound": "The user no longer exists or is out of your scope."
+    }
+  },
+  "audit": {
+    "title": "Access audit",
+    "subtitle": "Review who did what and when.",
+    "subtitleAdmin": "Activity of the accounts of your hotel.",
+    "filters": {
+      "user": "User",
+      "userPlaceholder": "All users",
+      "action": "Action",
+      "actionPlaceholder": "All actions",
+      "from": "From",
+      "to": "To",
+      "apply": "Filter",
+      "clear": "Clear"
+    },
+    "columns": {
+      "date": "Date",
+      "time": "Time",
+      "user": "User",
+      "action": "Action",
+      "outcome": "Outcome",
+      "details": "Details",
+      "ip": "IP"
+    },
+    "onUser": "on {email}",
+    "unknownUser": "Unknown",
+    "empty": "No activity for those filters.",
+    "total": "{count} entries",
+    "outcome": {
+      "Success": "Success",
+      "Failure": "Failure"
+    },
+    "actions": {
+      "SignInSucceeded": "Sign-in",
+      "SignInFailed": "Failed sign-in",
+      "AccountLocked": "Account locked",
+      "SignedOut": "Sign-out",
+      "PasswordReset": "Password reset",
+      "PasswordChanged": "Password changed",
+      "UserCreated": "User created",
+      "RoleChanged": "Role changed",
+      "UserDeactivated": "User deactivated",
+      "UserActivated": "User activated"
+    },
+    "errors": {
+      "load": "We could not load the audit log."
+    }
+  },
+  "passwordField": {
+    "confirmLabel": "Confirm the password",
+    "minLength": "At least {min} characters ({count} of {min})",
+    "maxLength": "At most {max} characters",
+    "noBreached": "Do not use breached or very common passwords; we check it when saving.",
+    "hint": "You can use a phrase with spaces, accents or emojis. Pasting from your password manager is allowed.",
+    "matches": "The passwords match.",
+    "strength": {
+      "weak": "Low strength",
+      "medium": "Medium strength",
+      "strong": "High strength"
+    }
+  },
+  "staffPanel": {
+    "welcome": "Hi, {name}",
+    "subtitle": "These are the sections available for your role.",
+    "createNew": "Create",
+    "create": {
+      "hotel": "Register hotel",
+      "room": "New room",
+      "user": "New user"
+    },
+    "nav": {
+      "hotels": "Hotels",
+      "rooms": "Rooms",
+      "bookings": "Bookings",
+      "payments": "Payments",
+      "guests": "Guests",
+      "users": "Users",
+      "audit": "Audit"
+    },
+    "navHint": {
+      "hotels": "Properties and their data",
+      "rooms": "Inventory and rates",
+      "bookings": "Guest bookings",
+      "payments": "Payments per booking",
+      "guests": "Guest profiles",
+      "users": "Staff accounts and roles",
+      "audit": "Access history"
+    },
+    "kpi": {
+      "revenue": "Revenue",
+      "occupancy": "Occupancy",
+      "cancellations": "Cancellations",
+      "currentMonth": "Current month",
+      "bookings": "{count} bookings"
+    },
+    "financialPerformance": "Financial performance",
+    "occupancyChart": "Availability",
+    "occupied": "Occupied",
+    "available": "Available",
+    "operationalTasks": "Operational tasks"
+  },
+  "staffBookings": {
+    "title": "Booking management",
+    "all": "All bookings",
+    "guest": "Guest",
+    "room": "Room",
+    "dates": "Dates",
+    "nights": "{count} night | {count} nights",
+    "status": "Status",
+    "confirm": "Confirm booking",
+    "cancel": "Cancel booking",
+    "confirmed": "Booking confirmed.",
+    "cancelled": "Booking cancelled.",
+    "confirmConflict": "A cancelled booking cannot be confirmed.",
+    "cancelConflict": "This booking can no longer be cancelled.",
+    "empty": "There are no bookings",
+    "emptyHint": "New bookings will show up here."
+  },
+  "guestPayment": {
+    "title": "Booking payment",
+    "summary": "Booking summary",
+    "booking": "Booking",
+    "room": "Room",
+    "stay": "Stay",
+    "pricePerNight": "Price per night",
+    "estimatedTotal": "Estimated total",
+    "serverComputes": "The final amount is computed by the system when you pay (price per night × nights) and shown in the receipt.",
+    "expiration": "Expiration (MM/YY)",
+    "cardHolderPlaceholder": "As it appears on the card",
+    "card": "Card",
+    "simulationNote": "Simulated payment: no real charge is made. A card ending in 0000 is declined.",
+    "successTitle": "Payment approved!",
+    "successMessage": "Your booking is confirmed.",
+    "transaction": "Transaction {id}",
+    "viewBooking": "View my booking",
+    "declined": "Your card was declined. Check the details or use another card.",
+    "invalidCard": "Check the card details.",
+    "notPayable": "This booking is already paid or was cancelled.",
+    "byBookingTitle": "Payments of booking #{id}",
+    "transactionColumn": "Transaction",
+    "noPayments": "There are no payments for this booking.",
+    "rules": {
+      "cardHolderRequired": "Enter the cardholder name.",
+      "cardNumberInvalid": "Enter a valid card number.",
+      "expirationInvalid": "Enter a valid, not expired date (MM/YY).",
+      "cvvInvalid": "Enter the security code (3 or 4 digits)."
+    }
+  },
+  "staffPayments": {
+    "title": "Payment management",
+    "all": "Payments per booking",
+    "booking": "Booking",
+    "empty": "There are no payments",
+    "emptyHint": "Booking payments will show up here.",
+    "partial": "We could not load the payment of some bookings."
   }
 }

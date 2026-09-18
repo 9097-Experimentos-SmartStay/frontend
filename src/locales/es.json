@@ -17,33 +17,92 @@
     "logoAlt": "Logo de Smart Stay"
   },
   "auth": {
-    "signInTitle": "Iniciar Sesión",
-    "registerTitle": "Registrarse",
-    "emailLabel": "Correo Electrónico",
-    "emailPlaceholder": "ejemplo.email.com",
-    "nameLabel": "Nombre",
-    "namePlaceholder": "Tu nombre completo",
+    "signInTitle": "Iniciar sesión",
+    "registerTitle": "Crea tu cuenta",
+    "emailLabel": "Correo electrónico",
+    "emailPlaceholder": "nombre{'@'}dominio.com",
     "passwordLabel": "Contraseña",
-    "passwordPlaceholder": "••••••",
-    "roleLabel": "Rol",
-    "rolePlaceholder": "Selecciona un Rol",
-    "roleAdmin": "Administrador",
-    "roleStaff": "Personal del Hotel",
-    "roleGuest": "Huésped",
-    "roleVisitor": "Visitante",
-    "signInButton": "Iniciar Sesión",
-    "registerButton": "Registrarse",
+    "passwordPlaceholder": "Ingresa tu contraseña",
+    "signInButton": "Iniciar sesión",
+    "registerButton": "Crear cuenta",
     "registerLink": "¿No tienes cuenta? Regístrate",
-    "signInLink": "¿Ya tienes cuenta? Inicia Sesión",
-    "validationError": "Por favor, completa todos los campos requeridos.",
-    "registerSuccess": "Usuario registrado con éxito. Por favor, inicia sesión.",
-    "registerProfileError": "Usuario registrado, pero falló la creación del perfil. Por favor, actualízalo más tarde.",
-    "authFailedPrefix": "Fallo de autenticación",
-    "authFailedGeneric": "Por favor, revisa tus datos e inténtalo de nuevo.",
-    "invalidCredentials": "Correo o contraseña incorrectos.",
-    "userAlreadyExists": "Ya existe una cuenta con ese correo.",
-    "registerInvalid": "No se pudo completar el registro. Revisa los datos e inténtalo de nuevo.",
-    "sessionExpired": "Tu sesión expiró. Inicia sesión de nuevo."
+    "signInLink": "¿Ya tienes cuenta? Inicia sesión",
+    "firstNameLabel": "Nombre",
+    "firstNamePlaceholder": "Ana",
+    "lastNameLabel": "Apellido",
+    "lastNamePlaceholder": "Pérez",
+    "newPasswordLabel": "Nueva contraseña",
+    "confirmPasswordLabel": "Confirma la contraseña",
+    "rememberMe": "Recordarme",
+    "rememberMeHint": "Mantén tu sesión abierta en este dispositivo hasta que la cierres.",
+    "forgotPasswordLink": "¿Olvidaste tu contraseña?",
+    "backToLogin": "Volver a iniciar sesión",
+    "goToLogin": "Ir a iniciar sesión",
+    "requiredFieldsNote": "Todos los campos son obligatorios.",
+    "reasons": {
+      "session-expired": "Tu sesión expiró. Inicia sesión de nuevo.",
+      "session-revoked": "Tu sesión se cerró porque cambió tu contraseña. Inicia sesión de nuevo.",
+      "account-deactivated": "Tu cuenta fue desactivada. Contacta al administrador."
+    },
+    "notices": {
+      "password-updated": "Tu contraseña se actualizó. Inicia sesión con la nueva contraseña.",
+      "email-verified": "Tu correo quedó confirmado. Ya puedes iniciar sesión."
+    },
+    "errors": {
+      "invalidCredentials": "El correo o la contraseña no son correctos.",
+      "accountLocked": "Bloqueamos tu cuenta temporalmente por demasiados intentos fallidos. Inténtalo de nuevo después de las {time} o restablece tu contraseña. Te enviamos un correo con los detalles.",
+      "accountLockedNoTime": "Bloqueamos tu cuenta temporalmente por demasiados intentos fallidos. Inténtalo más tarde o restablece tu contraseña.",
+      "accountDeactivated": "Tu cuenta está desactivada. Contacta al administrador.",
+      "emailAlreadyRegistered": "Este correo ya está registrado.",
+      "rateLimited": "Hiciste demasiados intentos. Espera {seconds} segundos e inténtalo de nuevo.",
+      "rateLimitedNoTime": "Hiciste demasiados intentos. Espera un momento e inténtalo de nuevo."
+    },
+    "resetPasswordAction": "Restablecer mi contraseña",
+    "recoverPasswordSuggestion": "¿Es tu cuenta? Recupera tu contraseña",
+    "register": {
+      "successTitle": "Revisa tu correo para confirmar tu cuenta",
+      "successMessage": "Creamos tu cuenta y enviamos un enlace de confirmación a {email}. El enlace vence en 24 horas.",
+      "successSignIn": "Ya puedes iniciar sesión mientras confirmas tu correo.",
+      "resendButton": "Reenviar correo de confirmación",
+      "resent": "Si la cuenta aún no está confirmada, te enviamos un nuevo enlace."
+    },
+    "verifyEmail": {
+      "title": "Confirmación de correo",
+      "verifying": "Estamos confirmando tu correo...",
+      "verifiedTitle": "¡Correo confirmado!",
+      "verifiedMessage": "Tu cuenta ya está confirmada.",
+      "expiredTitle": "El enlace venció",
+      "expiredMessage": "El enlace de confirmación dura 24 horas. Ingresa tu correo y te enviaremos uno nuevo.",
+      "invalidTitle": "Enlace no válido",
+      "invalidMessage": "El enlace no es válido o ya se usó. Si aún no confirmaste tu correo, solicita uno nuevo.",
+      "resendButton": "Enviar nuevo enlace",
+      "resent": "Si ese correo pertenece a una cuenta sin confirmar, te enviamos un nuevo enlace.",
+      "continue": "Continuar"
+    },
+    "forgotPassword": {
+      "title": "Recupera tu contraseña",
+      "subtitle": "Ingresa el correo de tu cuenta y te enviaremos un enlace para crear una contraseña nueva.",
+      "submit": "Enviar enlace",
+      "sentTitle": "Revisa tu correo",
+      "sentMessage": "Si existe una cuenta con {email}, te enviamos un enlace para restablecer tu contraseña. El enlace vence en 30 minutos.",
+      "sendAgain": "Enviar a otro correo"
+    },
+    "resetPassword": {
+      "title": "Crea una contraseña nueva",
+      "subtitle": "Tu nueva contraseña cerrará las sesiones abiertas en otros dispositivos.",
+      "submit": "Guardar contraseña",
+      "expiredTitle": "El enlace venció",
+      "expiredMessage": "Por seguridad, el enlace de recuperación dura 30 minutos. Solicita uno nuevo para continuar.",
+      "invalidTitle": "Enlace no válido",
+      "invalidMessage": "El enlace no es válido o ya se usó. Solicita uno nuevo para continuar.",
+      "requestNewLink": "Solicitar un nuevo enlace"
+    },
+    "verificationBanner": {
+      "message": "Confirma tu correo {email} con el enlace que te enviamos.",
+      "resend": "Reenviar enlace",
+      "resent": "Te enviamos un nuevo enlace de confirmación."
+    },
+    "signOut": "Cerrar sesión"
   },
   "authoring-phrase": {
     "intro": "Hecho con",
@@ -109,7 +168,7 @@
     "nameLabel": "Nombre Completo",
     "namePlaceholder": "Ingresa el nombre completo",
     "emailLabel": "Correo Electrónico",
-    "emailPlaceholder": "usuario@ejemplo.com",
+    "emailPlaceholder": "usuario{'@'}ejemplo.com",
     "passwordLabel": "Contraseña",
     "passwordPlaceholder": "Ingresa la contraseña inicial",
     "roleLabel": "Rol",
@@ -190,7 +249,10 @@
     "server": "El servidor tuvo un problema. Inténtalo de nuevo en unos minutos.",
     "forbidden": "No tienes permiso para realizar esta acción.",
     "notFound": "No se encontró el recurso solicitado.",
-    "unexpected": "Ocurrió un error inesperado. Inténtalo de nuevo."
+    "unexpected": "Ocurrió un error inesperado. Inténtalo de nuevo.",
+    "invalidData": "Revisa los datos ingresados e inténtalo de nuevo.",
+    "conflict": "La operación no se puede completar por el estado actual de los datos.",
+    "tooManyRequests": "Hiciste demasiadas solicitudes. Espera un momento e inténtalo de nuevo."
   },
   "common": {
     "cancel": "Cancelar",
@@ -375,7 +437,10 @@
     "support247": "Soporte 24/7",
     "vipTransport": "Transporte VIP",
     "vipTransportDesc": "Agenda tu traslado al aeropuerto y viaja con total comodidad.",
-    "manageBooking": "Gestionar"
+    "manageBooking": "Gestionar",
+    "roomNumber": "Habitación #{id}",
+    "loadError": "No pudimos cargar toda tu información.",
+    "supportSoon": "El soporte en línea estará disponible pronto."
   },
   "accommodations": {
     "title": "Alojamientos",
@@ -595,29 +660,39 @@
     "checkDatesAndRoom": "Revisa las fechas y la habitación.",
     "bookingCreated": "¡Reserva Creada!",
     "seeSoon": "Nos vemos pronto.",
-    "couldNotCreate": "No se pudo crear la reserva."
+    "couldNotCreate": "No se pudo crear la reserva.",
+    "nightsSummary": "{count} noche | {count} noches",
+    "roomNotAvailable": "La habitación ya está reservada en algunas de esas noches. Elige otras fechas u otra habitación.",
+    "invalidRequest": "Revisa las fechas y la habitación seleccionada.",
+    "rules": {
+      "roomRequired": "Selecciona una habitación para continuar.",
+      "datesRequired": "Selecciona las fechas de llegada y de salida.",
+      "checkInInPast": "La fecha de llegada no puede ser anterior a hoy.",
+      "checkOutNotAfterCheckIn": "La salida debe ser al menos un día después de la llegada."
+    }
   },
   "allProfiles": {
-    "title": "Todos los Perfiles",
+    "title": "Huéspedes",
     "loading": "Cargando perfiles...",
     "retry": "Reintentar",
-    "noProfiles": "No se encontraron perfiles",
+    "noProfiles": "Aún no hay perfiles de huéspedes.",
     "createFirst": "Crea tu primer perfil para comenzar",
     "createProfile": "Crear Perfil",
     "email": "Email",
     "address": "Dirección",
     "viewDetails": "Ver Detalles",
-    "errorMessage": "Error al cargar los perfiles"
+    "errorMessage": "Error al cargar los perfiles",
+    "name": "Nombre"
   },
   "createProfile": {
-    "title": "Crear Perfil",
+    "title": "Completa tu perfil",
     "personalInfo": "Información Personal",
     "firstName": "Nombre",
     "firstNamePlaceholder": "Ingresa tu nombre",
     "lastName": "Apellido",
     "lastNamePlaceholder": "Ingresa tu apellido",
     "email": "Correo Electrónico",
-    "emailPlaceholder": "ejemplo@correo.com",
+    "emailPlaceholder": "ejemplo{'@'}correo.com",
     "address": "Dirección",
     "street": "Calle",
     "streetPlaceholder": "Nombre de la calle",
@@ -633,22 +708,32 @@
     "createButton": "Crear Perfil",
     "successTitle": "Perfil Creado",
     "successMessage": "Perfil creado exitosamente",
-    "errorMessage": "Error al crear el perfil"
+    "errorMessage": "Error al crear el perfil",
+    "phone": "Teléfono",
+    "emailFromAccount": "Es el correo de tu cuenta.",
+    "documentType": "Tipo de documento",
+    "documentNumber": "Número de documento",
+    "optional": "Opcional",
+    "addressHint": "Opcional. Si agregas tu dirección, completa calle, número, ciudad y país.",
+    "conflict": "Ya existe un perfil con ese correo, documento o cuenta.",
+    "rules": {
+      "required": "Este campo es obligatorio.",
+      "phoneFormat": "Ingresa entre 7 y 15 dígitos; puedes empezar con +.",
+      "documentFormat": "El número no coincide con el tipo de documento (DNI: 8 dígitos; pasaporte: 6 a 12; carné de extranjería: 8 a 15).",
+      "addressIncomplete": "Completa este dato para registrar la dirección."
+    }
   },
   "profileDetail": {
     "loading": "Cargando perfil...",
     "retry": "Reintentar",
     "incompleteProfile": "Perfil Incompleto",
     "accountInfo": "Información de Cuenta",
-    "username": "Usuario",
     "email": "Correo Electrónico",
-    "userId": "ID de Usuario",
     "role": "Rol",
     "personalInfo": "Información Personal",
     "firstName": "Nombre",
     "lastName": "Apellido",
     "phone": "Teléfono",
-    "profileId": "ID de Perfil",
     "notSpecified": "No especificado",
     "address": "Dirección",
     "street": "Calle",
@@ -665,6 +750,256 @@
     "backToDashboard": "Volver al Dashboard",
     "user": "Usuario",
     "comingSoon": "Próximamente",
-    "editFeatureComingSoon": "La función de edición estará disponible pronto"
+    "editFeatureComingSoon": "La función de edición estará disponible pronto",
+    "document": "Documento",
+    "documentTypes": {
+      "0": "DNI",
+      "1": "Pasaporte",
+      "2": "Carné de extranjería"
+    },
+    "jobInfo": "Información laboral",
+    "employeeCode": "Código",
+    "position": "Cargo",
+    "shift": "Turno"
+  },
+  "validation": {
+    "required": "Este campo es obligatorio.",
+    "emailFormat": "Ingresa un correo válido (por ejemplo, nombre{'@'}dominio.com).",
+    "nameFormat": "Usa entre 2 y 50 letras (se permiten espacios, guiones y apóstrofos).",
+    "passwordMismatch": "Las contraseñas no coinciden.",
+    "dateRange": "La fecha final no puede ser anterior a la inicial.",
+    "passwordTooShort": "La contraseña debe tener al menos {min} caracteres.",
+    "passwordTooLong": "La contraseña no puede tener más de {max} caracteres.",
+    "passwordBreached": "Esta contraseña aparece en filtraciones o es muy común. Elige otra.",
+    "passwordRejected": "El servidor rechazó la contraseña: {reason}"
+  },
+  "roles": {
+    "guest": "Huésped",
+    "reception": "Recepción",
+    "housekeeping": "Limpieza",
+    "maintenance": "Mantenimiento",
+    "admin": "Administrador de hotel",
+    "chain_admin": "Administrador de cadena"
+  },
+  "users": {
+    "title": "Usuarios",
+    "subtitle": "Crea cuentas del personal, asigna roles y controla el acceso.",
+    "subtitleAdmin": "Personal de tu hotel.",
+    "newUser": "Nuevo usuario",
+    "auditLog": "Auditoría",
+    "empty": "Aún no hay usuarios.",
+    "search": "Busca por nombre o correo",
+    "columns": {
+      "name": "Nombre",
+      "email": "Correo",
+      "role": "Rol",
+      "status": "Estado",
+      "hotel": "Hotel",
+      "createdAt": "Creado",
+      "actions": "Acciones"
+    },
+    "status": {
+      "Active": "Activo",
+      "Inactive": "Inactivo",
+      "locked": "Bloqueado",
+      "unverified": "Correo sin confirmar"
+    },
+    "you": "Tú",
+    "changeRole": "Cambiar rol",
+    "deactivate": "Desactivar",
+    "activate": "Activar",
+    "noHotelTitle": "Primero registra tu hotel",
+    "noHotelMessage": "Un administrador de hotel crea usuarios del personal para su propio hotel. Registra tu hotel para continuar.",
+    "registerHotel": "Registrar mi hotel",
+    "create": {
+      "title": "Nuevo usuario del personal",
+      "initialPassword": "Contraseña inicial",
+      "initialPasswordHint": "Comparte esta contraseña con la persona; la podrá cambiar después. También recibirá un correo para confirmar su cuenta.",
+      "role": "Rol",
+      "rolePlaceholder": "Selecciona un rol",
+      "hotel": "Hotel",
+      "hotelPlaceholder": "Selecciona el hotel",
+      "submit": "Crear usuario",
+      "success": "Usuario {email} creado con el rol {role}."
+    },
+    "roleDialog": {
+      "title": "Cambiar rol de {name}",
+      "newRole": "Nuevo rol",
+      "hint": "El cambio se aplica de inmediato: la persona no necesita volver a iniciar sesión.",
+      "submit": "Guardar rol",
+      "success": "El rol de {name} ahora es {role}."
+    },
+    "confirmDeactivate": {
+      "header": "Desactivar usuario",
+      "message": "{name} perderá el acceso de inmediato. Sus reservas, perfil e historial se conservan y podrás reactivarlo cuando quieras. ¿Deseas continuar?",
+      "success": "{name} fue desactivado."
+    },
+    "confirmActivate": {
+      "header": "Activar usuario",
+      "message": "{name} podrá volver a iniciar sesión. ¿Deseas continuar?",
+      "success": "{name} fue activado."
+    },
+    "errors": {
+      "load": "No pudimos cargar los usuarios.",
+      "noHotel": "Registra tu hotel antes de crear usuarios del personal.",
+      "hotelRequired": "Selecciona el hotel al que pertenece el usuario.",
+      "forbiddenRole": "No puedes asignar ese rol.",
+      "notFound": "El usuario ya no existe o está fuera de tu alcance."
+    }
+  },
+  "audit": {
+    "title": "Auditoría de accesos",
+    "subtitle": "Revisa quién hizo qué y cuándo.",
+    "subtitleAdmin": "Actividad de las cuentas de tu hotel.",
+    "filters": {
+      "user": "Usuario",
+      "userPlaceholder": "Todos los usuarios",
+      "action": "Acción",
+      "actionPlaceholder": "Todas las acciones",
+      "from": "Desde",
+      "to": "Hasta",
+      "apply": "Filtrar",
+      "clear": "Limpiar"
+    },
+    "columns": {
+      "date": "Fecha",
+      "time": "Hora",
+      "user": "Usuario",
+      "action": "Acción",
+      "outcome": "Resultado",
+      "details": "Detalle",
+      "ip": "IP"
+    },
+    "onUser": "sobre {email}",
+    "unknownUser": "Desconocido",
+    "empty": "No hay actividad para esos filtros.",
+    "total": "{count} registros",
+    "outcome": {
+      "Success": "Éxito",
+      "Failure": "Fallo"
+    },
+    "actions": {
+      "SignInSucceeded": "Inicio de sesión",
+      "SignInFailed": "Inicio de sesión fallido",
+      "AccountLocked": "Cuenta bloqueada",
+      "SignedOut": "Cierre de sesión",
+      "PasswordReset": "Contraseña restablecida",
+      "PasswordChanged": "Contraseña cambiada",
+      "UserCreated": "Usuario creado",
+      "RoleChanged": "Rol cambiado",
+      "UserDeactivated": "Usuario desactivado",
+      "UserActivated": "Usuario activado"
+    },
+    "errors": {
+      "load": "No pudimos cargar la auditoría."
+    }
+  },
+  "passwordField": {
+    "confirmLabel": "Confirma la contraseña",
+    "minLength": "Al menos {min} caracteres ({count} de {min})",
+    "maxLength": "Máximo {max} caracteres",
+    "noBreached": "No uses contraseñas filtradas o muy comunes; lo verificamos al guardar.",
+    "hint": "Puedes usar una frase con espacios, acentos o emojis. Pegar desde tu gestor de contraseñas está permitido.",
+    "matches": "Las contraseñas coinciden.",
+    "strength": {
+      "weak": "Seguridad baja",
+      "medium": "Seguridad media",
+      "strong": "Seguridad alta"
+    }
+  },
+  "staffPanel": {
+    "welcome": "Hola, {name}",
+    "subtitle": "Estas son las secciones disponibles para tu rol.",
+    "createNew": "Crear",
+    "create": {
+      "hotel": "Registrar hotel",
+      "room": "Nueva habitación",
+      "user": "Nuevo usuario"
+    },
+    "nav": {
+      "hotels": "Hoteles",
+      "rooms": "Habitaciones",
+      "bookings": "Reservas",
+      "payments": "Pagos",
+      "guests": "Huéspedes",
+      "users": "Usuarios",
+      "audit": "Auditoría"
+    },
+    "navHint": {
+      "hotels": "Propiedades y sus datos",
+      "rooms": "Inventario y tarifas",
+      "bookings": "Reservas de los huéspedes",
+      "payments": "Cobros por reserva",
+      "guests": "Perfiles de huéspedes",
+      "users": "Cuentas y roles del personal",
+      "audit": "Historial de accesos"
+    },
+    "kpi": {
+      "revenue": "Ingresos",
+      "occupancy": "Ocupación",
+      "cancellations": "Cancelaciones",
+      "currentMonth": "Mes actual",
+      "bookings": "{count} reservas"
+    },
+    "financialPerformance": "Rendimiento financiero",
+    "occupancyChart": "Disponibilidad",
+    "occupied": "Ocupado",
+    "available": "Disponible",
+    "operationalTasks": "Tareas operativas"
+  },
+  "staffBookings": {
+    "title": "Gestión de reservas",
+    "all": "Todas las reservas",
+    "guest": "Huésped",
+    "room": "Habitación",
+    "dates": "Fechas",
+    "nights": "{count} noche | {count} noches",
+    "status": "Estado",
+    "confirm": "Confirmar reserva",
+    "cancel": "Cancelar reserva",
+    "confirmed": "Reserva confirmada.",
+    "cancelled": "Reserva cancelada.",
+    "confirmConflict": "No se puede confirmar una reserva cancelada.",
+    "cancelConflict": "Esta reserva ya no se puede cancelar.",
+    "empty": "No hay reservas registradas",
+    "emptyHint": "Las nuevas reservas aparecerán aquí."
+  },
+  "guestPayment": {
+    "title": "Pago de la reserva",
+    "summary": "Resumen de la reserva",
+    "booking": "Reserva",
+    "room": "Habitación",
+    "stay": "Estadía",
+    "pricePerNight": "Precio por noche",
+    "estimatedTotal": "Total estimado",
+    "serverComputes": "El monto final lo calcula el sistema al pagar (precio por noche × noches) y lo verás en el comprobante.",
+    "expiration": "Vencimiento (MM/AA)",
+    "cardHolderPlaceholder": "Como aparece en la tarjeta",
+    "card": "Tarjeta",
+    "simulationNote": "Pago simulado: no se realiza ningún cargo real. Una tarjeta que termina en 0000 se rechaza.",
+    "successTitle": "¡Pago aprobado!",
+    "successMessage": "Tu reserva quedó confirmada.",
+    "transaction": "Transacción {id}",
+    "viewBooking": "Ver mi reserva",
+    "declined": "Tu tarjeta fue rechazada. Revisa los datos o usa otra tarjeta.",
+    "invalidCard": "Revisa los datos de la tarjeta.",
+    "notPayable": "Esta reserva ya está pagada o fue cancelada.",
+    "byBookingTitle": "Pagos de la reserva #{id}",
+    "transactionColumn": "Transacción",
+    "noPayments": "No hay pagos registrados para esta reserva.",
+    "rules": {
+      "cardHolderRequired": "Ingresa el nombre del titular.",
+      "cardNumberInvalid": "Ingresa un número de tarjeta válido.",
+      "expirationInvalid": "Ingresa un vencimiento válido y no vencido (MM/AA).",
+      "cvvInvalid": "Ingresa el código de seguridad (3 o 4 dígitos)."
+    }
+  },
+  "staffPayments": {
+    "title": "Gestión de pagos",
+    "all": "Pagos por reserva",
+    "booking": "Reserva",
+    "empty": "No hay pagos registrados",
+    "emptyHint": "Los pagos de las reservas aparecerán aquí.",
+    "partial": "No pudimos cargar el pago de algunas reservas."
   }
 }
