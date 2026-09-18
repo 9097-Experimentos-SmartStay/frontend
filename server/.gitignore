@@ -1,9 +1,0 @@
-/.idea
-.vscode/
-/node_modules
-
-.idea/copilot.data.migration.ask.xml
-.idea/copilot.data.migration.ask2agent.xml
-.idea/git_toolbox_prj.xml
-.idea/vcs.xml
-.idea/workspace.xml
