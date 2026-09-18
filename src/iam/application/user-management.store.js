@@ -109,6 +109,21 @@ export const useUserManagementStore = defineStore('user-management', () => {
     }
 
     /**
+     * US-52 scenario 4: removes the user's authenticator and recovery codes. Their sessions end, a temporary
+     * lock is lifted, and the next sign-in asks for a new enrollment. Audited as `MfaReset`.
+     * @param {number} userId
+     * @returns {Promise<void>}
+     */
+    async function resetMfa(userId) {
+        try {
+            await usersApi.resetMfa(userId);
+            replaceUser(userId, { mfaEnabled: false, mfaEnrollmentRequired: true, lockedUntil: null });
+        } catch (error) {
+            throw AuthFailure.from(error);
+        }
+    }
+
+    /**
      * US-03 scenario 4: loads a page of the audit log with the given filters.
      * @param {AuditLogQuery} [query] - Defaults to the last query.
      * @returns {Promise<void>}
@@ -141,6 +156,7 @@ export const useUserManagementStore = defineStore('user-management', () => {
         changeRole,
         deactivateUser,
         activateUser,
+        resetMfa,
         fetchAuditLog,
     };
 });

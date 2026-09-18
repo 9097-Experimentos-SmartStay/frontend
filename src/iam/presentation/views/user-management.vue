@@ -84,6 +84,10 @@
               <pv-tag :value="t(`users.status.${data.status}`)" :severity="data.isActive ? 'success' : 'secondary'" rounded />
               <pv-tag v-if="data.isLocked()" :value="t('users.status.locked')" severity="danger" rounded />
               <pv-tag v-if="!data.emailVerified" :value="t('users.status.unverified')" severity="warn" rounded />
+              <template v-if="data.usesSecondFactor">
+                <pv-tag v-if="data.mfaEnabled" :value="t('users.status.mfaEnabled')" severity="info" icon="pi pi-shield" rounded />
+                <pv-tag v-else :value="t('users.status.mfaPending')" severity="secondary" icon="pi pi-shield" rounded />
+              </template>
             </div>
           </template>
         </pv-column>
@@ -92,7 +96,7 @@
           <template #body="{ data }">{{ data.createdAt ? data.createdAt.toLocaleDateString(locale) : '—' }}</template>
         </pv-column>
 
-        <pv-column :header="t('users.columns.actions')" style="width: 11rem">
+        <pv-column :header="t('users.columns.actions')" style="width: 13rem">
           <template #body="{ data }">
             <div v-if="isManageable(data)" class="flex gap-1">
               <pv-button
@@ -102,6 +106,14 @@
                   :aria-label="t('users.changeRole')"
                   :disabled="!data.isActive"
                   @click="openRoleDialog(data)"
+              />
+              <pv-button
+                  v-if="data.usesSecondFactor && data.mfaEnabled"
+                  icon="pi pi-shield"
+                  class="p-button-rounded p-button-text p-button-warning"
+                  v-tooltip.top="t('users.resetMfa')"
+                  :aria-label="t('users.resetMfa')"
+                  @click="confirmResetMfa(data)"
               />
               <pv-button
                   v-if="data.isActive"
@@ -279,6 +291,25 @@ function confirmDeactivate(user) {
       try {
         await store.deactivateUser(user.id);
         toast.add({ severity: 'success', summary: t('common.success'), detail: t('users.confirmDeactivate.success', { name: user.displayName }), life: 4000 });
+      } catch (error) {
+        showError(error);
+      }
+    },
+  });
+}
+
+/** US-52 scenario 4: the staff member lost the device and the recovery codes. */
+function confirmResetMfa(user) {
+  confirm.require({
+    header: t('users.confirmResetMfa.header'),
+    message: t('users.confirmResetMfa.message', { name: user.displayName }),
+    icon: 'pi pi-shield',
+    acceptProps: { label: t('users.resetMfa'), severity: 'warn' },
+    rejectProps: { label: t('common.cancel'), severity: 'secondary', outlined: true },
+    accept: async () => {
+      try {
+        await store.resetMfa(user.id);
+        toast.add({ severity: 'success', summary: t('common.success'), detail: t('users.confirmResetMfa.success', { name: user.displayName }), life: 5000 });
       } catch (error) {
         showError(error);
       }

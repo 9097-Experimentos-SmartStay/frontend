@@ -856,7 +856,9 @@
       "Active": "Active",
       "Inactive": "Inactive",
       "locked": "Locked",
-      "unverified": "Email not confirmed"
+      "unverified": "Email not confirmed",
+      "mfaEnabled": "Two-step verification",
+      "mfaPending": "Verification pending"
     },
     "you": "You",
     "changeRole": "Change role",
@@ -899,6 +901,12 @@
       "hotelRequired": "Select the hotel the user belongs to.",
       "forbiddenRole": "You cannot assign that role.",
       "notFound": "The user no longer exists or is out of your scope."
+    },
+    "resetMfa": "Reset two-step verification",
+    "confirmResetMfa": {
+      "header": "Reset two-step verification",
+      "message": "{name} lost their authenticator app and recovery codes. Their sessions will end and they will set up the app again at their next sign-in. The action is recorded in the audit log. Continue?",
+      "success": "Two-step verification of {name} was reset. They will set it up again when signing in."
     }
   },
   "audit": {
@@ -942,7 +950,13 @@
       "UserCreated": "User created",
       "RoleChanged": "Role changed",
       "UserDeactivated": "User deactivated",
-      "UserActivated": "User activated"
+      "UserActivated": "User activated",
+      "MfaEnabled": "Two-step verification turned on",
+      "MfaVerified": "Second step verified",
+      "MfaFailed": "Second step failed",
+      "MfaRecoveryCodeUsed": "Recovery code used",
+      "MfaReset": "Two-step verification reset",
+      "SignedOutEverywhere": "Signed out on all devices"
     },
     "errors": {
       "load": "We could not load the audit log."
