@@ -44,7 +44,7 @@
           <LanguageSwitcher class="hidden md:flex" />
 
           <div
-              class="flex align-items-center gap-2 cursor-pointer surface-hover p-2 border-round transition-duration-200"
+              class="user-menu-trigger flex align-items-center gap-2 cursor-pointer p-2 border-round transition-duration-200"
               aria-haspopup="true"
               aria-controls="user_menu"
               @click="userMenu.toggle($event)"
@@ -236,9 +236,9 @@ function updateCharts() {
   if (!metrics) return;
 
   const style = getComputedStyle(document.documentElement);
-  const textColor = style.getPropertyValue('--text-color');
-  const textColorSecondary = style.getPropertyValue('--text-color-secondary');
-  const surfaceBorder = style.getPropertyValue('--surface-border');
+  const textColor = style.getPropertyValue('--p-text-color');
+  const textColorSecondary = style.getPropertyValue('--p-text-muted-color');
+  const surfaceBorder = style.getPropertyValue('--p-content-border-color');
   const monthLabel = new Date().toLocaleDateString(locale.value, { month: 'long', year: 'numeric' });
 
   revenueData.value = {
@@ -247,7 +247,7 @@ function updateCharts() {
       label: t('staffPanel.kpi.revenue'),
       data: [metrics.totalRevenue],
       backgroundColor: 'rgba(59, 130, 246, 0.5)',
-      borderColor: style.getPropertyValue('--primary-color'),
+      borderColor: style.getPropertyValue('--p-primary-color'),
       borderWidth: 1,
       maxBarThickness: 80,
     }],
@@ -266,7 +266,7 @@ function updateCharts() {
     labels: [t('staffPanel.occupied'), t('staffPanel.available')],
     datasets: [{
       data: [occupancy, 100 - occupancy],
-      backgroundColor: [style.getPropertyValue('--green-500'), style.getPropertyValue('--surface-300')],
+      backgroundColor: [style.getPropertyValue('--p-green-500'), style.getPropertyValue('--p-surface-300')],
       borderWidth: 0,
     }],
   };
@@ -300,6 +300,11 @@ watch(locale, updateCharts);
 .adaptive-toolbar {
   background-color: #ffffff;
   color: #1e293b;
+}
+
+/* PrimeFlex `surface-hover` is a permanent (dark in light mode) background, not a hover state. */
+.user-menu-trigger:hover {
+  background-color: var(--p-content-hover-background);
 }
 
 .shortcut {
