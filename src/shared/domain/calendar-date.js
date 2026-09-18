@@ -73,6 +73,66 @@ export class CalendarDate {
     }
 
     /**
+     * @param {CalendarDate} other
+     * @returns {boolean}
+     */
+    isAfter(other) {
+        return this.daysUntil(other) < 0;
+    }
+
+    /**
+     * @param {CalendarDate|null} other
+     * @returns {boolean}
+     */
+    equals(other) {
+        return !!other && this.daysUntil(other) === 0;
+    }
+
+    /**
+     * @param {number} days - May be negative.
+     * @returns {CalendarDate}
+     */
+    addDays(days) {
+        const date = new Date(Date.UTC(this.year, this.month - 1, this.day + days));
+        return new CalendarDate(date.getUTCFullYear(), date.getUTCMonth() + 1, date.getUTCDate());
+    }
+
+    /**
+     * @param {number} months - May be negative. The day is clamped to the length of the target month.
+     * @returns {CalendarDate}
+     */
+    addMonths(months) {
+        const first = new Date(Date.UTC(this.year, this.month - 1 + months, 1));
+        const lastDay = new Date(Date.UTC(first.getUTCFullYear(), first.getUTCMonth() + 1, 0)).getUTCDate();
+        return new CalendarDate(first.getUTCFullYear(), first.getUTCMonth() + 1, Math.min(this.day, lastDay));
+    }
+
+    /** @returns {number} ISO day of the week: 1 = Monday … 7 = Sunday. */
+    get dayOfWeek() {
+        const weekday = new Date(Date.UTC(this.year, this.month - 1, this.day)).getUTCDay();
+        return weekday === 0 ? 7 : weekday;
+    }
+
+    /** @returns {CalendarDate} The Monday of this day's week. */
+    startOfWeek() {
+        return this.addDays(1 - this.dayOfWeek);
+    }
+
+    /** @returns {CalendarDate} The first day of this day's month. */
+    startOfMonth() {
+        return new CalendarDate(this.year, this.month, 1);
+    }
+
+    /**
+     * @param {CalendarDate} end - Excluded.
+     * @returns {CalendarDate[]} Every day from this one (included) to `end` (excluded).
+     */
+    daysUntilExclusive(end) {
+        const count = Math.max(0, this.daysUntil(end));
+        return Array.from({ length: count }, (_, index) => this.addDays(index));
+    }
+
+    /**
      * @param {string} locale - BCP 47 locale ("es", "en").
      * @param {Intl.DateTimeFormatOptions} [options]
      * @returns {string}
