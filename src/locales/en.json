@@ -304,7 +304,6 @@
     "recommendationsSubtitle": "Recommended for you",
     "noRecommendations": "No recommendations available",
     "quickServices": "Quick Services",
-    "requestService": "Request",
     "leaveReview": "Leave a Review",
     "viewMap": "View Map",
     "noProperties": "No properties available",
@@ -313,13 +312,9 @@
     "searchRooms": "Search Rooms",
     "newBooking": "New Booking",
     "viewHotels": "View Hotels",
-    "support247": "24/7 Support",
-    "vipTransport": "VIP Transport",
-    "vipTransportDesc": "Schedule your airport transfer and travel in total comfort.",
     "manageBooking": "Manage",
     "roomNumber": "Room {id}",
-    "loadError": "We could not load all your information.",
-    "supportSoon": "Online support will be available soon."
+    "loadError": "We could not load all your information."
   },
   "accommodations": {
     "title": "Accommodations",

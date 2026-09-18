@@ -304,7 +304,6 @@
     "recommendationsSubtitle": "Recomendado para ti",
     "noRecommendations": "No hay recomendaciones disponibles",
     "quickServices": "Accesos rápidos",
-    "requestService": "Solicitar",
     "leaveReview": "Dejar una reseña",
     "viewMap": "Ver mapa",
     "noProperties": "No hay propiedades disponibles",
@@ -313,13 +312,9 @@
     "searchRooms": "Buscar habitaciones",
     "newBooking": "Nueva reserva",
     "viewHotels": "Ver hoteles",
-    "support247": "Soporte 24/7",
-    "vipTransport": "Transporte VIP",
-    "vipTransportDesc": "Agenda tu traslado al aeropuerto y viaja con total comodidad.",
     "manageBooking": "Gestionar",
     "roomNumber": "Habitación {id}",
-    "loadError": "No pudimos cargar toda tu información.",
-    "supportSoon": "El soporte en línea estará disponible pronto."
+    "loadError": "No pudimos cargar toda tu información."
   },
   "accommodations": {
     "title": "Alojamientos",
