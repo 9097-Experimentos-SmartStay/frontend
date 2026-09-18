@@ -122,8 +122,8 @@
                     <div class="flex-1 flex flex-column justify-content-between">
                       <div>
                         <div class="flex justify-content-between align-items-start mb-2">
-                          <h2 class="text-2xl font-bold m-0 text-900">{{ $t('guestDashboard.roomNumber', { id: upcomingBookings[0].roomId }) }}</h2>
-                          <pv-tag :value="bookingStatusLabel(t, upcomingBookings[0].status)" :severity="bookingStatusSeverity(upcomingBookings[0].status)" rounded />
+                          <h2 class="text-2xl font-bold m-0 text-900">{{ $t('guestDashboard.roomNumber', { id: upcomingBookings[0].roomLabel }) }}</h2>
+                          <BookingStatusTag :booking="upcomingBookings[0]" />
                         </div>
                         <div class="text-500 flex align-items-center gap-2">
                           <i class="pi pi-map-marker text-primary"></i> {{ hotelLabelFor(upcomingBookings[0]) }}
@@ -259,9 +259,9 @@ import EmailVerificationBanner from '@/iam/presentation/components/email-verific
 import { useRoomStore } from '@/accommodations/application/room.store.js';
 import { useHotelStore } from '@/accommodations/application/hotel.store.js';
 import { useBookingStore } from '@/bookings/application/booking.store.js';
-import { bookingStatusLabel, bookingStatusSeverity } from '@/bookings/presentation/utils/booking-status.js';
+import BookingStatusTag from '@/bookings/presentation/components/BookingStatusTag.vue';
 import { formatDay, formatMoney } from '@/shared/presentation/utils/formatters.js';
-import { apiErrorKey } from '@/shared/presentation/utils/api-error.js';
+import { failureMessageKey } from '@/shared/presentation/utils/failure-message.js';
 
 /**
  * Guest area home. The signed-in user comes from the session (GET /users is admin-only),
@@ -306,8 +306,7 @@ function toggleLanguage() {
 
 /** Hotel of the booked room (Room → Hotel), instead of a made-up name. */
 function hotelLabelFor(booking) {
-  const room = roomStore.rooms.find((r) => r.id === booking.roomId);
-  const hotel = room ? hotelStore.hotels.find((h) => h.id === room.hotelId) : null;
+  const hotel = hotelStore.hotels.find((h) => h.id === booking.hotelId);
   return hotel ? `${hotel.name} · ${hotel.location}` : t('common.notAvailable');
 }
 
@@ -368,7 +367,7 @@ async function cancelBooking(booking) {
     await bookingStore.cancelBooking(booking.id);
     toast.add({ severity: 'success', summary: t('common.success'), detail: t('bookings.bookingCancelled'), life: 3000 });
   } catch (err) {
-    toast.add({ severity: 'error', summary: t('common.error'), detail: t(apiErrorKey(err, { 409: 'guestBookings.cancelledError' })), life: 4000 });
+    toast.add({ severity: 'error', summary: t('common.error'), detail: t(failureMessageKey(err, { checkInDayReached: 'bookingCancellation.checkInDayReachedError', notChangeable: 'bookingCancellation.notCancellable' })), life: 5000 });
   }
 }
 

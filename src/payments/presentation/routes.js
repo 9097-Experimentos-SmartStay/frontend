@@ -3,20 +3,18 @@ import { AppArea, Capability } from '@/iam/domain/user-role.js';
 const guest = { requiresAuth: true, area: AppArea.GUEST };
 
 export default [
-    // Guest area
+    // Guest area: how to pay and the payment status live in the booking detail (old links still work).
     {
         path: '/guest/bookings/:bookingId/payment',
         name: 'guest-payment',
-        component: () => import('./views/GuestPayments.vue'),
-        meta: guest,
-        props: true
+        redirect: (to) => ({ name: 'guest-booking-detail', params: { bookingId: to.params.bookingId } }),
+        meta: guest
     },
     {
         path: '/guest/payments/booking/:bookingId',
         name: 'guest-payments-by-booking',
-        component: () => import('./views/GuestPaymentsByBooking.vue'),
-        meta: guest,
-        props: true
+        redirect: (to) => ({ name: 'guest-booking-detail', params: { bookingId: to.params.bookingId } }),
+        meta: guest
     },
     // Staff area
     {
