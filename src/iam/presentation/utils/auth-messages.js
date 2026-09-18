@@ -60,16 +60,13 @@ export function validationMessages(t, violations) {
     );
 }
 
-const BREACHED_PASSWORD = /breach|pwned|compromis|common|leak|filtrad|comprometid|frecuente/i;
-const LENGTH_PROBLEM = /characters|length|at least|between|caracteres/i;
-
 /**
  * Messages for the invalid fields a 400 reported, shown under each input.
  *
  * The client validates with the same rules, so for most fields a server error means the same rule failed
- * and its localized message is shown. Passwords are special: the backend also rejects breached or common
- * passwords (a check the client cannot do), so that case gets its own message, and any other password
- * reason is shown with the server text.
+ * and its localized message is shown. Passwords are special: the backend also rejects common and breached
+ * passwords (checks the client cannot do), so each password rule of §2.0 is recognized and gets its own
+ * message; an unknown reason is shown with the server text.
  *
  * @param {Function} t
  * @param {import('../../application/auth-failure.js').AuthFailure} failure
@@ -87,11 +84,11 @@ export function serverFieldMessages(t, failure, violationByField, formFieldByApi
         const expected = violationByField[apiField];
 
         let violation = expected;
-        if (/required/i.test(text)) {
+        if (/required|enter a password/i.test(text)) {
             violation = { code: AccountRuleError.REQUIRED };
         } else if (isPasswordViolation(expected)) {
-            if (BREACHED_PASSWORD.test(text)) violation = { code: 'passwordBreached' };
-            else if (!LENGTH_PROBLEM.test(text)) violation = { code: AccountRuleError.PASSWORD_REJECTED, params: { reason: text } };
+            violation = failure.passwordViolation(apiField)
+                ?? { code: AccountRuleError.PASSWORD_REJECTED, params: { reason: text } };
         }
         messages[formField] = t(`validation.${violation.code}`, violation.params ?? {});
     }

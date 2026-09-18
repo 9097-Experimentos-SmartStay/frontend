@@ -44,6 +44,7 @@
       </div>
 
       <PasswordField
+          :email="form.email"
           v-model="form.password"
           input-id="cu-password"
           :with-confirmation="false"
@@ -136,7 +137,7 @@ function validate() {
     firstName: () => validatePersonName(form.firstName),
     lastName: () => validatePersonName(form.lastName),
     email: () => validateEmail(form.email),
-    password: () => validateNewPassword(form.password, passwordRequirements.value),
+    password: () => validateNewPassword(form.password, passwordRequirements.value, form.email),
     role: () => validateRequired(form.role),
     hotelId: () => (showHotelChoice.value ? validateRequired(form.hotelId) : null),
   });

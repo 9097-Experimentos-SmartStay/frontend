@@ -28,6 +28,14 @@
           <i class="pi pi-times-circle"></i>
           {{ t('passwordField.maxLength', { max: maxLength }) }}
         </li>
+        <li :class="ruleClass(!isSequential)">
+          <i :class="ruleIcon(!isSequential)"></i>
+          {{ t('passwordField.notSequential') }}
+        </li>
+        <li v-if="email" :class="ruleClass(!isEmailBased)">
+          <i :class="ruleIcon(!isEmailBased)"></i>
+          {{ t('passwordField.notEmail') }}
+        </li>
         <li class="info">
           <i class="pi pi-info-circle"></i>
           {{ t('passwordField.noBreached') }}
@@ -58,11 +66,13 @@
 <script setup>
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { isDerivedFromEmail, isRepeatedOrSequential } from '@/iam/domain/model/password-policy.js';
 
 /**
  * New-password input with confirmation, live requirement checklist, strength meter and show/hide.
  *
- * The limits come from the caller (the IAM password policy), so this component holds no business rule.
+ * The limits come from the caller (the IAM password policy, role-aware: guest 15, staff 8, max 128); the
+ * repeated/sequential and e-mail checks are the policy's own functions, so this component holds no rule.
  * Pasting is allowed (password managers). There are no composition rules: the meter rewards length,
  * and the backend rejects breached or common passwords (its field error arrives through `error`).
  */
@@ -76,6 +86,8 @@ const props = defineProps({
   confirmationError: { type: String, default: '' },
   withConfirmation: { type: Boolean, default: true },
   inputId: { type: String, default: 'new-password' },
+  /** E-mail of the account (when known): the password cannot be the e-mail or its user name. */
+  email: { type: String, default: '' },
 });
 const emit = defineEmits(['update:modelValue', 'update:confirmation']);
 const { t } = useI18n();
@@ -83,13 +95,19 @@ const { t } = useI18n();
 /** Unicode code points, like the policy counts them. */
 const length = computed(() => [...(props.modelValue ?? '')].length);
 const meetsMin = computed(() => length.value >= props.minLength);
+const isSequential = computed(() => !!props.modelValue && isRepeatedOrSequential(props.modelValue));
+const isEmailBased = computed(() => !!props.modelValue && isDerivedFromEmail(props.modelValue, props.email));
+
+/** A context rule is neutral while the field is empty, then met or unmet. */
+const ruleClass = (met) => (!props.modelValue ? '' : met ? 'met' : 'unmet');
+const ruleIcon = (met) => (!props.modelValue ? 'pi pi-circle' : met ? 'pi pi-check-circle' : 'pi pi-times-circle');
 
 /**
  * Length-first heuristic (UI hint only): below the minimum is weak; a long passphrase or a
  * moderately long password with some variety is strong.
  */
 const strength = computed(() => {
-  if (!meetsMin.value || length.value > props.maxLength) return 'weak';
+  if (!meetsMin.value || length.value > props.maxLength || isSequential.value || isEmailBased.value) return 'weak';
   const value = props.modelValue;
   const variety = [/\p{Ll}/u, /\p{Lu}/u, /\d/, /[^\p{L}\d]/u].filter((re) => re.test(value)).length;
   const longEnough = length.value >= Math.max(props.minLength + 5, 16);

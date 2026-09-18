@@ -69,6 +69,7 @@
       </div>
 
       <PasswordField
+          :email="form.email"
           v-model="form.password"
           v-model:confirmation="form.confirmation"
           :min-length="passwordRequirements.minLength"
@@ -143,7 +144,7 @@ function validate() {
     firstName: () => validatePersonName(form.firstName),
     lastName: () => validatePersonName(form.lastName),
     email: () => validateEmail(form.email),
-    password: () => validateNewPassword(form.password, passwordRequirements),
+    password: () => validateNewPassword(form.password, passwordRequirements, form.email),
     confirmation: () => validatePasswordConfirmation(form.password, form.confirmation),
   });
   errors.value = validationMessages(t, codes);

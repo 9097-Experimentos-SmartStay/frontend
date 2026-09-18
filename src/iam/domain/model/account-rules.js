@@ -1,5 +1,5 @@
 import { Email } from './email.js';
-import { passwordLength, passwordRequirementsFor } from './password-policy.js';
+import { checkPasswordPolicy, passwordRequirementsFor } from './password-policy.js';
 
 /**
  * Field rules of the account forms, mirroring the backend validation (§2.1, §2.5, §3) and the
@@ -50,21 +50,16 @@ export function validatePersonName(value) {
 }
 
 /**
- * New password against the policy of the account's role (length only, no composition rules).
+ * New password against the policy of the account's role (length, repeated/sequential runs, e-mail-based;
+ * no composition rules). Common and breached passwords are only known by the backend.
  * @param {string} value
  * @param {import('./password-policy.js').PasswordRequirements} [requirements]
+ * @param {string|null} [email] - E-mail of the account, when known.
  * @returns {RuleViolation|null}
  */
-export function validateNewPassword(value, requirements = passwordRequirementsFor(null)) {
+export function validateNewPassword(value, requirements = passwordRequirementsFor(null), email = null) {
     if (!value) return violation(AccountRuleError.REQUIRED);
-    const length = passwordLength(value);
-    if (length < requirements.minLength) {
-        return violation(AccountRuleError.PASSWORD_TOO_SHORT, { min: requirements.minLength });
-    }
-    if (length > requirements.maxLength) {
-        return violation(AccountRuleError.PASSWORD_TOO_LONG, { max: requirements.maxLength });
-    }
-    return null;
+    return checkPasswordPolicy(value, requirements, email);
 }
 
 /**

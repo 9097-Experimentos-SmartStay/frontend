@@ -1,4 +1,5 @@
 import { ProblemDetails } from '@/shared/infrastructure/http/problem-details.js';
+import { passwordViolationFromServerMessage } from '../infrastructure/assemblers/password-policy-error.assembler.js';
 
 /** Why an account operation failed, in business terms (the views map each reason to a message). */
 export const AuthFailureReason = Object.freeze({
@@ -56,6 +57,16 @@ export class AuthFailure extends Error {
     /** @returns {Record<string, string[]>} Invalid fields reported by the API (camelCase keys). */
     get fieldErrors() {
         return this.problem.fieldErrors;
+    }
+
+    /**
+     * @param {string} field - `password` or `newPassword`.
+     * @returns {{code: string, params?: Record<string, unknown>}|null} The password rule (§2.0) the API reported
+     *   for that field, or null when the field is valid or the reason is unknown.
+     */
+    passwordViolation(field) {
+        const messages = this.fieldErrors[field];
+        return messages ? passwordViolationFromServerMessage(messages.join(' ')) : null;
     }
 
     /**
