@@ -28,7 +28,8 @@ export class RoomAssembler {
             roomTypeName: resource.roomTypeName,
             price: resource.price,
             description: resource.description,
-            amenities: resource.amenities
+            amenities: resource.amenities,
+            status: resource.status ?? null
         });
     }
 
@@ -52,5 +53,34 @@ export class RoomAssembler {
     static toEntityFromResponse(response) {
         if (!response.data) return null;
         return RoomAssembler.toEntityFromResource(response.data);
+    }
+
+    /**
+     * Body of POST /rooms.
+     * @param {{hotelId: number, roomTypeId: number, price: number, description: string, amenities: string[]}} form
+     * @returns {Object}
+     */
+    static toCreateResource(form) {
+        return {
+            hotelId: form.hotelId,
+            roomTypeId: form.roomTypeId,
+            price: Number(form.price),
+            description: form.description.trim(),
+            amenities: [...form.amenities],
+        };
+    }
+
+    /**
+     * Body of PUT /rooms/{id}. `hotelId` is not part of it: a room cannot move to another hotel.
+     * @param {{roomTypeId: number, price: number, description: string, amenities: string[]}} form
+     * @returns {Object}
+     */
+    static toUpdateResource(form) {
+        return {
+            roomTypeId: form.roomTypeId,
+            price: Number(form.price),
+            description: form.description.trim(),
+            amenities: [...form.amenities],
+        };
     }
 }
