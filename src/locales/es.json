@@ -1018,7 +1018,7 @@
       "CheckIn": "Por check-in",
       "Staff": "Personal"
     },
-    "changed": "La habitación {number} ahora está en {status}.",
+    "changed": "La habitación {number} cambió a {status}.",
     "invalidTransition": "Ese cambio de estado ya no es posible: alguien actualizó la habitación. Revisa su estado actual.",
     "forbidden": "Solo puedes ver y cambiar las habitaciones de tu hotel.",
     "noHotel": "No tienes un hotel asignado. Pide a tu administrador que te asigne uno."
