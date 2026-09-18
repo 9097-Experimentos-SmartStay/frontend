@@ -28,7 +28,8 @@ export class PaymentAssembler {
             transactionId: resource.transactionId,
             amount: resource.amount,
             status: resource.status,
-            cardNumberMasked: resource.cardNumberMasked,
+            method: resource.method ?? resource.paymentMethod ?? null,
+            cardNumberMasked: resource.cardNumberMasked ?? null,
             paymentDate: parseUtcTimestamp(resource.paymentDate),
         });
     }
@@ -42,18 +43,15 @@ export class PaymentAssembler {
     }
 
     /**
-     * Body of POST /payments. `amount` is not sent: the backend computes it.
-     * @param {import('../domain/commands/pay-booking.command.js').PayBookingCommand} command
+     * Body of the staff payment registration. PROVISIONAL shape until the backend publishes the
+     * contract (audit/09-frontend-gaps.md); adapt only this method when it does.
+     * @param {import('../domain/commands/register-payment.command.js').RegisterPaymentCommand} command
      * @returns {Object}
      */
-    static toCreateResource(command) {
-        return {
-            bookingId: command.bookingId,
-            paymentMethod: command.paymentMethod,
-            cardNumber: command.cardNumber,
-            cardHolderName: command.cardHolderName,
-            expirationDate: command.expirationDate,
-            cvv: command.cvv,
-        };
+    static toRegisterResource(command) {
+        const resource = { bookingId: command.bookingId, method: command.method };
+        if (command.operationNumber) resource.operationNumber = command.operationNumber;
+        if (command.note) resource.note = command.note;
+        return resource;
     }
 }

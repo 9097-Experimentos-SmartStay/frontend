@@ -24,6 +24,12 @@ export const endpoints = Object.freeze({
     accommodationOptions: '/accommodations/options',
     bookings: env.VITE_BOOKINGS_ENDPOINT_PATH || '/bookings',
     payments: env.VITE_PAYMENTS_ENDPOINT_PATH || '/payments',
+    /**
+     * Staff registration of a guest payment (Yape, Plin, transfer, cash, card at reception).
+     * The backend contract for it is still pending (audit/09-frontend-gaps.md): while this is not set,
+     * the "Registrar pago" dialog is shown but cannot be submitted.
+     */
+    paymentRegistration: env.VITE_PAYMENT_REGISTRATION_ENDPOINT_PATH || null,
     analytics: env.VITE_ANALYTICS_ENDPOINT_PATH || '/analytics',
 });
 

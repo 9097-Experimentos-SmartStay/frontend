@@ -9,6 +9,7 @@ const paymentApi = new PaymentApi();
 /**
  * Pinia Store for Payment Management.
  * The amount of a payment is always the one returned by the backend (never computed here).
+ * Guests do not pay inside the app: reception registers the payment (Yape, Plin, transfer, cash, card at reception).
  */
 export const usePaymentStore = defineStore('payment', () => {
     /** @type {import('vue').Ref<import('../domain/model/payment.entity.js').Payment|null>} */
@@ -18,21 +19,25 @@ export const usePaymentStore = defineStore('payment', () => {
     const loading = ref(false);
     const error = ref(null);
 
+    /** The staff registration endpoint is not in the API contract yet (see api-config.js). */
+    const canRegisterPayments = paymentApi.supportsRegistration;
+
     /**
-     * POST /payments. A declined card still answers 201 with status Failed (check `isFailed()`).
-     * @param {import('../domain/commands/pay-booking.command.js').PayBookingCommand} command - Already validated.
-     * @returns {Promise<import('../domain/model/payment.entity.js').Payment>}
-     * @throws The HTTP error (404 booking not found, 409 already paid/cancelled, 400 invalid card data).
+     * Staff registers the payment of a pending booking; the backend computes the amount and
+     * confirms the booking.
+     * @param {import('../domain/commands/register-payment.command.js').RegisterPaymentCommand} command - Already validated.
+     * @returns {Promise<import('../domain/model/payment.entity.js').Payment|null>}
+     * @throws The HTTP error (404 booking, 409 already paid or cancelled, 400 invalid data).
      */
-    async function payBooking(command) {
+    async function registerPayment(command) {
         loading.value = true;
         error.value = null;
         try {
-            const response = await paymentApi.processPayment(PaymentAssembler.toCreateResource(command));
+            const response = await paymentApi.registerPayment(PaymentAssembler.toRegisterResource(command));
             currentPayment.value = PaymentAssembler.toEntityFromResponse(response);
             return currentPayment.value;
         } catch (err) {
-            reportError('Error processing payment', err);
+            reportError('Error registering payment', err);
             error.value = err;
             throw err;
         } finally {
@@ -91,7 +96,8 @@ export const usePaymentStore = defineStore('payment', () => {
         payments,
         loading,
         error,
-        payBooking,
+        canRegisterPayments,
+        registerPayment,
         fetchPaymentByBooking,
         fetchPaymentsForBookings,
     };
