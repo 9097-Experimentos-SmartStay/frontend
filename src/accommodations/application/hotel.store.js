@@ -91,8 +91,9 @@ export const useHotelStore = defineStore('hotel', () => {
 
     /**
      * Registers a hotel (POST /hotels).
-     * D2: an admin can register ONE hotel, which becomes their `hotelId` from the next request
-     * (the session is updated here so the UI reflects it at once); a second one answers 409.
+     * D2: an admin can register ONE hotel, which becomes their `hotelId`; a second one answers 409. The admin's
+     * token carries no hotel, so the backend ends their sessions: the session of this browser ends here too and
+     * the view sends them to sign in again (their new token brings the hotel).
      * @param {Object} form - See HotelAssembler.toSaveResource.
      * @returns {Promise<Hotel>} The created hotel entity.
      * @throws {OperationFailure} hotelAlreadyRegistered (409, D2) | invalidData (per field) | forbidden
@@ -106,7 +107,7 @@ export const useHotelStore = defineStore('hotel', () => {
                 hotels.value.push(newHotel);
                 const iamStore = useIamStore();
                 if (iamStore.role === UserRole.ADMIN && iamStore.currentUser?.hotelId == null) {
-                    iamStore.updateCurrentUser({ hotelId: newHotel.id });
+                    iamStore.endSession();
                 }
             }
             return newHotel;

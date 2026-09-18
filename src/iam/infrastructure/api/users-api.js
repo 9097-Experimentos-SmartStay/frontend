@@ -22,7 +22,7 @@ export class UsersApi extends BaseApi {
     }
 
     /**
-     * POST /users/{id}/assign-role → 200 {message}. Effective on the user's next request.
+     * POST /users/{id}/assign-role → 200 {message}. The user's sessions end (401 auth.session_revoked, role_changed).
      * @param {number} userId
      * @param {string} newRole
      */

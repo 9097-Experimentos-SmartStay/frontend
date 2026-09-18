@@ -103,6 +103,11 @@ async function submitForm() {
   isSaving.value = true;
   try {
     const hotel = await hotelStore.createHotel(form);
+    if (!iamStore.isSignedIn) {
+      // An admin registered their hotel: they sign in again so their new session carries it.
+      router.push({ name: 'login', query: { reason: 'hotel-registered' } });
+      return;
+    }
     toast.add({ severity: 'success', summary: t('common.success'), detail: t('staffHotels.created', { name: hotel.name }), life: 3000 });
     router.push({ name: 'staff-hotels' });
   } catch (err) {
