@@ -152,7 +152,10 @@
     "issueReported": "Issue Reported",
     "notifyMaintenance": "Maintenance has been notified.",
     "suppliesRequested": "Supplies Requested",
-    "notifyHousekeeping": "Housekeeping manager notified."
+    "notifyHousekeeping": "Housekeeping manager notified.",
+    "tasksNotAvailable": "Operational task management is not available yet. Tasks will show up here once the backend exposes them.",
+    "tasksNotAvailableShort": "Not available yet",
+    "revenueHistoryNotAvailable": "Only the current month is shown. Revenue history is not available yet."
   },
   "menu": {
     "profile": "My Profile",

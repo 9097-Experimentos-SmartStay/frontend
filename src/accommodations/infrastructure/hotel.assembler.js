@@ -19,13 +19,13 @@ export class HotelAssembler {
      */
     static toEntityFromResource(resource) {
         if (!resource) return null;
-        const randomRating = (Math.random() * (5.0 - 4.0) + 4.0).toFixed(1);
         return new Hotel({
             id: resource.id,
             name: resource.name,
             description: resource.description,
             location: resource.location,
-            rating: randomRating,
+            // No fabricated ratings: null until the backend provides one (reviews are out of scope).
+            rating: resource.rating ?? null,
             photoUrl: resource.imageUrl,
             basePrice: resource.basePrice,
             amenities: resource.amenities
