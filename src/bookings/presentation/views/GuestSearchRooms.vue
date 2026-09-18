@@ -27,6 +27,7 @@
                     :placeholder="t('guestSearch.hotelPlaceholder')"
                     :invalid="!!hotelError"
                     filter
+                    fluid
                 >
                   <template #option="{ option }">
                     <div class="flex align-items-center justify-content-between gap-2 w-full">
