@@ -44,15 +44,12 @@ export class IamApi extends BaseApi {
             role: signUpRequest.role,
             roles: [signUpRequest.role]
         };
-        
-        // Incluir name si está disponible
+
+        // Include name when available
         if (signUpRequest.name) {
             requestData.name = signUpRequest.name;
         }
-        
-        console.log('Sign-up request data:', requestData);
-        console.log('Sign-up endpoint:', signUpEndpointPath);
-        
+
         return this.#signUpEndpoint.create(requestData);
     }
 

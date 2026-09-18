@@ -417,7 +417,10 @@ function goToRooms() { router.push({ name: 'guest-rooms' }); }
 function goToHotels() { router.push({ name: 'guest-hotels' }); }
 function goToBookings() { router.push({ name: 'guest-bookings' }); }
 function goToRoom(roomId) { router.push({ name: 'guest-room-detail', params: { roomId } }); }
-function logout() { iamStore.signOut(router); }
+function logout() {
+  iamStore.signOut();
+  router.push({ name: 'login' });
+}
 
 function formatDate(dateString) {
   if (!dateString) return 'N/A';

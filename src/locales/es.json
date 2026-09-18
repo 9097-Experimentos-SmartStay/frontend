@@ -39,7 +39,11 @@
     "registerSuccess": "Usuario registrado con éxito. Por favor, inicia sesión.",
     "registerProfileError": "Usuario registrado, pero falló la creación del perfil. Por favor, actualízalo más tarde.",
     "authFailedPrefix": "Fallo de autenticación",
-    "authFailedGeneric": "Por favor, revisa tus datos e inténtalo de nuevo."
+    "authFailedGeneric": "Por favor, revisa tus datos e inténtalo de nuevo.",
+    "invalidCredentials": "Correo o contraseña incorrectos.",
+    "userAlreadyExists": "Ya existe una cuenta con ese correo.",
+    "registerInvalid": "No se pudo completar el registro. Revisa los datos e inténtalo de nuevo.",
+    "sessionExpired": "Tu sesión expiró. Inicia sesión de nuevo."
   },
   "authoring-phrase": {
     "intro": "Hecho con",
@@ -178,7 +182,12 @@
     "taskError": "Error en Tarea",
     "descriptionRequired": "La descripción es requerida.",
     "authError": "Error de Autenticación",
-    "userNotFound": "No se encontró la sesión del usuario. Por favor, inicia sesión de nuevo."
+    "userNotFound": "No se encontró la sesión del usuario. Por favor, inicia sesión de nuevo.",
+    "network": "No se pudo conectar con el servidor. Revisa tu conexión e inténtalo de nuevo.",
+    "server": "El servidor tuvo un problema. Inténtalo de nuevo en unos minutos.",
+    "forbidden": "No tienes permiso para realizar esta acción.",
+    "notFound": "No se encontró el recurso solicitado.",
+    "unexpected": "Ocurrió un error inesperado. Inténtalo de nuevo."
   },
   "common": {
     "cancel": "Cancelar",
