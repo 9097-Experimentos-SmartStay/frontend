@@ -33,7 +33,7 @@
           <pv-button icon="pi pi-chevron-left" class="p-button-text p-button-rounded" :aria-label="t('calendar.previous')" @click="move(-1)" />
           <pv-button :label="t('calendar.today')" class="p-button-outlined p-button-sm" @click="goToday" />
           <pv-button icon="pi pi-chevron-right" class="p-button-text p-button-rounded" :aria-label="t('calendar.next')" @click="move(1)" />
-          <h2 class="text-xl font-semibold m-0 ml-2 capitalize">{{ periodLabel }}</h2>
+          <h2 class="text-xl font-semibold m-0 ml-2">{{ periodLabel }}</h2>
         </div>
         <pv-select-button v-model="calendarView" :options="calendarViewOptions" option-label="label" option-value="value" :allow-empty="false" @change="reloadCalendar" />
       </div>
@@ -223,7 +223,12 @@ const period = computed(() => {
 });
 const periodLabel = computed(() => (calendarView.value === 'week'
   ? `${formatDay(period.value.from, locale.value)} – ${formatDay(period.value.to.addDays(-1), locale.value)}`
-  : anchor.value.format(locale.value, { month: 'long', year: 'numeric' })));
+  : sentenceCase(anchor.value.format(locale.value, { month: 'long', year: 'numeric' }))));
+
+/** "septiembre de 2026" → "Septiembre de 2026" (CSS capitalize would also give "De"). */
+function sentenceCase(text) {
+  return text.charAt(0).toLocaleUpperCase(locale.value) + text.slice(1);
+}
 
 const filteredBookings = computed(() => {
   const text = search.value.trim().toLowerCase();
