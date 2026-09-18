@@ -151,7 +151,8 @@ const submitForm = async () => {
   try {
     const booking = await bookingStore.createBooking(command.value);
     toast.add({ severity: 'success', summary: t('guestCreateBooking.bookingCreated'), detail: t('guestCreateBooking.seeSoon'), life: 3000 });
-    router.push({ name: 'guest-booking-detail', params: { bookingId: booking.id } });
+    // A new booking is Pending: show the code, total and how to pay within 24 hours.
+    router.push({ name: 'guest-payment', params: { bookingId: booking.id } });
   } catch (err) {
     // 409: the room is taken for some of those nights → choose other dates or another room.
     conflictMessage.value = t(apiErrorKey(err, {

@@ -74,8 +74,8 @@
               />
               <pv-button
                   v-if="booking.canBePaid()"
-                  :label="$t('guestBookingDetail.payNow')"
-                  icon="pi pi-credit-card"
+                  :label="$t('guestBookingDetail.howToPay')"
+                  icon="pi pi-wallet"
                   class="p-button-success p-button-outlined"
                   @click="goToPayment"
               />

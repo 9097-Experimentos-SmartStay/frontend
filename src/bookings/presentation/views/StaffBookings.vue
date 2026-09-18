@@ -60,16 +60,16 @@
         </template>
       </pv-column>
 
-      <pv-column v-if="canConfirm || canCancel" :header="t('common.actions')" style="width: 160px">
+      <pv-column v-if="canRegisterPayments || canCancel" :header="t('common.actions')" style="width: 200px">
         <template #body="{ data }">
           <div class="flex gap-2">
+            <!-- A booking is confirmed when its payment is registered (no manual confirmation) -->
             <pv-button
-                v-if="canConfirm && data.isPending()"
-                icon="pi pi-check"
-                class="p-button-rounded p-button-success p-button-text"
-                v-tooltip="t('staffBookings.confirm')"
-                :aria-label="t('staffBookings.confirm')"
-                @click="confirmBooking(data.id)"
+                v-if="canRegisterPayments && data.isPending()"
+                icon="pi pi-wallet"
+                :label="t('registerPayment.action')"
+                class="p-button-sm p-button-success p-button-outlined"
+                @click="openRegisterPayment(data)"
             />
             <pv-button
                 v-if="canCancel && data.canBeCancelled()"
@@ -89,47 +89,59 @@
       <h3 class="text-color font-bold m-0 mb-2">{{ t('staffBookings.empty') }}</h3>
       <p class="text-color-secondary">{{ t('staffBookings.emptyHint') }}</p>
     </div>
+
+    <RegisterPaymentDialog
+        v-model:visible="paymentDialog.visible"
+        :booking="paymentDialog.booking"
+        :price-per-night="paymentDialog.pricePerNight"
+        @registered="onPaymentRegistered"
+    />
   </div>
 </template>
 
 <script setup>
-import { computed, onMounted } from 'vue';
+import { computed, onMounted, reactive } from 'vue';
 import { useRouter } from 'vue-router';
 import { useToast } from 'primevue/usetoast';
 import { useI18n } from 'vue-i18n';
 import { useBookingStore } from '../../application/booking.store.js';
 import { bookingStatusLabel, bookingStatusSeverity } from '../utils/booking-status.js';
+import RegisterPaymentDialog from '@/payments/presentation/components/RegisterPaymentDialog.vue';
+import { useRoomStore } from '@/accommodations/application/room.store.js';
 import { formatDay } from '@/shared/presentation/utils/formatters.js';
 import { apiErrorKey } from '@/shared/presentation/utils/api-error.js';
 import useIamStore from '@/iam/application/iam.store.js';
 import { Capability } from '@/iam/domain/user-role.js';
 
 /**
- * Bookings of the staff area. Every staff role can read them; confirming and cancelling is
- * reserved to reception, admin and chain_admin (role matrix).
+ * Bookings of the staff area. Every staff role can read them; registering a payment (which
+ * confirms the booking) and cancelling are reserved to reception, admin and chain_admin.
  */
 const router = useRouter();
 const toast = useToast();
 const { t, locale } = useI18n();
 const bookingStore = useBookingStore();
+const roomStore = useRoomStore();
 const iamStore = useIamStore();
 
-const canConfirm = computed(() => iamStore.can(Capability.CONFIRM_BOOKINGS));
+const canRegisterPayments = computed(() => iamStore.can(Capability.REGISTER_PAYMENTS));
 const canCancel = computed(() => iamStore.can(Capability.CANCEL_BOOKINGS));
+const paymentDialog = reactive({ visible: false, booking: null, pricePerNight: null });
 
-const fetchData = () => bookingStore.fetchBookings();
+const fetchData = () => Promise.all([bookingStore.fetchBookings(), roomStore.fetchAllRooms()]);
 
 onMounted(fetchData);
 
 const goBack = () => router.push({ name: 'staff-dashboard' });
 
-async function confirmBooking(bookingId) {
-  try {
-    await bookingStore.confirmBooking(bookingId);
-    toast.add({ severity: 'success', summary: t('common.success'), detail: t('staffBookings.confirmed'), life: 3000 });
-  } catch (err) {
-    toast.add({ severity: 'error', summary: t('common.error'), detail: t(apiErrorKey(err, { 409: 'staffBookings.confirmConflict' })), life: 4000 });
-  }
+function openRegisterPayment(booking) {
+  const room = roomStore.rooms.find((r) => r.id === booking.roomId);
+  Object.assign(paymentDialog, { visible: true, booking, pricePerNight: room ? room.price : null });
+}
+
+async function onPaymentRegistered() {
+  toast.add({ severity: 'success', summary: t('common.success'), detail: t('registerPayment.success'), life: 3000 });
+  await bookingStore.fetchBookings();
 }
 
 async function cancelBooking(bookingId) {

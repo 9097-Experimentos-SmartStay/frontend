@@ -44,7 +44,9 @@
           <span class="font-medium text-color">{{ formatMoney(data.payment.amount, locale) }}</span>
         </template>
       </pv-column>
-      <pv-column field="payment.cardNumberMasked" :header="t('guestPayment.card')" />
+      <pv-column field="payment.method" :header="t('registerPayment.method')">
+        <template #body="{ data }">{{ data.payment.method ? t(`paymentMethods.${data.payment.method}`, data.payment.method) : (data.payment.cardNumberMasked ?? '—') }}</template>
+      </pv-column>
       <pv-column field="payment.status" :header="t('bookings.status')" sortable>
         <template #body="{ data }">
           <pv-tag :value="paymentStatusLabel(t, data.payment.status)" :severity="paymentStatusSeverity(data.payment.status)" rounded />

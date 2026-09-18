@@ -59,16 +59,6 @@ export class BookingApi extends BaseApi {
     }
 
     /**
-     * Confirm a booking.
-     * Swagger: POST /api/v1/bookings/{bookingId}/confirm
-     * @param {number} id - The booking identifier.
-     * @returns {Promise<Object>} Axios response.
-     */
-    confirmBooking(id) {
-        return this.http.post(`${bookingsEndpointPath}/${id}/confirm`);
-    }
-
-    /**
      * Cancel a booking.
      * Swagger: POST /api/v1/bookings/{bookingId}/cancel
      * @param {number} id - The booking identifier.
