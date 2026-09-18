@@ -1,6 +1,8 @@
 import axios from "axios";
 
-const platformApi = import.meta.env.VITE_SMARTSTAY_API_URL;
+import { apiBaseUrl } from "@/shared/infrastructure/config/api-config.js";
+
+const platformApi = apiBaseUrl;
 
 /**
  * BaseApi class providing a configured Axios instance.

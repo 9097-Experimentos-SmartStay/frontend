@@ -1,7 +1,8 @@
 ﻿import { BaseApi } from "@/shared/infrastructure/services/base-api.js";
 import { BaseEndpoint } from "@/shared/infrastructure/services/base-endpoint.js";
+import { endpoints } from "@/shared/infrastructure/config/api-config.js";
 
-const hotelsEndpointPath = import.meta.env.VITE_HOTELS_ENDPOINT_PATH;
+const hotelsEndpointPath = endpoints.hotels;
 
 /**
  * HotelApi class.

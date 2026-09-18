@@ -1,7 +1,8 @@
 ﻿import { BaseApi } from "@/shared/infrastructure/services/base-api.js";
 import { BaseEndpoint } from "@/shared/infrastructure/services/base-endpoint.js";
+import { endpoints } from "@/shared/infrastructure/config/api-config.js";
 
-const analyticsEndpointPath = import.meta.env.VITE_ANALYTICS_ENDPOINT_PATH;
+const analyticsEndpointPath = endpoints.analytics;
 
 export class AnalyticsApi extends BaseApi {
     #endpoint;

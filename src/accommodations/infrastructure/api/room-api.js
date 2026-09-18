@@ -1,8 +1,9 @@
 import { BaseApi } from "@/shared/infrastructure/services/base-api.js";
 import { BaseEndpoint } from "@/shared/infrastructure/services/base-endpoint.js";
+import { endpoints } from "@/shared/infrastructure/config/api-config.js";
 
 // Swagger Path: /api/v1/rooms
-const roomsEndpointPath = import.meta.env.VITE_ROOMS_ENDPOINT_PATH;
+const roomsEndpointPath = endpoints.rooms;
 
 /**
  * RoomApi class.
