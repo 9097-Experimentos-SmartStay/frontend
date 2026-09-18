@@ -4,131 +4,110 @@
 
     <div class="flex justify-content-between align-items-center mb-6">
       <div class="flex align-items-center gap-3">
-        <pv-button icon="pi pi-arrow-left" label="Volver" class="p-button-outlined p-button-sm" @click="goBack" />
-        <h3 class="text-3xl font-bold text-color m-0">Gestión de Pagos</h3>
+        <pv-button icon="pi pi-arrow-left" :label="t('common.back')" class="p-button-outlined p-button-sm" @click="goBack" />
+        <h1 class="text-3xl font-bold text-color m-0">{{ t('staffPayments.title') }}</h1>
       </div>
     </div>
 
-    <div v-if="paymentStore.loading" class="flex justify-content-center p-8">
+    <div v-if="loading" class="flex justify-content-center p-8">
       <pv-progress-spinner />
     </div>
 
     <pv-data-table
-        v-else-if="allPayments && allPayments.length > 0"
-        :value="allPayments"
+        v-else-if="rows.length"
+        :value="rows"
         responsive-layout="scroll"
         class="shadow-2 border-round-xl overflow-hidden"
         paginator :rows="10"
     >
       <template #header>
         <div class="flex align-items-center justify-content-between p-3 surface-card border-bottom-1 surface-border">
-          <span class="text-xl font-bold text-color">Todos los pagos</span>
-          <pv-button icon="pi pi-refresh" class="p-button-rounded p-button-text" @click="fetchPayments" v-tooltip="'Refrescar'" />
+          <span class="text-xl font-bold text-color">{{ t('staffPayments.all') }}</span>
+          <pv-button icon="pi pi-refresh" class="p-button-rounded p-button-text" :aria-label="t('common.refresh')" v-tooltip="t('common.refresh')" @click="load" />
         </div>
       </template>
 
-      <pv-column field="id" header="ID" sortable style="width: 80px"></pv-column>
-      <pv-column field="bookingId" header="Reserva ID" sortable></pv-column>
-
-      <pv-column field="amount" header="Monto" sortable>
-        <template #body="{ data }">
-          <span class="font-medium text-color">${{ data.amount?.toFixed(2) || '0.00' }}</span>
-        </template>
+      <pv-column :header="t('staffPayments.booking')">
+        <template #body="{ data }"><span class="font-semibold">{{ data.booking?.reference ?? `#${data.payment.bookingId}` }}</span></template>
       </pv-column>
-
-      <pv-column field="paymentMethod" header="Método"></pv-column>
-
-      <pv-column field="status" header="Estado" sortable>
+      <pv-column :header="t('staffBookings.guest')">
         <template #body="{ data }">
-          <pv-tag :value="translateStatus(data.status)" :severity="getStatusSeverity(data.status)" rounded />
-        </template>
-      </pv-column>
-
-      <pv-column field="paymentDate" header="Fecha" sortable>
-        <template #body="{ data }">
-          {{ formatDate(data.paymentDate) }}
-        </template>
-      </pv-column>
-
-      <pv-column header="Acciones" style="width: 180px">
-        <template #body="{ data }">
-          <div class="flex gap-2">
-            <pv-button
-                v-if="data.status === 'Pending'"
-                icon="pi pi-check"
-                class="p-button-rounded p-button-success p-button-text"
-                v-tooltip="'Aprobar Manualmente'"
-            />
-            <pv-button
-                v-if="data.status === 'Pending'"
-                icon="pi pi-times"
-                class="p-button-rounded p-button-danger p-button-text"
-                v-tooltip="'Rechazar'"
-            />
-            <pv-button
-                icon="pi pi-eye"
-                class="p-button-rounded p-button-info p-button-text"
-                v-tooltip="'Ver Detalle'"
-            />
+          <div class="flex flex-column">
+            <span class="font-medium">{{ data.booking?.guestName ?? '—' }}</span>
+            <span class="text-sm text-color-secondary">{{ data.booking?.guestEmail }}</span>
           </div>
+        </template>
+      </pv-column>
+      <pv-column field="payment.amount" :header="t('payments.amount')" sortable>
+        <template #body="{ data }">
+          <span class="font-medium text-color">{{ formatMoney(data.payment.amount, locale) }}</span>
+        </template>
+      </pv-column>
+      <pv-column field="payment.method" :header="t('registerPayment.method')">
+        <template #body="{ data }">
+          <div class="flex flex-column">
+            <span>{{ data.payment.method ? t(`paymentMethods.${data.payment.method}`, data.payment.method) : '—' }}</span>
+            <span v-if="data.payment.operationNumber" class="text-sm text-color-secondary">{{ t('staffPayments.operation', { number: data.payment.operationNumber }) }}</span>
+          </div>
+        </template>
+      </pv-column>
+      <pv-column field="payment.status" :header="t('bookings.status')" sortable>
+        <template #body="{ data }">
+          <pv-tag :value="paymentStatusLabel(t, data.payment.status)" :severity="paymentStatusSeverity(data.payment.status)" rounded />
+        </template>
+      </pv-column>
+      <pv-column :header="t('payments.date')">
+        <template #body="{ data }">
+          <div>{{ formatDateTime(data.payment.paymentDate, locale) }}</div>
+          <small v-if="data.payment.refundedAt" class="text-color-secondary">{{ t('payments.refundedAt') }} {{ formatDateTime(data.payment.refundedAt, locale) }}</small>
         </template>
       </pv-column>
     </pv-data-table>
 
     <div v-else class="text-center p-8 surface-card border-round-xl border-1 surface-border shadow-1">
       <i class="pi pi-wallet text-500 text-6xl mb-4"></i>
-      <h3 class="text-color font-bold m-0 mb-2">No hay pagos registrados</h3>
-      <p class="text-color-secondary">Las transacciones aparecerán aquí.</p>
+      <h3 class="text-color font-bold m-0 mb-2">{{ t('staffPayments.empty') }}</h3>
+      <p class="text-color-secondary">{{ t('staffPayments.emptyHint') }}</p>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useToast } from 'primevue/usetoast';
-// IMPORTAMOS EL STORE CORRECTO
+import { useI18n } from 'vue-i18n';
 import { usePaymentStore } from '../../application/payment.store.js';
-// Si necesitas una lista de TODOS los pagos, tu store debe tener una acción `fetchAllPayments`.
-// Si no la tiene, usa la API directa temporalmente o crea la acción en el store.
-// Asumiremos que solo tenemos `fetchPaymentByBooking` por ahora, por lo que esta vista
-// necesitaría un endpoint de `getAllPayments` en el backend.
+import { paymentStatusLabel, paymentStatusSeverity } from '../utils/payment-status.js';
+import { useBookingStore } from '@/bookings/application/booking.store.js';
+import { formatDateTime, formatMoney } from '@/shared/presentation/utils/formatters.js';
 
+/**
+ * Payments of the staff area (reception, admin, chain_admin): amount, method and operation number, status
+ * (Completed or Refunded when the booking was cancelled after paying).
+ * The API has no "list payments" endpoint (§9): the payment of each booking that was ever paid is requested.
+ */
 const router = useRouter();
 const toast = useToast();
+const { t, locale } = useI18n();
 const paymentStore = usePaymentStore();
+const bookingStore = useBookingStore();
 
-// Mock de lista por si el store no tiene getAllPayments aun
-const allPayments = ref([]);
+const loading = computed(() => paymentStore.loading || bookingStore.loading);
+const rows = computed(() => paymentStore.payments.map((payment) => ({
+  payment,
+  booking: bookingStore.bookings.find((booking) => booking.id === payment.bookingId) ?? null,
+})));
 
-const fetchPayments = async () => {
-  // TODO: Implement fetchAllPayments in Store and API
-  // await paymentStore.fetchAllPayments();
-  // allPayments.value = paymentStore.payments;
+async function load() {
+  await bookingStore.fetchBookings();
+  await paymentStore.fetchPaymentsForBookings(bookingStore.bookings.filter((booking) => booking.wasPaid).map((booking) => booking.id));
+  if (paymentStore.error) {
+    toast.add({ severity: 'warn', summary: t('common.warning'), detail: t('staffPayments.partial'), life: 4000 });
+  }
+}
 
-  // Mock temporal para que compile y veas la UI
-  allPayments.value = [];
-};
-
-onMounted(() => {
-  fetchPayments();
-});
+onMounted(load);
 
 const goBack = () => router.push({ name: 'staff-dashboard' });
-
-// Helpers
-const getStatusSeverity = (status) => {
-  const map = { 'Pending': 'warning', 'Completed': 'success', 'Failed': 'danger' };
-  return map[status] || 'info';
-};
-
-const translateStatus = (status) => {
-  const map = { 'Pending': 'Pendiente', 'Completed': 'Completado', 'Failed': 'Fallido' };
-  return map[status] || status;
-};
-
-const formatDate = (date) => {
-  if (!date) return 'N/A';
-  return new Date(date).toLocaleDateString();
-};
 </script>

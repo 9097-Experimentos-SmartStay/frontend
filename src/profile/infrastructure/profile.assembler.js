@@ -1,75 +1,82 @@
-import { Profile } from '../domain/model/profile.entity.js';
-import { ProfileResource } from './profile.resource.js';
+import { GuestProfile } from '../domain/model/guest-profile.entity.js';
+import { StaffProfile } from '../domain/model/staff-profile.entity.js';
 
 /**
- * Profile Assembler
- * Handles the transformation between Profile entities and ProfileResource DTOs
+ * GuestProfileResource (§11) / StaffProfileResource (§12) ↔ entities.
  */
 export class ProfileAssembler {
     /**
-     * Converts a ProfileResource to a Profile entity
-     * @param {ProfileResource} resource - Profile resource from API
-     * @returns {Profile} Profile entity
+     * @param {Object} resource
+     * @returns {GuestProfile|null}
      */
-    static toEntityFromResource(resource) {
-        // Since the API returns fullName and fullAddress, we need to parse them
-        // or make additional calls if needed. For now, we'll create a basic profile.
-        const nameParts = resource.fullName.split(' ');
-        const firstName = nameParts[0] || '';
-        const lastName = nameParts.slice(1).join(' ') || '';
-
-        // Parse address from fullAddress string
-        // Format: "Street Number, City, PostalCode, Country"
-        const addressParts = resource.streetAddress.split(', ');
-        const streetAndNumber = addressParts[0]?.split(' ') || [];
-        const street = streetAndNumber.slice(0, -1).join(' ') || '';
-        const number = streetAndNumber[streetAndNumber.length - 1] || '';
-        const city = addressParts[1] || '';
-        const postalCode = addressParts[2] || '';
-        const country = addressParts[3] || '';
-
-        return new Profile(
-            resource.id,
-            firstName,
-            lastName,
-            resource.email,
-            street,
-            number,
-            city,
-            postalCode,
-            country
-        );
+    static toGuestProfile(resource) {
+        if (!resource) return null;
+        return new GuestProfile({
+            id: resource.id,
+            userId: resource.userId ?? null,
+            firstName: resource.firstName ?? '',
+            lastName: resource.lastName ?? '',
+            email: resource.email ?? null,
+            phone: resource.phone ?? null,
+            documentType: resource.documentType ?? null,
+            documentNumber: resource.documentNumber ?? null,
+            street: resource.street ?? null,
+            number: resource.number ?? null,
+            city: resource.city ?? null,
+            postalCode: resource.postalCode ?? null,
+            country: resource.country ?? null,
+            status: resource.status,
+        });
     }
 
     /**
-     * Converts a Profile entity to a ProfileResource
-     * @param {Profile} entity - Profile entity
-     * @returns {ProfileResource} Profile resource
+     * @param {Object} response - Axios response with GuestProfileResource[].
+     * @returns {GuestProfile[]}
      */
-    static toResourceFromEntity(entity) {
-        return new ProfileResource(
-            entity.id,
-            entity.fullName,
-            entity.email,
-            entity.fullAddress
-        );
+    static toGuestProfiles(response) {
+        return Array.isArray(response?.data) ? response.data.map(ProfileAssembler.toGuestProfile) : [];
     }
 
     /**
-     * Converts an array of ProfileResources to Profile entities
-     * @param {ProfileResource[]} resources - Array of profile resources
-     * @returns {Profile[]} Array of profile entities
+     * @param {Object} resource
+     * @returns {StaffProfile|null}
      */
-    static toEntitiesFromResources(resources) {
-        return resources.map(resource => this.toEntityFromResource(resource));
+    static toStaffProfile(resource) {
+        if (!resource) return null;
+        return new StaffProfile({
+            id: resource.id,
+            userId: resource.userId,
+            code: resource.code,
+            fullName: resource.fullName ?? [resource.firstName, resource.lastName].filter(Boolean).join(' '),
+            email: resource.email,
+            phone: resource.phone ?? null,
+            position: resource.position,
+            shift: resource.shift,
+            status: resource.status,
+        });
     }
 
     /**
-     * Converts an array of Profile entities to ProfileResources
-     * @param {Profile[]} entities - Array of profile entities
-     * @returns {ProfileResource[]} Array of profile resources
+     * Body of POST /guests. Optional parts are omitted when empty (the address is all-or-nothing).
+     * @param {import('../domain/commands/create-guest-profile.command.js').CreateGuestProfileCommand} command
+     * @returns {Object}
      */
-    static toResourcesFromEntities(entities) {
-        return entities.map(entity => this.toResourceFromEntity(entity));
+    static toCreateGuestResource(command) {
+        const resource = { firstName: command.firstName, lastName: command.lastName, phone: command.phone };
+        if (command.email) resource.email = command.email;
+        if (command.documentType != null && command.documentNumber) {
+            resource.documentType = command.documentType;
+            resource.documentNumber = command.documentNumber;
+        }
+        if (command.hasAddress) {
+            Object.assign(resource, {
+                street: command.street,
+                number: command.number,
+                city: command.city,
+                country: command.country,
+            });
+            if (command.postalCode) resource.postalCode = command.postalCode;
+        }
+        return resource;
     }
 }

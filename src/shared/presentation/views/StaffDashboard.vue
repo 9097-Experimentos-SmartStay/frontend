@@ -9,315 +9,316 @@
             <i class="pi pi-shield text-xl"></i>
           </div>
           <div class="flex flex-column">
-            <span class="font-bold text-xl text-color">SmartStay Admin</span>
-            <span class="text-xs text-color-secondary">Panel de Control</span>
+            <span class="font-bold text-xl text-color">SmartStay</span>
+            <span class="text-xs text-color-secondary">{{ roleLabel }}</span>
           </div>
         </div>
 
         <div class="w-1px h-2rem bg-300 mx-4 hidden lg:block"></div>
 
-        <div class="hidden lg:flex gap-2">
-          <pv-button label="Dashboard" icon="pi pi-chart-bar" class="p-button-text" :class="{ 'bg-primary-50 text-primary': activeTab === 'dashboard' }" @click="activeTab = 'dashboard'" />
-          <pv-button label="Hoteles" icon="pi pi-building" class="p-button-text text-color-secondary" @click="navigateTo('staff-hotels')" />
-          <pv-button label="Habitaciones" icon="pi pi-key" class="p-button-text text-color-secondary" @click="navigateTo('staff-rooms')" />
-          <pv-button label="Reservas" icon="pi pi-calendar" class="p-button-text text-color-secondary" @click="navigateTo('staff-bookings')" />
-        </div>
+        <nav class="hidden lg:flex gap-1 flex-wrap">
+          <pv-button
+              v-for="item in navItems"
+              :key="item.route"
+              :label="item.label"
+              :icon="item.icon"
+              class="p-button-text text-color-secondary"
+              @click="router.push({ name: item.route })"
+          />
+        </nav>
       </template>
 
       <template #end>
         <div class="flex align-items-center gap-2">
           <pv-button
-              label="Crear Nuevo"
+              v-if="createMenuItems.length"
+              :label="t('staffPanel.createNew')"
               icon="pi pi-plus"
               class="p-button-outlined p-button-success mr-2"
-              @click="toggleCreateMenu"
               aria-haspopup="true"
               aria-controls="create_menu"
+              @click="createMenu.toggle($event)"
           />
-          <pv-menu ref="createMenu" id="create_menu" :model="createMenuItems" :popup="true" />
+          <pv-menu id="create_menu" ref="createMenu" :model="createMenuItems" popup />
 
-          <pv-button icon="pi pi-bell" class="p-button-rounded p-button-text text-color-secondary" v-tooltip.bottom="'Notificaciones'" />
+          <LanguageSwitcher class="hidden md:flex" />
 
-          <div class="flex align-items-center gap-2 cursor-pointer surface-hover p-2 border-round transition-duration-200" @click="toggleUserMenu" aria-haspopup="true" aria-controls="user_menu">
-            <pv-avatar label="AD" shape="circle" class="bg-primary text-white" />
-            <span class="font-medium text-color hidden md:block">{{ currentUser?.username || 'Admin' }}</span>
+          <div
+              class="user-menu-trigger flex align-items-center gap-2 cursor-pointer p-2 border-round transition-duration-200"
+              aria-haspopup="true"
+              aria-controls="user_menu"
+              @click="userMenu.toggle($event)"
+          >
+            <pv-avatar :label="user?.initials" shape="circle" class="bg-primary text-white" />
+            <span class="font-medium text-color hidden md:block">{{ user?.displayName }}</span>
             <i class="pi pi-angle-down text-color-secondary hidden md:block"></i>
           </div>
-          <pv-menu ref="userMenu" id="user_menu" :model="userMenuItems" :popup="true" />
+          <pv-menu id="user_menu" ref="userMenu" :model="userMenuItems" popup />
         </div>
       </template>
     </pv-toolbar>
 
-    <div class="flex-1 p-4 md:p-6 w-full max-w-8xl mx-auto">
+    <main class="flex-1 p-4 md:p-6 w-full max-w-8xl mx-auto">
+      <EmailVerificationBanner />
+      <PaymentSettingsBanner />
 
+      <div class="mb-4">
+        <h1 class="text-3xl font-bold text-color m-0">{{ t('staffPanel.welcome', { name: user?.firstName || user?.displayName }) }}</h1>
+        <p class="text-color-secondary mt-1 mb-0">{{ t('staffPanel.subtitle') }}</p>
+      </div>
+
+      <!-- Shortcuts: only what the role can do (role matrix, user-role.js) -->
       <div class="grid mb-4">
-        <div class="col-12 md:col-6 lg:col-3">
-          <div class="surface-card shadow-2 p-3 border-round-xl border-bottom-3 border-blue-500 h-full hover:shadow-4 transition-duration-300">
-            <div class="flex justify-content-between mb-3">
-              <div>
-                <span class="block text-500 font-medium mb-3">Ingresos Totales</span>
-                <div class="text-900 text-color font-bold text-2xl">
-                  <span v-if="analyticsStore.loading">...</span>
-                  <span v-else>{{ analyticsStore.metrics?.formattedRevenue || '$0.00' }}</span>
-                </div>
+        <div v-for="item in navItems" :key="item.route" class="col-12 sm:col-6 lg:col-3">
+          <button
+              type="button"
+              class="shortcut surface-card shadow-2 border-round-xl p-3 w-full text-left cursor-pointer border-none"
+              @click="router.push({ name: item.route })"
+          >
+            <div class="flex align-items-center gap-3">
+              <div class="flex align-items-center justify-content-center bg-primary-50 border-round" style="width: 2.75rem; height: 2.75rem">
+                <i :class="[item.icon, 'text-primary text-xl']"></i>
               </div>
-              <div class="flex align-items-center justify-content-center bg-blue-100 border-round" style="width:2.5rem;height:2.5rem">
-                <i class="pi pi-dollar text-blue-500 text-xl"></i>
+              <div>
+                <div class="font-bold text-color">{{ item.label }}</div>
+                <div class="text-sm text-color-secondary">{{ item.description }}</div>
               </div>
             </div>
-            <span class="text-green-500 font-medium">Actualizado </span>
-            <span class="text-500 text-sm">hace un momento</span>
-          </div>
-        </div>
-
-        <div class="col-12 md:col-6 lg:col-3">
-          <div class="surface-card shadow-2 p-3 border-round-xl border-bottom-3 border-orange-500 h-full hover:shadow-4 transition-duration-300">
-            <div class="flex justify-content-between mb-3">
-              <div>
-                <span class="block text-500 font-medium mb-3">Tasa de Ocupación</span>
-                <div class="text-900 text-color font-bold text-2xl">
-                  <span v-if="analyticsStore.loading">...</span>
-                  <span v-else>{{ analyticsStore.metrics?.occupancyRate || 0 }}%</span>
-                </div>
-              </div>
-              <div class="flex align-items-center justify-content-center bg-orange-100 border-round" style="width:2.5rem;height:2.5rem">
-                <i class="pi pi-chart-pie text-orange-500 text-xl"></i>
-              </div>
-            </div>
-            <span class="text-500 text-sm">{{ analyticsStore.metrics?.totalBookings || 0 }} reservas activas</span>
-          </div>
-        </div>
-
-        <div class="col-12 md:col-6 lg:col-3">
-          <div class="surface-card shadow-2 p-3 border-round-xl border-bottom-3 border-red-500 h-full hover:shadow-4 transition-duration-300">
-            <div class="flex justify-content-between mb-3">
-              <div>
-                <span class="block text-500 font-medium mb-3">Cancelaciones</span>
-                <div class="text-900 text-color font-bold text-2xl">
-                  <span v-if="analyticsStore.loading">...</span>
-                  <span v-else>{{ analyticsStore.metrics?.cancelledBookings || 0 }}</span>
-                </div>
-              </div>
-              <div class="flex align-items-center justify-content-center bg-red-100 border-round" style="width:2.5rem;height:2.5rem">
-                <i class="pi pi-times-circle text-red-500 text-xl"></i>
-              </div>
-            </div>
-            <span class="text-red-500 text-sm font-medium">Requiere atención</span>
-          </div>
-        </div>
-
-        <div class="col-12 md:col-6 lg:col-3">
-          <div class="surface-card shadow-2 p-3 border-round-xl border-bottom-3 border-cyan-500 h-full hover:shadow-4 transition-duration-300">
-            <div class="flex justify-content-between mb-3">
-              <div>
-                <span class="block text-500 font-medium mb-3">Tareas Pendientes</span>
-                <div class="text-900 text-color font-bold text-2xl">{{ t('common.notAvailable') }}</div>
-              </div>
-              <div class="flex align-items-center justify-content-center bg-cyan-100 border-round" style="width:2.5rem;height:2.5rem">
-                <i class="pi pi-list text-cyan-500 text-xl"></i>
-              </div>
-            </div>
-            <span class="text-500 text-sm">{{ t('staffDashboard.tasksNotAvailableShort') }}</span>
-          </div>
+          </button>
         </div>
       </div>
 
-      <div class="grid mb-4">
-        <div class="col-12 lg:col-8">
-          <div class="surface-card shadow-2 border-round-xl p-4 h-full">
-            <div class="flex justify-content-between align-items-center mb-4">
-              <h5 class="text-xl font-bold text-color m-0">Rendimiento Financiero</h5>
-              <pv-button icon="pi pi-refresh" class="p-button-rounded p-button-text p-button-plain" @click="refreshData" />
+      <template v-if="canViewAnalytics">
+        <div class="grid mb-4">
+          <div class="col-12 md:col-6 lg:col-3">
+            <div class="surface-card shadow-2 p-3 border-round-xl border-bottom-3 border-blue-500 h-full">
+              <span class="block text-500 font-medium mb-3">{{ t('staffPanel.kpi.revenue') }}</span>
+              <div class="text-color font-bold text-2xl">
+                {{ analyticsStore.loading ? '…' : formatMoney(analyticsStore.metrics?.totalRevenue ?? 0, locale) }}
+              </div>
+              <span class="text-500 text-sm">{{ t('staffPanel.kpi.currentMonth') }}</span>
             </div>
-
-            <div v-if="analyticsStore.loading" class="h-20rem flex align-items-center justify-content-center">
-              <pv-progress-spinner />
+          </div>
+          <div class="col-12 md:col-6 lg:col-3">
+            <div class="surface-card shadow-2 p-3 border-round-xl border-bottom-3 border-orange-500 h-full">
+              <span class="block text-500 font-medium mb-3">{{ t('staffPanel.kpi.occupancy') }}</span>
+              <div class="text-color font-bold text-2xl">{{ analyticsStore.loading ? '…' : `${analyticsStore.metrics?.occupancyRate || 0}%` }}</div>
+              <span class="text-500 text-sm">{{ t('staffPanel.kpi.bookings', { count: analyticsStore.metrics?.totalBookings || 0 }) }}</span>
             </div>
-            <template v-else-if="revenueData">
-              <pv-chart type="bar" :data="revenueData" :options="lineOptions" class="h-20rem" />
-              <small class="block mt-2 text-500">{{ t('staffDashboard.revenueHistoryNotAvailable') }}</small>
-            </template>
+          </div>
+          <div class="col-12 md:col-6 lg:col-3">
+            <div class="surface-card shadow-2 p-3 border-round-xl border-bottom-3 border-red-500 h-full">
+              <span class="block text-500 font-medium mb-3">{{ t('staffPanel.kpi.cancellations') }}</span>
+              <div class="text-color font-bold text-2xl">{{ analyticsStore.loading ? '…' : (analyticsStore.metrics?.cancelledBookings || 0) }}</div>
+              <span class="text-500 text-sm">{{ t('staffPanel.kpi.currentMonth') }}</span>
+            </div>
+          </div>
+          <div class="col-12 md:col-6 lg:col-3">
+            <div class="surface-card shadow-2 p-3 border-round-xl border-bottom-3 border-cyan-500 h-full">
+              <span class="block text-500 font-medium mb-3">{{ t('staffDashboard.pendingTasks') }}</span>
+              <div class="text-color font-bold text-2xl">{{ t('common.notAvailable') }}</div>
+              <span class="text-500 text-sm">{{ t('staffDashboard.tasksNotAvailableShort') }}</span>
+            </div>
           </div>
         </div>
-        <div class="col-12 lg:col-4">
-          <div class="surface-card shadow-2 border-round-xl p-4 h-full flex flex-column">
-            <h5 class="text-xl font-bold text-color mb-4">Disponibilidad</h5>
-            <div class="flex-1 flex align-items-center justify-content-center relative">
-              <div v-if="analyticsStore.loading"><pv-progress-spinner /></div>
-              <pv-chart v-else-if="occupancyData" type="doughnut" :data="occupancyData" :options="pieOptions" class="w-full" style="max-height: 250px;" />
-              <div v-else-if="occupancyData" class="absolute text-center pointer-events-none" style="pointer-events: none;">
-                <span class="text-3xl font-bold text-color">{{ analyticsStore.metrics?.occupancyRate || 0 }}%</span>
-                <div class="text-sm text-500">Ocupado</div>
+
+        <div class="grid mb-4">
+          <div class="col-12 lg:col-8">
+            <div class="surface-card shadow-2 border-round-xl p-4 h-full">
+              <div class="flex justify-content-between align-items-center mb-4">
+                <h2 class="text-xl font-bold text-color m-0">{{ t('staffPanel.financialPerformance') }}</h2>
+                <pv-button icon="pi pi-refresh" class="p-button-rounded p-button-text p-button-plain" :aria-label="t('common.refresh')" @click="refreshData" />
+              </div>
+              <div v-if="analyticsStore.loading" class="h-20rem flex align-items-center justify-content-center">
+                <pv-progress-spinner />
+              </div>
+              <template v-else-if="revenueData">
+                <pv-chart type="bar" :data="revenueData" :options="barOptions" class="h-20rem" />
+                <small class="block mt-2 text-500">{{ t('staffDashboard.revenueHistoryNotAvailable') }}</small>
+              </template>
+            </div>
+          </div>
+          <div class="col-12 lg:col-4">
+            <div class="surface-card shadow-2 border-round-xl p-4 h-full flex flex-column">
+              <h2 class="text-xl font-bold text-color mt-0 mb-4">{{ t('staffPanel.occupancyChart') }}</h2>
+              <div class="flex-1 flex align-items-center justify-content-center">
+                <pv-progress-spinner v-if="analyticsStore.loading" />
+                <pv-chart v-else-if="occupancyData" type="doughnut" :data="occupancyData" :options="pieOptions" class="w-full" style="max-height: 250px;" />
               </div>
             </div>
           </div>
         </div>
-      </div>
+      </template>
 
-      <div id="tasks-table" class="surface-card shadow-2 border-round-xl p-4">
-        <h5 class="text-xl font-bold text-color mt-0 mb-3">Gestión de Tareas Operativas</h5>
+      <div class="surface-card shadow-2 border-round-xl p-4">
+        <h2 class="text-xl font-bold text-color mt-0 mb-3">{{ t('staffPanel.operationalTasks') }}</h2>
         <div class="flex align-items-center gap-3 p-3 border-round surface-100 text-color-secondary">
           <i class="pi pi-info-circle text-xl"></i>
           <span>{{ t('staffDashboard.tasksNotAvailable') }}</span>
         </div>
       </div>
-
-    </div>
+    </main>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useToast } from 'primevue/usetoast';
 import { useI18n } from 'vue-i18n';
 import useIamStore from '@/iam/application/iam.store.js';
+import { Capability, canRegisterHotel } from '@/iam/domain/user-role.js';
+import EmailVerificationBanner from '@/iam/presentation/components/email-verification-banner.vue';
+import PaymentSettingsBanner from '@/accommodations/presentation/components/PaymentSettingsBanner.vue';
+import LanguageSwitcher from '@/shared/presentation/components/language-switcher.vue';
 import { useAnalyticsStore } from '@/analytics/application/analytics.store.js';
+import { formatMoney } from '@/shared/presentation/utils/formatters.js';
 
+/**
+ * Staff area home for reception, housekeeping, maintenance, admin and chain_admin.
+ * Every option depends on the capabilities of the role (user-role.js); analytics only for administrators.
+ */
 const router = useRouter();
 const toast = useToast();
 const { t, locale } = useI18n();
 const iamStore = useIamStore();
 const analyticsStore = useAnalyticsStore();
 
-const activeTab = ref('dashboard');
 const createMenu = ref();
 const userMenu = ref();
-const currentUser = ref(null);
 
-// --- MENU CONFIGURATION ---
-const createMenuItems = ref([
-  {
-    label: 'Alojamiento',
-    items: [
-      { label: 'Nuevo Hotel', icon: 'pi pi-building', command: () => { navigateTo('create-hotel'); } },
-      { label: 'Nueva Habitación', icon: 'pi pi-key', command: () => { navigateTo('create-room'); } },
-      { label: 'Tipo de Habitación', icon: 'pi pi-tags', command: () => { navigateTo('staff-rooms'); } }
-    ]
-  },
-  {
-    label: 'Operaciones',
-    items: [
-      { label: 'Asignar Tarea', icon: 'pi pi-list', command: () => { scrollToTasks(); } },
-      { label: 'Registrar Incidencia', icon: 'pi pi-exclamation-triangle', command: () => { toast.add({ severity:'info', summary:'Incidencia', detail:'Módulo de incidencias pronto.'}); } }
-    ]
+const user = computed(() => iamStore.currentUser);
+const roleLabel = computed(() => (iamStore.role ? t(`roles.${iamStore.role}`) : ''));
+const canViewAnalytics = computed(() => iamStore.can(Capability.VIEW_ANALYTICS));
+
+/** Sections of the staff area, filtered by capability. */
+const navItems = computed(() => [
+  { route: 'staff-hotels', icon: 'pi pi-building', capability: Capability.VIEW_HOTELS, key: 'hotels' },
+  { route: 'staff-room-map', icon: 'pi pi-th-large', capability: Capability.VIEW_ROOM_MAP, key: 'roomMap' },
+  { route: 'staff-rooms', icon: 'pi pi-key', capability: Capability.VIEW_ROOMS, key: 'rooms' },
+  { route: 'staff-bookings', icon: 'pi pi-calendar', capability: Capability.VIEW_BOOKINGS, key: 'bookings' },
+  { route: 'staff-payments', icon: 'pi pi-wallet', capability: Capability.VIEW_PAYMENTS, key: 'payments' },
+  { route: 'staff-guests', icon: 'pi pi-id-card', capability: Capability.VIEW_GUESTS, key: 'guests' },
+  { route: 'staff-users', icon: 'pi pi-users', capability: Capability.MANAGE_USERS, key: 'users' },
+  { route: 'staff-audit-log', icon: 'pi pi-history', capability: Capability.VIEW_AUDIT_LOG, key: 'audit' },
+]
+    .filter((item) => iamStore.can(item.capability))
+    .map((item) => ({ ...item, label: t(`staffPanel.nav.${item.key}`), description: t(`staffPanel.navHint.${item.key}`) })));
+
+const createMenuItems = computed(() => {
+  const items = [];
+  if (canRegisterHotel(user.value)) {
+    items.push({ label: t('staffPanel.create.hotel'), icon: 'pi pi-building', command: () => router.push({ name: 'create-hotel' }) });
   }
-]);
+  if (iamStore.can(Capability.MANAGE_ROOMS)) {
+    items.push({ label: t('staffPanel.create.room'), icon: 'pi pi-key', command: () => router.push({ name: 'create-room' }) });
+  }
+  if (iamStore.can(Capability.MANAGE_USERS)) {
+    items.push({ label: t('staffPanel.create.user'), icon: 'pi pi-user-plus', command: () => router.push({ name: 'staff-users' }) });
+  }
+  return items;
+});
 
-const userMenuItems = ref([
-  { label: 'Mi Perfil', icon: 'pi pi-user', command: () => { /* go to profile */ } },
-  { label: 'Configuración', icon: 'pi pi-cog', command: () => { /* go to settings */ } },
+const userMenuItems = computed(() => [
+  { label: t('profile.title'), icon: 'pi pi-user', command: () => router.push({ name: 'profile-detail' }) },
   { separator: true },
-  { label: 'Cerrar Sesión', icon: 'pi pi-power-off', class: 'text-red-500', command: () => { logout(); } }
+  { label: t('auth.signOut'), icon: 'pi pi-power-off', command: logout },
 ]);
 
-const toggleCreateMenu = (event) => { createMenu.value.toggle(event); };
-const toggleUserMenu = (event) => { userMenu.value.toggle(event); };
-
-// --- DATA LOGIC ---
+// --- Charts (current month only: the API has no history) ---
 const revenueData = ref(null);
 const occupancyData = ref(null);
-const lineOptions = ref(null);
+const barOptions = ref(null);
 const pieOptions = ref(null);
 
-const updateCharts = () => {
-  if (!analyticsStore.metrics) return;
+function updateCharts() {
+  const metrics = analyticsStore.metrics;
+  if (!metrics) return;
 
-  const documentStyle = getComputedStyle(document.documentElement);
-  const textColor = documentStyle.getPropertyValue('--text-color');
-  const textColorSecondary = documentStyle.getPropertyValue('--text-color-secondary');
-  const surfaceBorder = documentStyle.getPropertyValue('--surface-border');
-
-  // The API only returns the current month, so only the current month is charted.
-  // No history is invented (it used to be padded with zeros).
-  const currentMonthLabel = new Date().toLocaleDateString(locale.value, { month: 'long', year: 'numeric' });
+  const style = getComputedStyle(document.documentElement);
+  const textColor = style.getPropertyValue('--p-text-color');
+  const textColorSecondary = style.getPropertyValue('--p-text-muted-color');
+  const surfaceBorder = style.getPropertyValue('--p-content-border-color');
+  const monthLabel = new Date().toLocaleDateString(locale.value, { month: 'long', year: 'numeric' });
 
   revenueData.value = {
-    labels: [currentMonthLabel],
-    datasets: [
-      {
-        label: 'Ingresos ($)',
-        data: [analyticsStore.metrics.totalRevenue],
-        backgroundColor: 'rgba(59, 130, 246, 0.5)',
-        borderColor: documentStyle.getPropertyValue('--primary-color'),
-        borderWidth: 1,
-        maxBarThickness: 80
-      }
-    ]
+    labels: [monthLabel],
+    datasets: [{
+      label: t('staffPanel.kpi.revenue'),
+      data: [metrics.totalRevenue],
+      backgroundColor: 'rgba(59, 130, 246, 0.5)',
+      borderColor: style.getPropertyValue('--p-primary-color'),
+      borderWidth: 1,
+      maxBarThickness: 80,
+    }],
   };
-
-  lineOptions.value = {
+  barOptions.value = {
     maintainAspectRatio: false,
-    aspectRatio: 0.6,
     plugins: { legend: { labels: { color: textColor } } },
     scales: {
       x: { ticks: { color: textColorSecondary }, grid: { color: surfaceBorder } },
-      y: { ticks: { color: textColorSecondary }, grid: { color: surfaceBorder }, beginAtZero: true }
-    }
+      y: { ticks: { color: textColorSecondary }, grid: { color: surfaceBorder }, beginAtZero: true },
+    },
   };
 
-  const occupancy = analyticsStore.metrics.occupancyRate || 0;
-  const vacancy = 100 - occupancy;
-
+  const occupancy = metrics.occupancyRate || 0;
   occupancyData.value = {
-    labels: ['Ocupado', 'Disponible'],
-    datasets: [
-      {
-        data: [occupancy, vacancy],
-        backgroundColor: [documentStyle.getPropertyValue('--green-500'), documentStyle.getPropertyValue('--surface-300')],
-        hoverBackgroundColor: [documentStyle.getPropertyValue('--green-400'), documentStyle.getPropertyValue('--surface-200')],
-        borderWidth: 0
-      }
-    ]
+    labels: [t('staffPanel.occupied'), t('staffPanel.available')],
+    datasets: [{
+      data: [occupancy, 100 - occupancy],
+      backgroundColor: [style.getPropertyValue('--p-green-500'), style.getPropertyValue('--p-surface-300')],
+      borderWidth: 0,
+    }],
   };
+  pieOptions.value = { plugins: { legend: { labels: { color: textColor }, position: 'bottom' } }, cutout: '60%' };
+}
 
-  pieOptions.value = {
-    plugins: { legend: { labels: { color: textColor }, position: 'bottom' } },
-    cutout: '60%'
-  };
-};
-
-// --- ACTIONS ---
-
-const navigateTo = (routeName) => {
-  router.push({ name: routeName });
-};
-
-const refreshData = async () => {
+async function refreshData() {
   await analyticsStore.fetchMonthlyMetrics();
   updateCharts();
-  toast.add({ severity: 'success', summary: 'Sincronizado', detail: 'Datos actualizados.', life: 3000 });
-};
+  toast.add({ severity: 'success', summary: t('common.updated'), life: 2000 });
+}
 
-const logout = () => {
-  iamStore.signOut();
+async function logout() {
+  await iamStore.signOut();
   router.push({ name: 'login' });
-};
-
-const scrollToTasks = () => {
-  document.getElementById('tasks-table')?.scrollIntoView({ behavior: 'smooth' });
-};
+}
 
 onMounted(async () => {
-  currentUser.value = { username: iamStore.currentUsername || 'Staff' };
-  await analyticsStore.fetchMonthlyMetrics();
-  updateCharts();
+  // GET /analytics is admin/chain_admin only: other roles would get 403.
+  if (canViewAnalytics.value) {
+    await analyticsStore.fetchMonthlyMetrics();
+    updateCharts();
+  }
 });
 
-watch(() => analyticsStore.metrics, () => updateCharts());
+watch(() => analyticsStore.metrics, updateCharts);
+watch(locale, updateCharts);
 </script>
 
 <style scoped>
-/* Adaptive Toolbar for Staff */
 .adaptive-toolbar {
   background-color: #ffffff;
   color: #1e293b;
-  transition: background-color 0.3s, border-color 0.3s;
+}
+
+/* PrimeFlex `surface-hover` is a permanent (dark in light mode) background, not a hover state. */
+.user-menu-trigger:hover {
+  background-color: var(--p-content-hover-background);
+}
+
+.shortcut {
+  font-family: inherit;
+  transition: box-shadow 0.2s;
+}
+
+.shortcut:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
 }
 
 @media (prefers-color-scheme: dark) {
   .adaptive-toolbar {
-    background-color: #18181b; /* Zinc 900 */
+    background-color: #18181b;
     border-bottom: 1px solid #27272a;
   }
 }

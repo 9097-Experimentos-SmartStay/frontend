@@ -53,13 +53,12 @@
                   <h1 class="text-3xl font-bold text-900 m-0 mb-2">
                     {{ roomStore.currentRoom.roomTypeName || $t('roomDetail.defaultRoomName') }}
                   </h1>
-                  <span class="text-600 text-sm">ID: {{ roomStore.currentRoom.id }}</span>
+                  <span class="text-600">{{ $t('guestRooms.roomNumber', { number: roomStore.currentRoom.label }) }}</span>
                 </div>
-                <pv-tag
-                    :value="$t('roomDetail.available')"
-                    severity="success"
-                    rounded
-                ></pv-tag>
+                <div class="text-right">
+                  <span class="text-xs text-500 block">{{ $t('hotels.pricePerNight') }}</span>
+                  <span class="text-2xl font-bold text-900">{{ formatMoney(roomStore.currentRoom.price, locale) }}</span>
+                </div>
               </div>
 
               <div class="border-top-1 border-200 my-4"></div>
@@ -103,11 +102,7 @@
                 @click="bookRoom"
             />
 
-            <pv-button
-                :label="$t('roomDetail.contactHost')"
-                icon="pi pi-envelope"
-                class="w-full p-button-outlined p-button-secondary"
-            />
+
           </div>
         </div>
       </div>
@@ -120,6 +115,7 @@ import { onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { useRoomStore } from '../../application/room.store.js';
+import { formatMoney } from '@/shared/presentation/utils/formatters.js';
 
 const props = defineProps({
   roomId: {
@@ -154,8 +150,10 @@ const goBack = () => {
   router.push({ name: 'guest-rooms' });
 };
 
+/** US-51: availability depends on the dates, so booking starts with a search in this room's hotel. */
 const bookRoom = () => {
-  router.push({ name: 'guest-create-booking', params: { roomId: props.roomId } });
+  const room = roomStore.currentRoom;
+  router.push({ name: 'guest-create-booking', query: { hotelId: room?.hotelId, roomId: room?.id } });
 };
 </script>
 

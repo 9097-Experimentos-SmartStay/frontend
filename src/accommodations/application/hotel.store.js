@@ -1,13 +1,23 @@
-﻿import { defineStore } from 'pinia';
+import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { HotelApi } from '../infrastructure/api/hotel-api.js';
 import { AccommodationOptionsApi } from '../infrastructure/api/accommodation-options-api.js';
 import { HotelAssembler } from '../infrastructure/hotel.assembler.js';
-import { uploadImage } from '@/shared/infrastructure/services/image-upload.service.js';
+import { HotelImageApi, ImageHostingError } from '../infrastructure/api/hotel-image-api.js';
+import { validateHotelImageFile, HotelImageRuleError } from '../domain/hotel-image.js';
+import { AccommodationFailureReason } from './accommodation-failure.js';
+import { ProblemDetails } from '@/shared/infrastructure/http/problem-details.js';
 import { reportError } from '@/shared/infrastructure/logging/report-error.js';
+import { OperationFailure } from '@/shared/application/operation-failure.js';
+import { classifyAccommodationProblem, hotelFieldViolations } from '../infrastructure/accommodation-problem.assembler.js';
+
+/** @param {unknown} error @returns {OperationFailure} */
+const hotelFailure = (error) => OperationFailure.from(error, { classify: classifyAccommodationProblem, fields: hotelFieldViolations });
+import useIamStore from '@/iam/application/iam.store.js';
 
 const hotelApi = new HotelApi();
 const optionsApi = new AccommodationOptionsApi();
+const hotelImageApi = new HotelImageApi();
 
 /**
  * Pinia Store for Hotel Management.
@@ -70,6 +80,7 @@ export const useHotelStore = defineStore('hotel', () => {
      */
     async function fetchHotelById(id) {
         loading.value = true;
+        currentHotel.value = null;
         try {
             const response = await hotelApi.getById(id);
             currentHotel.value = HotelAssembler.toEntityFromResponse(response);
@@ -82,39 +93,29 @@ export const useHotelStore = defineStore('hotel', () => {
     }
 
     /**
-     * Creates a new hotel.
-     * Includes Domain Validation logic (previously in Service).
-     * @param {Object} hotelData - The data for the new hotel.
-     * @param {string} hotelData.name - The name of the hotel.
-     * @param {string} hotelData.address - The address.
-     * @param {string} hotelData.city - The city.
-     * @param {string} hotelData.country - The country.
+     * Registers a hotel (POST /hotels).
+     * D2: an admin can register ONE hotel, which becomes their `hotelId`; a second one answers 409. The backend
+     * revokes the admin's previous tokens (they carry no hotel) and returns a new session whose token carries it:
+     * it replaces the session of this browser at once, so the admin goes on managing the hotel without signing in.
+     * @param {Object} form - See HotelAssembler.toSaveResource.
      * @returns {Promise<Hotel>} The created hotel entity.
+     * @throws {OperationFailure} hotelAlreadyRegistered (409, D2) | invalidData (per field) | forbidden
      */
-    async function createHotel(hotelData) {
+    async function createHotel(form) {
         loading.value = true;
         try {
-            // --- Domain Validation Logic ---
-            if (!hotelData.name) {
-                throw new Error('Hotel name is required');
+            const response = await hotelApi.create(HotelAssembler.toSaveResource(form));
+            const { hotel: newHotel, session } = HotelAssembler.toRegistrationFromResponse(response);
+            if (session && newHotel) {
+                useIamStore().adoptReissuedSession(session, { hotelId: newHotel.id });
             }
-            if (!hotelData.address || !hotelData.city || !hotelData.country) {
-                throw new Error('Full location (Address, City, Country) is required');
-            }
-
-            // --- API Call ---
-            const response = await hotelApi.create(hotelData);
-
-            // Update state with the new entity
-            const newHotel = HotelAssembler.toEntityFromResponse(response);
-            if (newHotel) {
-                hotels.value.push(newHotel);
-            }
+            if (newHotel) hotels.value.push(newHotel);
             return newHotel;
         } catch (err) {
             reportError('Error creating hotel', err);
-            error.value = err;
-            throw err; // Re-throw to handle in UI (e.g., Toast)
+            const failure = hotelFailure(err);
+            error.value = failure;
+            throw failure;
         } finally {
             loading.value = false;
         }
@@ -173,15 +174,13 @@ export const useHotelStore = defineStore('hotel', () => {
     /**
      * Updates an existing hotel.
      * @param {number} id - The ID of the hotel to update.
-     * @param {Object} hotelData - The updated data (UpdateHotelResource).
+     * @param {Object} hotelData - Form data (see HotelAssembler.toSaveResource).
      * @returns {Promise<Hotel>} The updated hotel entity.
      */
     async function updateHotel(id, hotelData) {
         loading.value = true;
         try {
-            // Validation Logic could go here
-
-            const response = await hotelApi.update(id, hotelData);
+            const response = await hotelApi.update(id, HotelAssembler.toSaveResource(hotelData));
             const updatedHotel = HotelAssembler.toEntityFromResponse(response);
 
             // Optimistic Update: Update the item in the local list
@@ -192,7 +191,7 @@ export const useHotelStore = defineStore('hotel', () => {
             return updatedHotel;
         } catch (err) {
             reportError(`Error updating hotel ${id}`, err);
-            throw err;
+            throw hotelFailure(err);
         } finally {
             loading.value = false;
         }
@@ -212,19 +211,44 @@ export const useHotelStore = defineStore('hotel', () => {
             hotels.value = hotels.value.filter(h => h.id !== id);
         } catch (err) {
             reportError(`Error deleting hotel ${id}`, err);
-            throw err;
+            throw hotelFailure(err);
         } finally {
             loading.value = false;
         }
     }
 
     /**
-     * Uploads a hotel photo and returns its public URL.
+     * Uploads a hotel photo with a signed upload and returns its public URL.
+     * The file is checked first (JPG, PNG or WebP, at most 10 MB); then the API signs the upload and the browser
+     * sends the file straight to the image service.
      * @param {File} file - The image file selected by the user.
      * @returns {Promise<string>} The image URL to store in the hotel.
+     * @throws {OperationFailure} imageTypeNotAllowed | imageTooLarge | imageUploadsNotConfigured (503) |
+     *   rateLimited (429) | forbidden | imageUploadRejected | network
      */
     async function uploadHotelImage(file) {
-        return uploadImage(file);
+        const rule = validateHotelImageFile(file);
+        if (rule) {
+            const reason = rule.code === HotelImageRuleError.TOO_LARGE
+                ? AccommodationFailureReason.IMAGE_TOO_LARGE
+                : AccommodationFailureReason.IMAGE_TYPE_NOT_ALLOWED;
+            throw new OperationFailure(reason, new ProblemDetails({ status: null, params: rule.params ?? {} }));
+        }
+
+        let signature;
+        try {
+            signature = await hotelImageApi.requestUploadSignature();
+        } catch (err) {
+            reportError('Error requesting the upload signature of a hotel image', err);
+            throw hotelFailure(err);
+        }
+        try {
+            return await hotelImageApi.upload(file, signature);
+        } catch (err) {
+            reportError('Error uploading a hotel image', err);
+            const status = err instanceof ImageHostingError ? err.status : null;
+            throw new OperationFailure(AccommodationFailureReason.IMAGE_UPLOAD_REJECTED, new ProblemDetails({ status }));
+        }
     }
 
     return {

@@ -12,21 +12,20 @@ export const apiBaseUrl = env.VITE_SMARTSTAY_API_URL || '/api/v1';
 
 /** Endpoint paths, relative to {@link apiBaseUrl}. */
 export const endpoints = Object.freeze({
-    signIn: env.VITE_SIGNIN_ENDPOINT_PATH || '/authentication/sign-in',
-    signUp: env.VITE_SIGNUP_ENDPOINT_PATH || '/authentication/sign-up',
+    /** Anonymous account flows: sign-in, sign-up, refresh, sign-out, verify-email, password-recovery/reset. */
+    authentication: env.VITE_AUTHENTICATION_ENDPOINT_PATH || '/authentication',
     users: env.VITE_USERS_ENDPOINT_PATH || '/users',
-    profiles: env.VITE_PROFILES_ENDPOINT_PATH || '/profiles',
+    auditLogs: env.VITE_AUDIT_LOGS_ENDPOINT_PATH || '/audit-logs',
+    guests: env.VITE_GUESTS_ENDPOINT_PATH || '/guests',
+    staff: env.VITE_STAFF_ENDPOINT_PATH || '/staff',
     hotels: env.VITE_HOTELS_ENDPOINT_PATH || '/hotels',
     rooms: env.VITE_ROOMS_ENDPOINT_PATH || '/rooms',
     roomTypes: env.VITE_ROOM_TYPES_ENDPOINT_PATH || '/room-types',
     accommodationOptions: '/accommodations/options',
     bookings: env.VITE_BOOKINGS_ENDPOINT_PATH || '/bookings',
+    /** GET /payments/booking/{id}. Registering a payment is POST /bookings/{id}/payments (§9). */
     payments: env.VITE_PAYMENTS_ENDPOINT_PATH || '/payments',
     analytics: env.VITE_ANALYTICS_ENDPOINT_PATH || '/analytics',
-});
-
-/** Cloudinary unsigned upload settings (hotel images). */
-export const cloudinaryConfig = Object.freeze({
-    cloudName: env.VITE_CLOUDINARY_CLOUD_NAME || '',
-    uploadPreset: env.VITE_CLOUDINARY_UPLOAD_PRESET || '',
+    /** POST /media/hotel-images/signature: signature of a direct upload to Cloudinary (the cloud comes with it). */
+    media: env.VITE_MEDIA_ENDPOINT_PATH || '/media',
 });

@@ -1,137 +1,155 @@
-﻿<template>
+<template>
   <div class="surface-ground min-h-screen p-4 md:p-6">
     <pv-toast position="bottom-right" />
+    <pv-confirm-dialog />
 
-    <pv-confirm-dialog></pv-confirm-dialog>
-
-    <div class="surface-card p-4 shadow-2 border-round mb-4 flex justify-content-between align-items-center">
+    <div class="surface-card p-4 shadow-2 border-round mb-4 flex flex-wrap gap-3 justify-content-between align-items-center">
       <div class="flex align-items-center gap-3">
-        <pv-button icon="pi pi-arrow-left" class="p-button-text p-button-secondary" @click="goBack" />
+        <pv-button icon="pi pi-arrow-left" class="p-button-text p-button-secondary" :aria-label="t('common.back')" @click="goBack" />
         <div>
-          <h1 class="text-2xl font-bold text-color m-0">Inventario de Habitaciones</h1>
-          <p class="text-color-secondary m-0">Estado y mantenimiento de cuartos.</p>
+          <h1 class="text-2xl font-bold text-color m-0">{{ t('staffRooms.title') }}</h1>
+          <p class="text-color-secondary m-0">{{ t('staffRooms.subtitle') }}</p>
         </div>
       </div>
-      <pv-button label="Nueva Habitación" icon="pi pi-plus" class="p-button-success" @click="goToCreateRoom" />
+      <div class="flex flex-wrap gap-2">
+        <pv-button v-if="canViewMap" :label="t('roomMap.open')" icon="pi pi-th-large" class="p-button-outlined" @click="router.push({ name: 'staff-room-map' })" />
+        <pv-button v-if="canManageRooms" :label="t('staffRooms.newRoom')" icon="pi pi-plus" class="p-button-success" @click="router.push({ name: 'create-room' })" />
+      </div>
     </div>
 
-    <div class="surface-card p-4 shadow-2 border-round">
-      <pv-data-table
-          :value="roomStore.rooms"
-          :loading="roomStore.loading"
-          responsiveLayout="scroll"
-          :paginator="true"
-          :rows="10"
-          filterDisplay="menu"
-          class="p-datatable-sm"
-      >
-        <template #empty>No hay habitaciones registradas.</template>
+    <PaymentSettingsBanner />
 
-        <pv-column field="id" header="N° Habitación" sortable style="width: 120px">
+    <div class="surface-card p-4 shadow-2 border-round">
+      <pv-data-table :value="roomStore.rooms" :loading="roomStore.loading" responsive-layout="scroll" paginator :rows="10" class="p-datatable-sm">
+        <template #empty>{{ t('staffRooms.empty') }}</template>
+
+        <pv-column field="number" :header="t('staffRooms.number')" sortable style="width: 120px">
           <template #body="{ data }">
-            <span class="font-bold text-lg text-primary">#{{ data.id }}</span>
+            <span class="font-bold text-lg text-primary">{{ data.label }}</span>
           </template>
         </pv-column>
 
-        <pv-column field="roomTypeName" header="Tipo" sortable>
+        <pv-column field="hotelId" :header="t('staffRooms.hotel')" sortable>
+          <template #body="{ data }">{{ hotelName(data.hotelId) }}</template>
+        </pv-column>
+
+        <pv-column field="roomTypeName" :header="t('staffRooms.type')" sortable>
           <template #body="{ data }">
             <pv-tag :value="data.roomTypeName" severity="info" />
           </template>
         </pv-column>
 
-        <pv-column field="description" header="Descripción">
+        <pv-column field="price" :header="t('staffRooms.pricePerNight')" sortable>
+          <template #body="{ data }">{{ formatMoney(data.price, locale) }}</template>
+        </pv-column>
+
+        <pv-column field="description" :header="t('staffRooms.description')">
           <template #body="{ data }">
             <span class="text-color-secondary text-sm">{{ truncate(data.description, 50) }}</span>
           </template>
         </pv-column>
 
-        <pv-column header="Amenidades">
+        <!-- Real status of the room (US-29); nothing is shown when the API does not send it -->
+        <pv-column field="status" :header="t('staffRooms.status')" sortable style="width: 140px">
           <template #body="{ data }">
-            <div class="flex gap-1 flex-wrap">
-               <span v-for="am in (data.amenities || []).slice(0, 2)" :key="am" class="surface-ground text-color text-xs px-2 py-1 border-round border-1 surface-border">
-                 {{ am }}
-               </span>
-              <span v-if="data.amenities?.length > 2" class="text-xs text-color-secondary">+{{ data.amenities.length - 2 }}</span>
-            </div>
+            <pv-tag v-if="data.status" :value="t(`staffRooms.statuses.${data.status}`)" :severity="statusSeverity(data.status)" rounded />
+            <span v-else class="text-color-secondary">—</span>
           </template>
         </pv-column>
 
-        <pv-column header="Estado" style="width: 120px">
-          <template #body>
-            <pv-tag value="Disponible" severity="success" rounded />
-          </template>
-        </pv-column>
-
-        <pv-column header="Acciones" style="width: 150px">
+        <pv-column v-if="canManageRooms" :header="t('common.actions')" style="width: 150px">
           <template #body="{ data }">
-            <div class="flex gap-2">
-              <pv-button
-                  icon="pi pi-pencil"
-                  class="p-button-rounded p-button-text p-button-info"
-                  v-tooltip="'Editar'"
-                  @click="editRoom(data.id)"
-              />
-              <pv-button
-                  icon="pi pi-trash"
-                  class="p-button-rounded p-button-text p-button-danger"
-                  v-tooltip="'Eliminar'"
-                  @click="confirmDelete(data)"
-              />
+            <div v-if="canManageHotel(currentUser, data.hotelId)" class="flex gap-2">
+              <pv-button icon="pi pi-pencil" class="p-button-rounded p-button-text p-button-info" :aria-label="t('common.edit')" v-tooltip="t('common.edit')" @click="router.push({ name: 'edit-room', params: { roomId: data.id } })" />
+              <pv-button icon="pi pi-trash" class="p-button-rounded p-button-text p-button-danger" :aria-label="t('common.delete')" v-tooltip="t('common.delete')" @click="confirmDelete(data)" />
             </div>
           </template>
         </pv-column>
       </pv-data-table>
     </div>
+
+    <!-- US-53 scenario 2: the shared catalog of room types that classifies the rooms -->
+    <div class="surface-card p-4 shadow-2 border-round mt-4">
+      <div class="flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+        <div>
+          <h2 class="text-xl font-bold text-color m-0">{{ t('roomTypes.title') }}</h2>
+          <p class="text-color-secondary m-0">{{ t('roomTypes.subtitle') }}</p>
+        </div>
+        <pv-button v-if="canCreateRoomTypes" :label="t('roomTypes.new')" icon="pi pi-plus" class="p-button-outlined" @click="isTypeDialogVisible = true" />
+      </div>
+      <pv-data-table :value="roomStore.roomTypes" responsive-layout="scroll" class="p-datatable-sm" :rows="5" paginator>
+        <template #empty>{{ t('roomTypes.empty') }}</template>
+        <pv-column field="name" :header="t('masterData.name')" sortable />
+        <pv-column field="description" :header="t('staffRooms.description')" />
+      </pv-data-table>
+    </div>
+
+    <AddRoomTypeDialog v-model="isTypeDialogVisible" />
   </div>
 </template>
 
 <script setup>
-import { onMounted } from 'vue';
+import PaymentSettingsBanner from '../components/PaymentSettingsBanner.vue';
+import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useToast } from 'primevue/usetoast';
 import { useConfirm } from 'primevue/useconfirm';
+import { useI18n } from 'vue-i18n';
 import { useRoomStore } from '@/accommodations/application/room.store.js';
+import { useHotelStore } from '@/accommodations/application/hotel.store.js';
+import { roomStatusSeverity } from '../utils/room-status-style.js';
+import useIamStore from '@/iam/application/iam.store.js';
+import { Capability, canManageHotel } from '@/iam/domain/user-role.js';
+import { failureMessageKey } from '@/shared/presentation/utils/failure-message.js';
+import AddRoomTypeDialog from '../components/AddRoomTypeDialog.vue';
+import { formatMoney } from '@/shared/presentation/utils/formatters.js';
 
+/**
+ * Room inventory of the staff area. Every staff role reads it; admin (own hotel) and chain_admin manage it.
+ */
 const router = useRouter();
 const toast = useToast();
 const confirm = useConfirm();
+const { t, locale } = useI18n();
 const roomStore = useRoomStore();
+const hotelStore = useHotelStore();
+const iamStore = useIamStore();
 
-onMounted(async () => {
-  await roomStore.fetchAllRooms();
-});
+const currentUser = computed(() => iamStore.currentUser);
+const canManageRooms = computed(() => iamStore.can(Capability.MANAGE_ROOMS));
+const canCreateRoomTypes = computed(() => iamStore.can(Capability.CREATE_ROOM_TYPES));
+const canViewMap = computed(() => iamStore.can(Capability.VIEW_ROOM_MAP));
+const isTypeDialogVisible = ref(false);
+
+const statusSeverity = roomStatusSeverity;
+const hotelName = (hotelId) => hotelStore.hotels.find((hotel) => hotel.id === hotelId)?.name ?? `#${hotelId}`;
+const truncate = (text, length) => (!text ? '' : text.length > length ? `${text.substring(0, length)}…` : text);
+
+onMounted(() => Promise.all([roomStore.fetchAllRooms(), hotelStore.fetchAllHotels(), roomStore.fetchAllRoomTypes()]));
 
 const goBack = () => router.push({ name: 'staff-dashboard' });
-const goToCreateRoom = () => router.push({ name: 'create-room' });
 
-// --- ACCIONES ---
-
-const editRoom = (roomId) => {
-  router.push({ name: 'edit-room', params: { roomId } });
-};
-
-const confirmDelete = (room) => {
+function confirmDelete(room) {
   confirm.require({
-    message: `¿Estás seguro de eliminar la habitación #${room.id}? Esta acción es irreversible.`,
-    header: 'Confirmar Eliminación',
+    header: t('staffRooms.deleteHeader'),
+    message: t('staffRooms.deleteMessage', { number: room.label }),
     icon: 'pi pi-exclamation-triangle',
-    acceptClass: 'p-button-danger',
-    accept: () => deleteRoom(room.id),
-    reject: () => { /* Cancelado */ }
+    acceptProps: { label: t('common.delete'), severity: 'danger' },
+    rejectProps: { label: t('common.cancel'), severity: 'secondary', outlined: true },
+    accept: async () => {
+      try {
+        await roomStore.deleteRoom(room.id);
+        toast.add({ severity: 'success', summary: t('common.success'), detail: t('staffRooms.deleted'), life: 3000 });
+      } catch (err) {
+        // 409: the room still has pending, confirmed or checked-in bookings (US-53 scenario 4).
+        toast.add({
+          severity: 'error',
+          summary: t('common.error'),
+          detail: t(failureMessageKey(err, { hasActiveBookings: 'staffRooms.deleteBlocked', forbidden: 'staffHotels.outOfScope' }), { number: room.label }),
+          life: 6000,
+        });
+      }
+    },
   });
-};
-
-const deleteRoom = async (id) => {
-  try {
-    await roomStore.deleteRoom(id);
-    toast.add({ severity: 'success', summary: 'Eliminado', detail: 'La habitación ha sido eliminada.', life: 3000 });
-  } catch (err) {
-    toast.add({ severity: 'error', summary: 'Error', detail: 'No se pudo eliminar la habitación.', life: 3000 });
-  }
-};
-
-const truncate = (text, length) => {
-  if(!text) return '';
-  return text.length > length ? text.substring(0, length) + '...' : text;
 }
 </script>

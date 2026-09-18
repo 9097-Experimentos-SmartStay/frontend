@@ -1,32 +1,30 @@
 import { createRouter, createWebHistory } from "vue-router";
-import { clearSession, getRole, hasSession } from "./shared/infrastructure/session/session-storage.js";
-import { hasRequiredRole, isKnownRole } from "./iam/domain/user-role.js";
+import pinia from "./pinia.js";
+import useIamStore from "./iam/application/iam.store.js";
+import { canAccessRoute, dashboardRouteNameFor } from "./iam/domain/user-role.js";
 
-// --- 1. Import Route Definitions ---
-import authRoutes from './shared/presentation/routes/auth-routes.js';
+import iamRoutes from './iam/presentation/routes.js';
 import dashboardRoutes from './shared/presentation/routes/dashboard-routes.js';
 import accommodationsRoutes from './accommodations/presentation/routes.js';
 import bookingsRoutes from './bookings/presentation/routes.js';
 import paymentsRoutes from './payments/presentation/routes.js';
+import profileRoutes from './profile/presentation/routes.js';
 
-// --- 2. Import Shared Views ---
 const PageNotFound = () => import('./shared/presentation/views/page-not-found.vue');
-const ProfileDetail = () => import('./profile/presentation/views/ProfileDetail.vue');
 
-// --- 3. Combine All Route Definitions ---
+/**
+ * Route meta used by the guard:
+ * - `requiresAuth`: needs a session (everything else is public).
+ * - `guestOnly`: public page that a signed-in user skips (login, register, forgot-password).
+ * - `area`: 'guest' | 'staff' (AppArea); `capability`: a Capability of user-role.js.
+ */
 const routes = [
-    ...authRoutes,              // IAM  - login, register
-    ...dashboardRoutes,         // Dashboards por rol (guest, staff)
-    ...accommodationsRoutes,     //  Accommodations (rooms, room-types)
-    ...bookingsRoutes,           // Bookings
-    ...paymentsRoutes,           // Payments
-
-    {
-        path: '/perfil/:id',
-        name: 'profile-detail',
-        component: ProfileDetail,
-        meta: { requiresAuth: true, roles: ['guest', 'staff'] }
-    },
+    ...iamRoutes,
+    ...dashboardRoutes,
+    ...accommodationsRoutes,
+    ...bookingsRoutes,
+    ...paymentsRoutes,
+    ...profileRoutes,
     {
         path: '/',
         redirect: '/login'
@@ -35,7 +33,6 @@ const routes = [
         path: '/:pathMatch(.*)*', // Catch-all 404
         name: 'NotFound',
         component: PageNotFound,
-        meta: { title: 'Page Not Found', requiresAuth: false }
     }
 ];
 
@@ -45,29 +42,25 @@ const router = createRouter({
 });
 
 router.beforeEach((to) => {
-    const isAuthenticated = hasSession();
-    const userRole = getRole();
+    const iamStore = useIamStore(pinia);
     const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
-    const requiredRoles = to.meta.roles;
-    const publicOnly = to.matched.some(record => record.meta.publicOnly);
 
-    // A token without a role is a broken session: clear it to avoid redirect loops.
-    if (isAuthenticated && !userRole) {
-        clearSession();
-        return to.name === 'login' ? true : { name: 'login' };
+    if (requiresAuth && !iamStore.isSignedIn) {
+        return { name: 'login', query: { redirect: to.fullPath } };
     }
-    if (requiresAuth && !isAuthenticated) {
-        return { name: 'login' };
-    }
-    if (publicOnly && isAuthenticated) {
+    if (to.meta.guestOnly && iamStore.isSignedIn) {
         return { name: 'dashboard' };
     }
-    if (requiresAuth && !hasRequiredRole(userRole, requiredRoles)) {
-        // Known role: back to its own dashboard. Unknown role: login.
-        return isKnownRole(userRole) ? { name: 'dashboard' } : { name: 'login' };
+    if (requiresAuth && !canAccessRoute(iamStore.role, to.meta)) {
+        // Not allowed for this role: back to its own dashboard (never to a route it cannot open, so no loop).
+        const home = dashboardRouteNameFor(iamStore.role);
+        if (!home) {
+            iamStore.endSession();
+            return { name: 'login' };
+        }
+        return to.name === home ? true : { name: home };
     }
     return true;
 });
 
-// --- 6. Export Router Instance ---
 export default router;

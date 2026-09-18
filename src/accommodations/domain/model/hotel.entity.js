@@ -1,53 +1,55 @@
-﻿/**
- * Hotel Domain Entity.
- * Represents the business object for a Hotel property.
+import { HotelLocation } from './hotel-location.js';
+
+/**
+ * Hotel Domain Entity (HotelResource, §4).
  * @class
  */
 export class Hotel {
     /**
-     * Creates an instance of Hotel.
-     * @param {Object} params - The parameters for creating the hotel.
-     * @param {number} params.id - The unique identifier of the hotel.
-     * @param {string} params.name - The name of the hotel.
-     * @param {string} params.description - The description of the hotel.
-     * @param {string} params.location - The location of the hotel.
-     * @param {number|null} params.rating - The rating of the hotel (null when unknown).
-     * @param {string} params.photoUrl - The URL of the hotel's photo.
-     * @param {number} params.basePrice - The base price of the hotel.
-     * @param {Array<string>} [params.amenities=[]] - The list of amenities provided by the hotel.
+     * @param {Object} params
+     * @param {number} params.id
+     * @param {number|null} params.hostId - Account that registered the hotel.
+     * @param {string} params.name
+     * @param {string} params.description
+     * @param {HotelLocation} params.location
+     * @param {string} params.type - Category ("Hotel", "Resort"...).
+     * @param {string} params.photoUrl
+     * @param {number} params.basePrice - Lowest room price of the hotel.
+     * @param {Array<string>} [params.amenities=[]]
+     * @param {number|null} [params.rating] - Null: the backend has no ratings (never invented).
+     * @param {boolean} [params.acceptsBookings=true] - False while the hotel has no payment methods (no bookings).
      */
-    constructor({ id, name, description, location, rating, photoUrl, basePrice, amenities }) {
-        /**
-         * @property {number} id - The unique identifier of the hotel.
-         */
+    constructor({ id, hostId = null, name, description, location, type, photoUrl, basePrice, amenities, rating = null, acceptsBookings = true }) {
         this.id = id;
-        /**
-         * @property {string} name - The name of the hotel.
-         */
+        this.hostId = hostId;
         this.name = name;
-        /**
-         * @property {string} description - The description of the hotel.
-         */
         this.description = description;
-        /**
-         * @property {string} location - The location of the hotel.
-         */
-        this.location = location;
-        /**
-         * @property {number|null} rating - The rating of the hotel (null when unknown).
-         */
-        this.rating = rating;
-        /**
-         * @property {string} photoUrl - The URL of the hotel's photo.
-         */
+        this.locationParts = location instanceof HotelLocation ? location : HotelLocation.parse(location);
+        this.type = type;
         this.photoUrl = photoUrl;
-        /**
-         * @property {number} basePrice - The base price of the hotel.
-         */
-        this.basePrice = basePrice;
-        /**
-         * @property {Array<string>} amenities - The list of amenities provided by the hotel.
-         */
+        this.basePrice = Number(basePrice ?? 0);
         this.amenities = amenities || [];
+        this.rating = rating;
+        this.acceptsBookings = acceptsBookings !== false;
+    }
+
+    /** @returns {string} "{address}, {city}, {country}". */
+    get location() {
+        return this.locationParts.toString();
+    }
+
+    /** @returns {string} */
+    get address() {
+        return this.locationParts.address;
+    }
+
+    /** @returns {string} */
+    get city() {
+        return this.locationParts.city;
+    }
+
+    /** @returns {string} */
+    get country() {
+        return this.locationParts.country;
     }
 }

@@ -1,4 +1,4 @@
-﻿import { defineStore } from 'pinia';
+import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { RoomApi } from '../infrastructure/api/room-api.js';
 import { RoomTypeApi } from '../infrastructure/api/room-type-api.js';
@@ -6,6 +6,15 @@ import { AccommodationOptionsApi } from '../infrastructure/api/accommodation-opt
 import { RoomAssembler } from '../infrastructure/room.assembler.js';
 import { RoomTypeAssembler } from '../infrastructure/room-type.assembler.js';
 import { reportError } from '@/shared/infrastructure/logging/report-error.js';
+import { OperationFailure } from '@/shared/application/operation-failure.js';
+import {
+    classifyAccommodationProblem,
+    roomFieldViolations,
+    roomTypeFieldViolations,
+} from '../infrastructure/accommodation-problem.assembler.js';
+
+/** @param {unknown} error @returns {OperationFailure} */
+const roomFailure = (error) => OperationFailure.from(error, { classify: classifyAccommodationProblem, fields: roomFieldViolations });
 
 // Infrastructure Services
 const roomApi = new RoomApi();
@@ -68,6 +77,7 @@ export const useRoomStore = defineStore('room', () => {
     async function fetchRoomById(id) {
         loading.value = true;
         error.value = null;
+        currentRoom.value = null;
         try {
             const response = await roomApi.getById(id);
             currentRoom.value = RoomAssembler.toEntityFromResponse(response);
@@ -106,21 +116,15 @@ export const useRoomStore = defineStore('room', () => {
     }
 
     /**
-     * Creates a new Room Entity.
-     * Validates domain constraints before sending the resource to the infrastructure.
-     * @param {Object} roomData - The data required to create a room.
-     * @param {number} roomData.roomTypeId - The ID of the room type.
-     * @param {string} roomData.description - The description of the room.
+     * US-53 scenario 3: creates a room (status Available). The form is validated with room-rules.js first.
+     * @param {Object} roomData - Form data (see RoomAssembler.toCreateResource).
      * @returns {Promise<Room>} The newly created Room Entity.
+     * @throws {OperationFailure} duplicateRoomNumber (field `number`) | invalidData (per-field) | forbidden | ...
      */
     async function createRoom(roomData) {
         loading.value = true;
         try {
-            // Domain Validation Logic
-            if (!roomData.roomTypeId) throw new Error('Room Type is required');
-            if (!roomData.description) throw new Error('Description is required');
-
-            const response = await roomApi.create(roomData);
+            const response = await roomApi.create(RoomAssembler.toCreateResource(roomData));
             const newRoom = RoomAssembler.toEntityFromResponse(response);
 
             if(newRoom) {
@@ -129,7 +133,7 @@ export const useRoomStore = defineStore('room', () => {
             return newRoom;
         } catch (err) {
             error.value = err;
-            throw err;
+            throw roomFailure(err);
         } finally {
             loading.value = false;
         }
@@ -155,7 +159,7 @@ export const useRoomStore = defineStore('room', () => {
             return newType;
         } catch (err) {
             reportError('Error creating room type', err);
-            throw err;
+            throw OperationFailure.from(err, { fields: roomTypeFieldViolations });
         } finally {
             loading.value = false;
         }
@@ -181,15 +185,16 @@ export const useRoomStore = defineStore('room', () => {
     }
 
     /**
-     * Updates an existing Room Entity.
+     * US-53 scenario 4: changes the number, price or data of a room. A new price only applies to new bookings.
      * @param {number} id - The unique identifier of the room.
-     * @param {Object} roomData - The payload containing updated fields.
+     * @param {Object} roomData - Form data (see RoomAssembler.toUpdateResource).
      * @returns {Promise<Room>} The updated Room Entity.
+     * @throws {OperationFailure} duplicateRoomNumber | invalidData | forbidden | notFound
      */
     async function updateRoom(id, roomData) {
         loading.value = true;
         try {
-            const response = await roomApi.update(id, roomData);
+            const response = await roomApi.update(id, RoomAssembler.toUpdateResource(roomData));
             const updatedRoom = RoomAssembler.toEntityFromResponse(response);
 
             // Optimistic Update: Update local state
@@ -200,16 +205,17 @@ export const useRoomStore = defineStore('room', () => {
             return updatedRoom;
         } catch (err) {
             reportError(`Error updating room ${id}`, err);
-            throw err;
+            throw roomFailure(err);
         } finally {
             loading.value = false;
         }
     }
 
     /**
-     * Deletes a Room Entity.
+     * Deletes a room. The backend refuses it while the room has pending, confirmed or checked-in bookings.
      * @param {number} id - The unique identifier of the room to delete.
      * @returns {Promise<void>}
+     * @throws {OperationFailure} hasActiveBookings | forbidden | notFound
      */
     async function deleteRoom(id) {
         loading.value = true;
@@ -220,7 +226,7 @@ export const useRoomStore = defineStore('room', () => {
             rooms.value = rooms.value.filter(r => r.id !== id);
         } catch (err) {
             reportError(`Error deleting room ${id}`, err);
-            throw err;
+            throw roomFailure(err);
         } finally {
             loading.value = false;
         }

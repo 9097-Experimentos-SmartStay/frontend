@@ -1,33 +1,34 @@
-// src/bounded-contexts/bookings/presentation/routes.js
+import { AppArea, Capability } from '@/iam/domain/user-role.js';
+
+const guest = { requiresAuth: true, area: AppArea.GUEST };
 
 export default [
-    // Rutas para huéspedes
+    // Guest area
     {
         path: '/guest/bookings',
         name: 'guest-bookings',
         component: () => import('./views/GuestBookings.vue'),
-        meta: { requiresAuth: true, roles: ['guest'] }
+        meta: guest
     },
     {
-        path: '/guest/bookings/new/:roomId?',
+        // US-51: search by hotel and dates, then book (?hotelId=&roomId=&checkIn=&checkOut= preselect it).
+        path: '/guest/bookings/new',
         name: 'guest-create-booking',
-        component: () => import('./views/GuestCreateBooking.vue'),
-        meta: { requiresAuth: true, roles: ['guest'] },
-        props: true
+        component: () => import('./views/GuestSearchRooms.vue'),
+        meta: guest
     },
     {
         path: '/guest/bookings/:bookingId',
         name: 'guest-booking-detail',
         component: () => import('./views/GuestBookingDetail.vue'),
-        meta: { requiresAuth: true, roles: ['guest'] },
+        meta: guest,
         props: true
     },
-    // Rutas para staff
+    // Staff area
     {
         path: '/staff/bookings',
         name: 'staff-bookings',
         component: () => import('./views/StaffBookings.vue'),
-        meta: { requiresAuth: true, roles: ['staff'] }
+        meta: { requiresAuth: true, area: AppArea.STAFF, capability: Capability.VIEW_BOOKINGS }
     }
 ];
-
