@@ -22,7 +22,7 @@ import useIamStore from '../../application/iam.store.js';
 import { reportError } from '@/shared/infrastructure/logging/report-error.js';
 
 /**
- * Reminder for accounts that did not confirm their e-mail yet (they can sign in, §2.1),
+ * Reminder for a session whose account has not confirmed its e-mail (since the verified-e-mail rule, §2.3,\n * only a session restored from before that rule can be in this state),
  * with a button to get a new verification link (US-01).
  */
 const { t } = useI18n();
