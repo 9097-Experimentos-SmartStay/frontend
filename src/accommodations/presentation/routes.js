@@ -45,6 +45,13 @@ export default [
         props: true
     },
     {
+        path: '/staff/hotels/:hotelId/payment-settings',
+        name: 'hotel-payment-settings',
+        component: () => import('./views/StaffHotelPaymentSettings.vue'),
+        meta: staff(Capability.VIEW_PAYMENT_SETTINGS),
+        props: true
+    },
+    {
         path: '/staff/rooms',
         name: 'staff-rooms',
         component: () => import('./views/StaffRooms.vue'),

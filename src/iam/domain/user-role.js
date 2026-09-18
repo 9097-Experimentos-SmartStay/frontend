@@ -33,6 +33,7 @@ export const Capability = Object.freeze({
     VIEW_HOTELS: 'viewHotels',
     MANAGE_HOTELS: 'manageHotels',
     REGISTER_HOTEL: 'registerHotel',
+    VIEW_PAYMENT_SETTINGS: 'viewPaymentSettings',
     VIEW_ROOMS: 'viewRooms',
     MANAGE_ROOMS: 'manageRooms',
     VIEW_ROOM_MAP: 'viewRoomMap',
@@ -59,6 +60,7 @@ const CAPABILITY_ROLES = Object.freeze({
     [Capability.VIEW_HOTELS]: STAFF_ROLES,
     [Capability.MANAGE_HOTELS]: [ADMIN, CHAIN_ADMIN],
     [Capability.REGISTER_HOTEL]: [ADMIN, CHAIN_ADMIN],
+    [Capability.VIEW_PAYMENT_SETTINGS]: [RECEPTION, ADMIN, CHAIN_ADMIN],
     [Capability.VIEW_ROOMS]: STAFF_ROLES,
     [Capability.MANAGE_ROOMS]: [ADMIN, CHAIN_ADMIN],
     [Capability.VIEW_ROOM_MAP]: STAFF_ROLES,
@@ -185,6 +187,18 @@ export function canManageHotel(user, hotelId) {
     if (!user) return false;
     if (user.role === CHAIN_ADMIN) return true;
     return user.role === ADMIN && user.hotelId != null && Number(user.hotelId) === Number(hotelId);
+}
+
+/**
+ * Payment methods of a hotel: its admin and a chain_admin edit them (same scope as {@link canManageHotel});
+ * the reception of the hotel may read them (to tell guests how to pay).
+ * @param {{role: string|null, hotelId: number|null}} user
+ * @param {number} hotelId
+ * @returns {boolean}
+ */
+export function canViewHotelPaymentSettings(user, hotelId) {
+    if (canManageHotel(user, hotelId)) return true;
+    return user?.role === RECEPTION && user.hotelId != null && Number(user.hotelId) === Number(hotelId);
 }
 
 /**

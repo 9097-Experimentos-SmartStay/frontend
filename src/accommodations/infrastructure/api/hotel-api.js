@@ -63,4 +63,25 @@ export class HotelApi extends BaseApi {
     delete(id) {
         return this.#endpoint.delete(id);
     }
+
+    /**
+     * Payment methods of a hotel (admin or reception of the hotel, chain_admin).
+     * GET /api/v1/hotels/{id}/payment-settings
+     * @param {number} id - The hotel ID.
+     * @returns {Promise<Object>} Axios response.
+     */
+    getPaymentSettings(id) {
+        return this.http.get(`${hotelsEndpointPath}/${id}/payment-settings`);
+    }
+
+    /**
+     * Replaces the payment methods of a hotel (admin of the hotel, chain_admin).
+     * PUT /api/v1/hotels/{id}/payment-settings
+     * @param {number} id - The hotel ID.
+     * @param {Object} resource - See HotelPaymentSettingsAssembler.toUpdateResource.
+     * @returns {Promise<Object>} Axios response.
+     */
+    updatePaymentSettings(id, resource) {
+        return this.http.put(`${hotelsEndpointPath}/${id}/payment-settings`, resource);
+    }
 }

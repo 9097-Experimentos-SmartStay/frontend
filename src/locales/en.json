@@ -1174,5 +1174,41 @@
     "notChangeable": "Only bookings awaiting payment or confirmed can be changed.",
     "otherHotelRoom": "The booking can only move to a room of the same hotel.",
     "done": "Booking {code} changed. We e-mailed the guest."
+  },
+  "hotelPaymentSettings": {
+    "title": "Payment methods",
+    "intro": "Tell guests how to pay you. They see these methods in their pending booking and in the booking e-mail. Set up at least one: Yape, Plin or a bank account.",
+    "readOnly": "These are the payment methods of the hotel. Only the hotel administrator can change them.",
+    "ready": "Your hotel accepts bookings: guests see these payment methods.",
+    "notReady": "Your hotel does not accept bookings yet: set up at least one payment method.",
+    "afterRegistration": "Your hotel is registered. Set up your payment methods to start receiving bookings.",
+    "banner": "Your hotel does not accept bookings yet: set up your payment methods.",
+    "configure": "Set up payment methods",
+    "accountHolder": "Account holder",
+    "accountHolderPlaceholder": "e.g. Hotel Bolivar S.A.C.",
+    "accountHolderHint": "Name the guest sees when paying (holder of the Yape, Plin or bank account).",
+    "wallets": "Digital wallets",
+    "bankTransfer": "Bank transfer",
+    "bankName": "Bank",
+    "bankNamePlaceholder": "e.g. BCP",
+    "bankAccountNumber": "Account number",
+    "bankAccountCci": "CCI",
+    "cciHint": "Optional. 20 digits, for transfers from other banks.",
+    "frontDeskNote": "Guests can also pay in cash or by card at the hotel front desk.",
+    "save": "Save payment methods",
+    "saved": "Payment methods saved.",
+    "rules": {
+      "accountHolderRequired": "Enter the account holder's name.",
+      "accountHolderLength": "Use between {minLength} and {maxLength} characters.",
+      "yapeNumberInvalid": "Enter a 9-digit mobile number starting with 9.",
+      "plinNumberInvalid": "Enter a 9-digit mobile number starting with 9.",
+      "bankNameRequired": "Enter the bank of the account.",
+      "bankNameLength": "Use between {minLength} and {maxLength} characters.",
+      "bankAccountNumberRequired": "Enter the account number.",
+      "bankAccountNumberInvalid": "Use only digits and hyphens: {minDigits} to {maxDigits} digits.",
+      "cciInvalid": "The CCI has exactly 20 digits.",
+      "methodRequired": "Set up at least one payment method: Yape, Plin or a bank account with its bank.",
+      "serverRejected": "Check the value of this field."
+    }
   }
 }

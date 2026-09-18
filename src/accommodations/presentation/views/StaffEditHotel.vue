@@ -6,6 +6,13 @@
       <div class="flex align-items-center gap-3 mb-6">
         <pv-button icon="pi pi-arrow-left" :label="t('common.cancel')" class="p-button-outlined p-button-sm" @click="goBack" />
         <h1 class="text-3xl font-bold text-color m-0">{{ t('staffHotels.editTitle') }}</h1>
+        <pv-button
+            v-if="allowed"
+            :label="t('hotelPaymentSettings.title')"
+            icon="pi pi-wallet"
+            class="p-button-outlined p-button-sm ml-auto"
+            @click="router.push({ name: 'hotel-payment-settings', params: { hotelId } })"
+        />
       </div>
 
       <div v-if="loadingData" class="flex justify-content-center p-8">
