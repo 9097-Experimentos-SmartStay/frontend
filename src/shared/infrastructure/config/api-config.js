@@ -12,10 +12,12 @@ export const apiBaseUrl = env.VITE_SMARTSTAY_API_URL || '/api/v1';
 
 /** Endpoint paths, relative to {@link apiBaseUrl}. */
 export const endpoints = Object.freeze({
-    signIn: env.VITE_SIGNIN_ENDPOINT_PATH || '/authentication/sign-in',
-    signUp: env.VITE_SIGNUP_ENDPOINT_PATH || '/authentication/sign-up',
+    /** Anonymous account flows: sign-in, sign-up, refresh, sign-out, verify-email, password-recovery/reset. */
+    authentication: env.VITE_AUTHENTICATION_ENDPOINT_PATH || '/authentication',
     users: env.VITE_USERS_ENDPOINT_PATH || '/users',
-    profiles: env.VITE_PROFILES_ENDPOINT_PATH || '/profiles',
+    auditLogs: env.VITE_AUDIT_LOGS_ENDPOINT_PATH || '/audit-logs',
+    guests: env.VITE_GUESTS_ENDPOINT_PATH || '/guests',
+    staff: env.VITE_STAFF_ENDPOINT_PATH || '/staff',
     hotels: env.VITE_HOTELS_ENDPOINT_PATH || '/hotels',
     rooms: env.VITE_ROOMS_ENDPOINT_PATH || '/rooms',
     roomTypes: env.VITE_ROOM_TYPES_ENDPOINT_PATH || '/room-types',
