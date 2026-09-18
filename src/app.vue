@@ -23,9 +23,15 @@ watch(locale, (value) => {
 </script>
 
 <style>
+/* Single light theme: native controls, scrollbars and PrimeFlex's light-dark() colors always resolve to light. */
+:root {
+  color-scheme: light;
+}
+
 /* Reset y estilos base. The font goes on body so PrimeVue overlays teleported to body (toasts, date pickers,
    select panels, menus) use it too. */
 body {
+  margin: 0;
   font-family: 'Poppins', sans-serif;
 }
 
