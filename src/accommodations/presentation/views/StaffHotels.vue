@@ -59,7 +59,8 @@
 
         <pv-column header="Rating" sortable field="rating">
           <template #body="{ data }">
-            <pv-tag :value="data.rating + ' ★'" severity="warning" rounded />
+            <pv-tag v-if="data.rating != null" :value="data.rating + ' ★'" severity="warning" rounded />
+            <span v-else class="text-color-secondary">{{ $t('common.notAvailable') }}</span>
           </template>
         </pv-column>
 
