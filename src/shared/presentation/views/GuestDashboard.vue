@@ -162,34 +162,31 @@
 
             <div>
               <span class="text-xl font-bold text-900 block mb-3">{{ $t('guestDashboard.recommendationsTitle') }}</span>
-              <pv-carousel
-                  :value="recommendations"
-                  :numVisible="2"
-                  :numScroll="1"
-                  :responsiveOptions="responsiveOptions"
-                  circular
-                  :autoplayInterval="6000">
-                <template #item="slotProps">
-                  <div class="border-1 surface-border border-round-xl m-2 p-3 hover:shadow-4 transition-duration-300 cursor-pointer bg-white h-full flex flex-column" @click="goToRoom(slotProps.data.id)">
-                    <div class="relative w-full">
-                      <div class="bg-gray-100 border-round-lg h-12rem w-full flex align-items-center justify-content-center mb-3">
-                        <i class="pi pi-home text-4xl text-gray-300"></i>
-                      </div>
-                      <pv-tag :value="formatMoney(slotProps.data.price, locale)" severity="warn" class="absolute shadow-1" style="top: 10px; left: 10px" />
-                    </div>
-                    <div class="flex-1">
-                      <div class="font-bold text-lg mb-2 text-900">{{ slotProps.data.roomTypeName }}</div>
-                      <p class="text-600 text-sm line-height-3 m-0 text-overflow-ellipsis overflow-hidden h-3rem">
-                        {{ slotProps.data.description }}
-                      </p>
-                    </div>
-                    <div class="mt-3 pt-3 border-top-1 border-100 flex align-items-center justify-content-between">
-                      <span class="text-primary font-bold text-sm uppercase tracking-wide">{{ $t('accommodations.viewDetails') }}</span>
-                      <i class="pi pi-arrow-right text-primary"></i>
-                    </div>
-                  </div>
-                </template>
-              </pv-carousel>
+              <div v-if="recommendations.length" class="grid">
+                <div v-for="room in recommendations" :key="room.id" class="col-12 md:col-6">
+                  <button
+                      type="button"
+                      class="recommendation-card w-full text-left border-1 surface-border border-round-xl p-3 hover:shadow-4 transition-duration-300 cursor-pointer bg-white h-full flex flex-column"
+                      @click="goToRoom(room.id)"
+                  >
+                    <span class="relative w-full block">
+                      <span class="bg-gray-100 border-round-lg h-10rem w-full flex align-items-center justify-content-center mb-3">
+                        <i class="pi pi-home text-4xl text-gray-300" aria-hidden="true"></i>
+                      </span>
+                      <pv-tag :value="formatMoney(room.price, locale)" severity="warn" class="absolute shadow-1" style="top: 10px; left: 10px" />
+                    </span>
+                    <span class="flex-1 block">
+                      <span class="font-bold text-lg mb-2 text-900 block">{{ room.roomTypeName }}</span>
+                      <span class="text-600 text-sm line-height-3 block text-overflow-ellipsis overflow-hidden h-3rem">{{ room.description }}</span>
+                    </span>
+                    <span class="mt-3 pt-3 border-top-1 border-100 flex align-items-center justify-content-between w-full">
+                      <span class="text-primary font-bold text-sm">{{ $t('accommodations.viewDetails') }}</span>
+                      <i class="pi pi-arrow-right text-primary" aria-hidden="true"></i>
+                    </span>
+                  </button>
+                </div>
+              </div>
+              <p v-else class="text-600 m-0">{{ $t('guestDashboard.noRecommendations') }}</p>
             </div>
           </div>
 
@@ -218,28 +215,15 @@
                     <span class="text-800 font-medium">{{ $t('guestDashboard.newBooking') }}</span>
                     <i class="pi pi-angle-right text-400 ml-auto"></i>
                   </li>
-                  <li class="flex align-items-center py-3 border-bottom-1 surface-border cursor-pointer hover:bg-gray-50 px-2 border-round transition-duration-200" @click="goToHotels">
+                  <li class="flex align-items-center py-3 cursor-pointer hover:bg-gray-50 px-2 border-round transition-duration-200" @click="goToHotels">
                     <div class="flex align-items-center justify-content-center bg-purple-100 border-round mr-3" style="width: 2.5rem; height: 2.5rem"><i class="pi pi-map text-purple-600 text-lg"></i></div>
                     <span class="text-800 font-medium">{{ $t('guestDashboard.viewHotels') }}</span>
-                    <i class="pi pi-angle-right text-400 ml-auto"></i>
-                  </li>
-                  <li class="flex align-items-center py-3 cursor-pointer hover:bg-gray-50 px-2 border-round transition-duration-200" @click="contactSupport">
-                    <div class="flex align-items-center justify-content-center bg-green-100 border-round mr-3" style="width: 2.5rem; height: 2.5rem"><i class="pi pi-whatsapp text-green-600 text-lg"></i></div>
-                    <span class="text-800 font-medium">{{ $t('guestDashboard.support247') }}</span>
                     <i class="pi pi-angle-right text-400 ml-auto"></i>
                   </li>
                 </ul>
               </template>
             </pv-card>
 
-            <div class="surface-card shadow-2 p-4 border-round-xl relative overflow-hidden bg-gray-900 text-white">
-              <div class="relative z-2">
-                <div class="font-bold text-xl mb-2">{{ $t('guestDashboard.vipTransport') }}</div>
-                <p class="m-0 mb-3 text-gray-300 text-sm line-height-3">{{ $t('guestDashboard.vipTransportDesc') }}</p>
-                <pv-button :label="$t('guestDashboard.requestService')" class="p-button-warning p-button-sm w-full font-bold" @click="requestService" />
-              </div>
-              <div class="absolute top-0 left-0 w-full h-full opacity-30" style="background: radial-gradient(circle at top right, var(--primary-color), transparent);"></div>
-            </div>
           </div>
         </div>
       </div>
@@ -279,11 +263,6 @@ const bookingStore = useBookingStore();
 const loading = ref(true);
 const recommendations = ref([]);
 const isProfileMenuOpen = ref(false);
-
-const responsiveOptions = [
-  { breakpoint: '1024px', numVisible: 2, numScroll: 1 },
-  { breakpoint: '768px', numVisible: 1, numScroll: 1 }
-];
 
 const currentUser = computed(() => iamStore.currentUser);
 const userInitials = computed(() => currentUser.value?.initials ?? '');
@@ -342,14 +321,32 @@ async function loadDashboard() {
       roomStore.fetchAllRooms(),
       hotelStore.fetchAllHotels()
     ]);
-    const bookedRoomIds = new Set(bookingStore.bookings.map((booking) => booking.roomId));
-    recommendations.value = roomStore.rooms.filter((room) => !bookedRoomIds.has(room.id)).slice(0, 5);
+    recommendations.value = recommendRooms(roomStore.rooms, bookingStore.bookings);
   } catch (err) {
     reportError('Error loading dashboard', err);
     toast.add({ severity: 'error', summary: t('common.error'), detail: t('guestDashboard.loadError'), life: 4000 });
   } finally {
     loading.value = false;
   }
+}
+
+/**
+ * Up to four rooms the guest has not booked, one per hotel and room type, so no two cards look the same.
+ * @param {Array} rooms
+ * @param {Array} bookings
+ */
+function recommendRooms(rooms, bookings) {
+  const bookedRoomIds = new Set(bookings.map((booking) => booking.roomId));
+  const seen = new Set();
+  const picked = [];
+  for (const room of rooms) {
+    const kind = `${room.hotelId}:${room.roomTypeId ?? room.roomTypeName}`;
+    if (bookedRoomIds.has(room.id) || seen.has(kind)) continue;
+    seen.add(kind);
+    picked.push(room);
+    if (picked.length === 4) break;
+  }
+  return picked;
 }
 
 function goToRooms() { router.push({ name: 'guest-rooms' }); }
@@ -375,14 +372,6 @@ function openBooking(booking) {
   router.push({ name: 'guest-booking-detail', params: { bookingId: booking.id } });
 }
 
-function requestService() {
-  goToHotels();
-}
-
-function contactSupport() {
-  toast.add({ severity: 'info', summary: t('guestDashboard.support247'), detail: t('guestDashboard.supportSoon'), life: 3000 });
-}
-
 onMounted(() => {
   loadDashboard();
   document.addEventListener('click', handleClickOutside);
@@ -394,6 +383,11 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
+.recommendation-card {
+  font: inherit;
+  color: inherit;
+}
+
 /* Adaptive Toolbar */
 .adaptive-toolbar {
   background-color: #ffffff;
