@@ -2,7 +2,7 @@
   <pv-dialog
       :visible="visible"
       modal
-      :header="t('registerPayment.title', { code: booking ? `#${booking.id}` : '' })"
+      :header="booking ? t('registerPayment.title', { code: booking.reference }) : ''"
       :style="{ width: '32rem' }"
       :breakpoints="{ '640px': '95vw' }"
       @update:visible="emit('update:visible', $event)"
@@ -14,12 +14,12 @@
         <span class="font-medium">{{ booking.guestName }}</span>
       </div>
       <div class="flex justify-content-between mb-2">
-        <span class="text-color-secondary">{{ t('bookings.nights') }}</span>
-        <span class="font-medium">{{ booking.nights }}</span>
+        <span class="text-color-secondary">{{ t('staffBookings.room') }}</span>
+        <span class="font-medium">{{ booking.roomLabel }} · {{ t('stay.nights', { count: booking.nights }, booking.nights) }}</span>
       </div>
       <div class="flex justify-content-between">
         <span class="text-color-secondary">{{ t('payments.amount') }}</span>
-        <span class="font-bold">{{ amountLabel }}</span>
+        <span class="font-bold text-lg">{{ formatMoney(booking.total, locale) }}</span>
       </div>
       <small class="block mt-2 text-color-secondary">{{ t('registerPayment.amountNote') }}</small>
     </div>
@@ -41,7 +41,7 @@
 
       <div v-if="needsOperationNumber" class="field">
         <label for="rp-operation" class="font-medium block mb-2">{{ t('registerPayment.operationNumber') }} *</label>
-        <pv-input-text id="rp-operation" v-model="form.operationNumber" :invalid="!!errors.operationNumber" />
+        <pv-input-text id="rp-operation" v-model="form.operationNumber" :maxlength="OPERATION_NUMBER_MAX_LENGTH" :invalid="!!errors.operationNumber" />
         <small v-if="errors.operationNumber" class="p-error">{{ errors.operationNumber }}</small>
       </div>
 
@@ -49,21 +49,15 @@
         <label for="rp-note" class="font-medium block mb-2">{{ t('registerPayment.note') }}</label>
         <pv-textarea id="rp-note" v-model="form.note" rows="2" auto-resize :maxlength="PAYMENT_NOTE_MAX_LENGTH" :invalid="!!errors.note" />
         <small v-if="errors.note" class="p-error">{{ errors.note }}</small>
+        <small v-else class="text-color-secondary">{{ form.note.length }} / {{ PAYMENT_NOTE_MAX_LENGTH }}</small>
       </div>
 
-      <pv-message v-if="!paymentStore.canRegisterPayments" severity="info" class="mb-2">{{ t('registerPayment.notAvailable') }}</pv-message>
       <pv-message v-if="errorMessage" severity="error" class="mb-2">{{ errorMessage }}</pv-message>
     </form>
 
     <template #footer>
       <pv-button :label="t('common.cancel')" class="p-button-text" @click="emit('update:visible', false)" />
-      <pv-button
-          :label="t('registerPayment.submit')"
-          icon="pi pi-check"
-          :loading="paymentStore.loading"
-          :disabled="!paymentStore.canRegisterPayments"
-          @click="submit"
-      />
+      <pv-button :label="t('registerPayment.submit')" icon="pi pi-check" :loading="paymentStore.registering" @click="submit" />
     </template>
   </pv-dialog>
 </template>
@@ -73,20 +67,23 @@ import { computed, reactive, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { usePaymentStore } from '../../application/payment.store.js';
 import { PaymentMethod, requiresOperationNumber } from '../../domain/model/payment-method.js';
-import { PAYMENT_NOTE_MAX_LENGTH, RegisterPaymentCommand } from '../../domain/commands/register-payment.command.js';
+import {
+  OPERATION_NUMBER_MAX_LENGTH,
+  PAYMENT_NOTE_MAX_LENGTH,
+  RegisterPaymentCommand,
+} from '../../domain/commands/register-payment.command.js';
 import { formatMoney } from '@/shared/presentation/utils/formatters.js';
-import { apiErrorKey } from '@/shared/presentation/utils/api-error.js';
+import { failureMessageKey, violationMessages } from '@/shared/presentation/utils/failure-message.js';
 
 /**
- * Reception registers how a guest paid a booking (Yape, Plin, transfer, cash or card at reception).
- * The amount is read-only: the backend computes it; the one shown is room price × nights.
+ * US-07 scenario 5: the hotel registers how the guest paid (Yape, Plin, bank transfer, cash or card at the front
+ * desk) with the operation number (not for cash). The amount is read-only: it is always the booking total.
+ * Registering it confirms the booking and e-mails the guest.
  */
 const props = defineProps({
   visible: { type: Boolean, default: false },
   /** @type {import('@/bookings/domain/model/booking.entity.js').Booking} */
   booking: { type: Object, default: null },
-  /** Price per night of the booked room (to show the amount), or null when unknown. */
-  pricePerNight: { type: Number, default: null },
 });
 const emit = defineEmits(['update:visible', 'registered']);
 const { t, locale } = useI18n();
@@ -98,9 +95,6 @@ const errorMessage = ref('');
 
 const methodOptions = computed(() => Object.values(PaymentMethod).map((value) => ({ value, label: t(`paymentMethods.${value}`) })));
 const needsOperationNumber = computed(() => requiresOperationNumber(form.method));
-const amountLabel = computed(() => (props.pricePerNight != null && props.booking
-    ? formatMoney(props.pricePerNight * props.booking.nights, locale.value)
-    : t('common.notAvailable')));
 
 function reset() {
   Object.assign(form, { method: null, operationNumber: '', note: '' });
@@ -111,16 +105,25 @@ function reset() {
 async function submit() {
   errorMessage.value = '';
   const command = new RegisterPaymentCommand({ bookingId: props.booking.id, ...form });
-  const ruleErrors = command.validate();
-  errors.value = Object.fromEntries(Object.entries(ruleErrors).map(([field, rule]) => [field, t(`registerPayment.rules.${rule}`, { max: PAYMENT_NOTE_MAX_LENGTH })]));
-  if (Object.keys(ruleErrors).length > 0) return;
+  const violations = command.validate();
+  errors.value = violationMessages(t, violations, 'registerPayment.rules');
+  if (Object.keys(violations).length > 0) return;
 
   try {
     const payment = await paymentStore.registerPayment(command);
     emit('registered', payment);
     emit('update:visible', false);
-  } catch (err) {
-    errorMessage.value = t(apiErrorKey(err, { 409: 'registerPayment.conflict', 404: 'guestBookingDetail.bookingNotFound' }));
+  } catch (failure) {
+    if (failure.hasFieldViolations) {
+      errors.value = violationMessages(t, failure.fieldViolations, 'registerPayment.rules');
+      return;
+    }
+    errorMessage.value = t(failureMessageKey(failure, {
+      alreadyPaid: 'registerPayment.alreadyPaid',
+      bookingNotPending: 'registerPayment.notPending',
+      forbidden: 'registerPayment.forbidden',
+      notFound: 'bookings.notFound',
+    }), { code: props.booking.reference });
   }
 }
 </script>
