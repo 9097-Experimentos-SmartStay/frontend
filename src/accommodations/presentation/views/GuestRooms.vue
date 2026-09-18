@@ -62,7 +62,7 @@
           <i class="pi pi-exclamation-triangle text-2xl text-red-500"></i>
         </div>
         <h3 class="text-900 font-medium m-0 mb-2">{{ $t('guestRooms.errorTitle') }}</h3>
-        <p class="text-600 mb-4">{{ roomStore.error.message || $t('guestRooms.errorMessage') }}</p>
+        <p class="text-600 mb-4">{{ $t('guestRooms.errorMessage') }}</p>
         <pv-button
             :label="$t('common.retry')"
             icon="pi pi-refresh"
