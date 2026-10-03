@@ -43,25 +43,13 @@ const { t } = useI18n();
 .auth-page {
   min-height: 100vh;
   width: 100%;
-  background-color: #0d2a4f;
+  background-color: var(--ss-navy);
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
   overflow: hidden;
   box-sizing: border-box;
-}
-
-.auth-page::before {
-  content: '';
-  position: absolute;
-  top: -60%;
-  left: -70%;
-  width: 200%;
-  height: 180%;
-  background-color: #f5f0e1;
-  border-radius: 50%;
-  z-index: 1;
 }
 
 .top-right-controls {
@@ -71,6 +59,30 @@ const { t } = useI18n();
   z-index: 3;
   display: flex;
   align-items: center;
+}
+
+/* Controls on the dark background: light outlines and a translucent language switch. */
+.top-right-controls :deep(.p-button-outlined) {
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.55);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.top-right-controls :deep(.p-button-outlined:not(:disabled):hover) {
+  background: rgba(255, 255, 255, 0.16);
+  border-color: #ffffff;
+  color: #ffffff;
+}
+
+.top-right-controls :deep(.p-togglebutton) {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: transparent;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.top-right-controls :deep(.p-togglebutton-checked .p-togglebutton-content) {
+  background: #ffffff;
+  color: var(--ss-navy);
 }
 
 .auth-content {
@@ -96,24 +108,37 @@ const { t } = useI18n();
 }
 
 .headline {
-  color: #e67e22;
-  font-size: clamp(1.25rem, 3vw, 1.75rem);
-  font-weight: 600;
-  margin-bottom: 1.5rem;
+  font-family: var(--ss-font-display);
+  font-size: clamp(1.75rem, 4vw, 2.75rem);
+  font-weight: 800;
+  line-height: 1.1;
+  margin: 0 0 1.75rem;
+  color: #ffffff;
+}
+
+/* Short orange rule under the headline. */
+.headline::after {
+  content: '';
+  display: block;
+  width: 3.5rem;
+  height: 4px;
+  margin-top: 1rem;
+  background-color: var(--p-primary-color);
 }
 
 .auth-card {
   background: #ffffff;
-  color: #1e293b;
-  border-radius: 12px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  color: var(--p-surface-900);
+  border-radius: var(--p-border-radius-xl);
+  border-top: 4px solid var(--p-primary-color);
   padding: 2rem;
 }
 
 .card-title {
   margin: 0 0 0.5rem;
-  font-size: 1.5rem;
-  font-weight: 700;
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--ss-navy);
 }
 
 .card-subtitle {
@@ -151,13 +176,8 @@ const { t } = useI18n();
     max-width: 240px;
     margin-top: 2rem;
   }
-  .auth-page::before {
-    top: -40%;
-    left: -80%;
-    width: 220%;
-    height: 120%;
-  }
 }
+
 </style>
 
 <style>
@@ -201,6 +221,7 @@ const { t } = useI18n();
   margin-top: 1.25rem;
 }
 .auth-links a {
-  color: #2563eb;
+  color: var(--p-primary-600);
+  font-weight: 500;
 }
 </style>

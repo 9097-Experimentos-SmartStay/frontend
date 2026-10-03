@@ -28,4 +28,9 @@ export const endpoints = Object.freeze({
     analytics: env.VITE_ANALYTICS_ENDPOINT_PATH || '/analytics',
     /** POST /media/hotel-images/signature: signature of a direct upload to Cloudinary (the cloud comes with it). */
     media: env.VITE_MEDIA_ENDPOINT_PATH || '/media',
+    /**
+     * Room IoT emulator (`IoTEmulatorController`). The default is the kebab-case route ASP.NET builds
+     * for that controller name (`IoTEmulator` → `io-t-emulator`), which is why it reads oddly.
+     */
+    iotEmulator: env.VITE_IOT_EMULATOR_ENDPOINT_PATH || '/io-t-emulator',
 });

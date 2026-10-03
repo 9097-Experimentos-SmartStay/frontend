@@ -4,4 +4,6 @@ export const PaymentFailureReason = Object.freeze({
     ALREADY_PAID: 'alreadyPaid',
     /** 409: the booking is cancelled (or expired): only a pending booking can be paid. */
     BOOKING_NOT_PENDING: 'bookingNotPending',
+    /** 409: the gateway declined the card (declined, insufficient funds, wrong CVV); another card can be tried. */
+    CARD_DECLINED: 'cardDeclined',
 });

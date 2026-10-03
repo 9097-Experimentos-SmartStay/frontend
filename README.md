@@ -101,7 +101,9 @@ muestra que la subida no está disponible.
 | `/bookings`, `/rooms` | Con sesión (enlaces de los correos) | Abren las reservas o las habitaciones del área del rol: huésped → `/guest/bookings` o `/guest/accommodations/rooms`; personal → `/staff/bookings` o `/staff/rooms/map`. |
 | `/guest/bookings/new?hotelId=&checkIn=&checkOut=` | Rol `guest` | US-51: búsqueda de habitaciones libres por hotel y fechas (precio por noche y total) y reserva; ante un 409 ofrece buscar de nuevo. |
 | `/guest/bookings`, `/guest/bookings/:bookingId` | Rol `guest` | "Mis reservas": código, estado, plazo de pago con cuenta regresiva, cómo pagar, pago registrado o reembolsado, cancelación según la política. |
+| `/guest/room-climate` | Rol `guest` | US-11: termostato (temperatura y ventilador) de la habitación de la estadía en curso, y lo que reporta el equipo (presencia, estado del hardware). Con varias estadías, el huésped elige. |
 | `/guest/...` (resto) | Rol `guest` | Hoteles y habitaciones. |
+| `/staff/operations` | Personal del hotel, `chain_admin` (elige hotel) | Tablero del turno: clima de cada habitación con avisos (fuera de confort, vacía con gasto innecesario, equipo alterado), llegadas y salidas de hoy, y acción sobre una habitación. Es la pantalla propia de `housekeeping` y `maintenance`. |
 | `/staff/bookings` | Personal (calendario, altas y cambios: `reception`, `admin`, `chain_admin`) | US-07: calendario mensual/semanal, lista, reserva manual, cambio de fechas o habitación, cancelación y "Registrar pago". |
 | `/staff/rooms/map` | Personal del hotel, `chain_admin` (elige hotel) | US-06: mapa de habitaciones por color, tiempo en el estado, alerta de mantenimiento, cambio de estado e historial. |
 | `/staff/rooms`, `/staff/rooms/new`, `/staff/rooms/:roomId/edit` | Lectura: personal; alta y edición: `admin` (su hotel), `chain_admin` | US-53: habitaciones con número único por hotel y precio por noche mayor que 0; tipos de habitación. |
@@ -135,6 +137,7 @@ src/
 ├── bookings/         # Reservas
 ├── payments/         # Pagos (instrucciones al huésped, registro por recepción)
 ├── analytics/        # Indicadores del panel del personal
+├── iot/              # Clima de las habitaciones: termostato del huésped y tablero del turno
 ├── profile/          # Perfiles de huésped (/guests) y del personal (/staff)
 ├── shared/           # Núcleo compartido: cliente HTTP, sesión, configuración, rutas y vistas comunes
 ├── locales/          # Traducciones (es.json, en.json)

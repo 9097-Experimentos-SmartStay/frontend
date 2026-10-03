@@ -180,4 +180,14 @@ export class Booking {
     isUpcoming(today = CalendarDate.today()) {
         return this.isActive() && !!this.checkOutDate && !this.checkOutDate.isBefore(today);
     }
+
+    /**
+     * The guest is staying today: Confirmed or CheckedIn and `today` is one of its nights. It is what the
+     * API checks before letting a guest read or control the devices of the room (R5).
+     * @param {CalendarDate} [today]
+     * @returns {boolean}
+     */
+    isStayInEffect(today = CalendarDate.today()) {
+        return [BookingStatus.CONFIRMED, BookingStatus.CHECKED_IN].includes(this.status) && this.stay.includesNight(today);
+    }
 }

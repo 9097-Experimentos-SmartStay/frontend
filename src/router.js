@@ -9,6 +9,7 @@ import accommodationsRoutes from './accommodations/presentation/routes.js';
 import bookingsRoutes from './bookings/presentation/routes.js';
 import paymentsRoutes from './payments/presentation/routes.js';
 import profileRoutes from './profile/presentation/routes.js';
+import iotRoutes from './iot/presentation/routes.js';
 
 const AppLayout = () => import('./shared/presentation/layouts/app-layout.vue');
 const PageNotFound = () => import('./shared/presentation/views/page-not-found.vue');
@@ -26,6 +27,7 @@ const featureRoutes = [
     ...bookingsRoutes,
     ...paymentsRoutes,
     ...profileRoutes,
+    ...iotRoutes,
 ];
 
 /** A page that needs a session belongs to the signed-in app, so it renders inside the app layout (header + nav). */

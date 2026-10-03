@@ -17,7 +17,8 @@
     "guest": {
       "hotels": "Hotels",
       "rooms": "Rooms",
-      "bookings": "My bookings"
+      "bookings": "My bookings",
+      "climate": "My room climate"
     }
   },
   "login": {
@@ -511,7 +512,24 @@
     "jobInfo": "Job information",
     "employeeCode": "Code",
     "position": "Position",
-    "shift": "Shift"
+    "shift": "Shift",
+    "avatar": {
+      "current": "Profile picture",
+      "add": "Add photo",
+      "change": "Change photo",
+      "remove": "Remove photo",
+      "previewTitle": "New profile picture",
+      "previewAlt": "Preview of the new profile picture",
+      "previewHint": "The centre of the image is used, cropped to a square.",
+      "save": "Save photo",
+      "saved": "Profile picture updated",
+      "removed": "Profile picture removed",
+      "removeTitle": "Remove profile picture",
+      "removeMessage": "Your initials will be shown instead of the photo.",
+      "typeNotAllowed": "Choose a JPG, PNG or WebP image.",
+      "tooLarge": "The image cannot be larger than {maxMb} MB.",
+      "unreadable": "The image could not be read. Try another one."
+    }
   },
   "validation": {
     "required": "This field is required.",
@@ -720,7 +738,8 @@
       "guests": "Guests",
       "users": "Users",
       "audit": "Audit",
-      "roomMap": "Room map"
+      "roomMap": "Room map",
+      "operations": "Operations"
     },
     "navHint": {
       "hotels": "Properties and their data",
@@ -730,7 +749,8 @@
       "guests": "Guest profiles",
       "users": "Staff accounts and roles",
       "audit": "Access history",
-      "roomMap": "Live status of every room"
+      "roomMap": "Live status of every room",
+      "operations": "Room climate and today’s movements"
     },
     "kpi": {
       "revenue": "Revenue",
@@ -914,7 +934,8 @@
     "Plin": "Plin",
     "BankTransfer": "Bank transfer",
     "Cash": "Cash",
-    "CardAtFrontDesk": "Card at the front desk"
+    "CardAtFrontDesk": "Card at the front desk",
+    "OnlineCard": "Card online"
   },
   "registerPayment": {
     "action": "Register payment",
@@ -1172,6 +1193,125 @@
       "cciInvalid": "The CCI has exactly 20 digits.",
       "methodRequired": "Set up at least one payment method: Yape, Plin or a bank account with its bank.",
       "serverRejected": "Check the value of this field."
+    }
+  },
+  "climate": {
+    "unavailable": "This API does not expose the room IoT simulation, so the climate cannot be read or changed.",
+    "comfortRange": "Comfort range: {min} to {max} °C",
+    "powerSaving": "The room went into power saving because no motion is detected. The climate resumes when you are back.",
+    "comfort": {
+      "cold": "Cold",
+      "comfortable": "Comfortable",
+      "warm": "Warm"
+    },
+    "motion": {
+      "detected": "Motion detected",
+      "none": "No motion"
+    },
+    "hardware": {
+      "healthy": "Board operational",
+      "altered": "Board altered"
+    },
+    "fanSpeed": {
+      "Low": "Low",
+      "Medium": "Medium",
+      "High": "High"
+    },
+    "fields": {
+      "temperature": "Temperature",
+      "motion": "Presence",
+      "hardware": "Board",
+      "device": "Device",
+      "lastCommand": "Last command",
+      "updatedAt": "Updated"
+    },
+    "thermostat": {
+      "title": "Thermostat",
+      "subtitle": "Pick the temperature and fan speed of your room.",
+      "target": "Target temperature",
+      "range": "Between {min} and {max} °C, in half-degree steps.",
+      "fanSpeed": "Fan speed",
+      "apply": "Apply",
+      "applied": "Thermostat set to {temperature}."
+    },
+    "rules": {
+      "temperatureRequired": "Enter a temperature.",
+      "temperatureOutOfRange": "The temperature must be between {min} and {max} °C.",
+      "temperatureStep": "Use steps of {step} degrees.",
+      "fanSpeedRequired": "Pick a fan speed.",
+      "sensorRequired": "Pick a sensor.",
+      "readingRequired": "Enter a reading.",
+      "temperatureNotANumber": "The temperature reading must be a number."
+    },
+    "guest": {
+      "title": "My room climate",
+      "subtitle": "Set the temperature of the room of your stay and see what the board reports.",
+      "roomLabel": "Room {room}",
+      "chooseStay": "Stay",
+      "stayOption": "Room {room} · {code}",
+      "noStayTitle": "You have no active stay yet",
+      "noStayMessage": "The climate belongs to the room of a confirmed (paid) booking in progress today. If your stay starts later, come back on your arrival day."
+    },
+    "board": {
+      "title": "Operations",
+      "subtitle": "Climate of every room of the hotel and today’s movements.",
+      "noHotel": "Your account is not assigned to a hotel yet, so there are no rooms to show.",
+      "todayTitle": "Today",
+      "arrivals": "Arrivals: {count}",
+      "departures": "Departures: {count}",
+      "staying": "Staying: {count}",
+      "onlyAttention": "Only those needing attention",
+      "roomCount": "{count} rooms",
+      "nothingToAttend": "No room needs attention right now.",
+      "noRooms": "This hotel has no rooms registered yet.",
+      "wastingEnergy": "Wasted energy",
+      "powerSavingShort": "Saving",
+      "dialogTitle": "Room {room}",
+      "tiles": {
+        "rooms": "Rooms",
+        "attention": "Need attention",
+        "empty": "Empty",
+        "faults": "Altered boards"
+      }
+    },
+    "simulation": {
+      "title": "Sensor simulation",
+      "hint": "The emulator stands in for the physical board: these buttons reproduce a reading to try the view.",
+      "emptyRoom": "Empty room",
+      "occupiedRoom": "Occupied room",
+      "heatwave": "Hot (29 °C)",
+      "injected": "Reading sent to the room board."
+    }
+  },
+  "cardPayment": {
+    "title": "Pay by card",
+    "intro": "We will charge {total}, the total of booking {code}. Once the payment is approved, your booking is confirmed right away.",
+    "simulated": "Test mode: the payment is simulated and no real money is charged.",
+    "testApproved": "Approved:",
+    "testDeclined": "Declined:",
+    "chooseMethod": "Payment method",
+    "optionCard": "Card",
+    "optionOther": "Yape, Plin or transfer",
+    "number": "Card number",
+    "holder": "Cardholder",
+    "holderPlaceholder": "As shown on the card",
+    "expiry": "Expiry",
+    "cvv": "CVV",
+    "cvvHint": "3 digits on the back (4 on the front for Amex).",
+    "pay": "Pay {total}",
+    "notStored": "We do not store your card details.",
+    "declined": "The bank declined the card. Check the details or try another card.",
+    "paidTitle": "Payment approved",
+    "paidDetail": "Your booking {code} is confirmed. We sent you the confirmation by e-mail.",
+    "rules": {
+      "numberRequired": "Enter the card number.",
+      "numberInvalid": "The card number is not valid.",
+      "holderRequired": "Enter the cardholder name.",
+      "holderTooLong": "The name cannot be longer than {max} characters.",
+      "expiryRequired": "Enter the expiry date (MM/YY).",
+      "expiryInvalid": "Use the MM/YY format, with a month from 01 to 12.",
+      "expired": "The card has expired.",
+      "cvvInvalid": "The CVV has {length} digits."
     }
   }
 }
