@@ -50,6 +50,14 @@ export const Capability = Object.freeze({
     VIEW_GUESTS: 'viewGuests',
     MANAGE_USERS: 'manageUsers',
     VIEW_AUDIT_LOG: 'viewAuditLog',
+    /** US-11: set the climate of the room of your own stay (guests only). */
+    CONTROL_ROOM_CLIMATE: 'controlRoomClimate',
+    /** Shift board of a hotel: room climate plus today's movements. */
+    VIEW_OPERATIONS_BOARD: 'viewOperationsBoard',
+    /** Set the thermostat of any room of the hotel from the operations board. */
+    OPERATE_ROOM_DEVICES: 'operateRoomDevices',
+    /** Inject simulated sensor readings into a room's board (emulator tool). */
+    INJECT_ROOM_TELEMETRY: 'injectRoomTelemetry',
 });
 
 const { GUEST, RECEPTION, HOUSEKEEPING, MAINTENANCE, ADMIN, CHAIN_ADMIN } = UserRole;
@@ -77,6 +85,11 @@ const CAPABILITY_ROLES = Object.freeze({
     [Capability.VIEW_GUESTS]: [RECEPTION, ADMIN, CHAIN_ADMIN],
     [Capability.MANAGE_USERS]: [ADMIN, CHAIN_ADMIN],
     [Capability.VIEW_AUDIT_LOG]: [ADMIN, CHAIN_ADMIN],
+    // The climate of a room is the guest's own comfort: staff act on it from the operations board.
+    [Capability.CONTROL_ROOM_CLIMATE]: [GUEST],
+    [Capability.VIEW_OPERATIONS_BOARD]: STAFF_ROLES,
+    [Capability.OPERATE_ROOM_DEVICES]: [MAINTENANCE, ADMIN, CHAIN_ADMIN],
+    [Capability.INJECT_ROOM_TELEMETRY]: [ADMIN, CHAIN_ADMIN],
 });
 
 /** Roles each administrator may assign when creating a user or changing a role (§3, POST /users). */

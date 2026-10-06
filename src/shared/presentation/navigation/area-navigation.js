@@ -14,6 +14,7 @@ const GUEST_SECTIONS = Object.freeze([
     { route: 'guest-hotels', icon: 'pi pi-map', labelKey: 'nav.guest.hotels' },
     { route: 'guest-rooms', icon: 'pi pi-home', labelKey: 'nav.guest.rooms' },
     { route: 'guest-bookings', icon: 'pi pi-calendar', labelKey: 'nav.guest.bookings' },
+    { route: 'guest-room-climate', icon: 'pi pi-sliders-h', labelKey: 'nav.guest.climate' },
 ]);
 
 const staffSection = (route, icon, key, capability) =>
@@ -21,6 +22,8 @@ const staffSection = (route, icon, key, capability) =>
 
 /** @type {ReadonlyArray<NavigationItem>} */
 const STAFF_SECTIONS = Object.freeze([
+    // First for the shift: housekeeping and maintenance land here instead of an empty dashboard.
+    staffSection('staff-operations', 'pi pi-gauge', 'operations', Capability.VIEW_OPERATIONS_BOARD),
     staffSection('staff-hotels', 'pi pi-building', 'hotels', Capability.VIEW_HOTELS),
     staffSection('staff-room-map', 'pi pi-th-large', 'roomMap', Capability.VIEW_ROOM_MAP),
     staffSection('staff-rooms', 'pi pi-key', 'rooms', Capability.VIEW_ROOMS),

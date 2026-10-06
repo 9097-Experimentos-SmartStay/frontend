@@ -5,16 +5,16 @@
     <EmailVerificationBanner />
     <PaymentSettingsBanner />
 
-    <div class="flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
-      <div>
-        <h1 class="text-3xl font-bold text-color m-0">{{ t('staffPanel.welcome', { name: user?.firstName || user?.displayName }) }}</h1>
-        <p class="text-color-secondary mt-1 mb-0">{{ t('staffPanel.subtitle') }}</p>
+    <div class="dashboard-hero flex flex-wrap align-items-center justify-content-between gap-3 mb-4 p-4 md:p-5 border-round-2xl relative overflow-hidden">
+      <div class="relative z-1">
+        <h1 class="text-3xl font-bold m-0">{{ t('staffPanel.welcome', { name: user?.firstName || user?.displayName }) }}</h1>
+        <p class="dashboard-hero__subtitle mt-1 mb-0">{{ t('staffPanel.subtitle') }}</p>
       </div>
       <template v-if="createMenuItems.length">
         <pv-button
             :label="t('staffPanel.createNew')"
             icon="pi pi-plus"
-            class="p-button-outlined p-button-success"
+            class="relative z-1"
             aria-haspopup="menu"
             aria-controls="create_menu"
             @click="createMenu.toggle($event)"
@@ -222,6 +222,14 @@ watch(locale, updateCharts);
 .shortcut:hover {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
 }
+
+.dashboard-hero {
+  background-color: var(--ss-navy);
+  color: #ffffff;
+  border-left: 6px solid var(--p-primary-color);
+}
+
+.dashboard-hero__subtitle { color: rgba(255, 255, 255, 0.8); }
 
 :deep(.p-chart) {
   position: relative;

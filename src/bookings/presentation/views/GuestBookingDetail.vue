@@ -28,7 +28,19 @@
         <div class="grid">
           <div class="col-12 lg:col-7">
             <div class="surface-card shadow-2 border-round-xl p-4 h-full">
-              <PaymentInstructions v-if="booking.isPending()" :booking="booking" />
+              <template v-if="booking.isPending()">
+                <pv-select-button
+                    v-model="payWith"
+                    :options="payWithOptions"
+                    option-label="label"
+                    option-value="value"
+                    :allow-empty="false"
+                    :aria-label="t('cardPayment.chooseMethod')"
+                    class="mb-4 flex"
+                />
+                <CardPaymentForm v-if="payWith === 'card'" :booking="booking" @paid="onPaidByCard" />
+                <PaymentInstructions v-else :booking="booking" />
+              </template>
 
               <template v-else-if="booking.isConfirmed()">
                 <h3 class="text-lg font-bold mt-0 mb-2"><i class="pi pi-check-circle text-green-500 mr-2"></i>{{ t('guestBookingDetail.confirmedTitle') }}</h3>
@@ -111,12 +123,14 @@
 import { computed, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
+import { useToast } from 'primevue/usetoast';
 import { useBookingStore } from '../../application/booking.store.js';
 import BookingStatusTag from '../components/BookingStatusTag.vue';
 import { useBookingCancellation } from '../composables/use-booking-cancellation.js';
 import { cancellationBlockText, cancellationReasonText } from '../utils/booking-status.js';
 import { useHotelStore } from '@/accommodations/application/hotel.store.js';
 import { usePaymentStore } from '@/payments/application/payment.store.js';
+import CardPaymentForm from '@/payments/presentation/components/CardPaymentForm.vue';
 import PaymentInstructions from '@/payments/presentation/components/PaymentInstructions.vue';
 import PaymentSummary from '@/payments/presentation/components/PaymentSummary.vue';
 import { formatDateTime, formatDay, formatMoney } from '@/shared/presentation/utils/formatters.js';
@@ -137,8 +151,29 @@ const hotelStore = useHotelStore();
 const paymentStore = usePaymentStore();
 const { confirmCancel } = useBookingCancellation({ byGuest: true });
 
+const toast = useToast();
+
 const loading = ref(true);
 const payment = ref(null);
+
+// A Pending booking is paid online by card, or outside the app with the hotel's methods.
+const payWith = ref('card');
+const payWithOptions = computed(() => [
+  { value: 'card', label: t('cardPayment.optionCard') },
+  { value: 'other', label: t('cardPayment.optionOther') },
+]);
+
+/** The charge was approved: the booking is Confirmed now, so read it again with its payment. */
+async function onPaidByCard() {
+  toast.add({
+    severity: 'success',
+    summary: t('cardPayment.paidTitle'),
+    detail: t('cardPayment.paidDetail', { code: booking.value.reference }),
+    life: 6000,
+  });
+  await bookingStore.fetchBookingById(Number(props.bookingId));
+  await reloadPayment();
+}
 const justCreated = computed(() => route.query.created === '1');
 const booking = computed(() => (bookingStore.currentBooking?.id === Number(props.bookingId) ? bookingStore.currentBooking : null));
 const hotelName = computed(() => hotelStore.hotels.find((hotel) => hotel.id === booking.value?.hotelId)?.name ?? '');

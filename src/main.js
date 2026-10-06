@@ -2,7 +2,7 @@ import { createApp } from 'vue'
 import App from './app.vue'
 import i18n from "./i18n.js";
 import PrimeVue from 'primevue/config';
-import Aura from '@primevue/themes/aura';
+import SmartStayPreset from './shared/presentation/theme/smartstay-preset.js';
 import 'primeflex/primeflex.css';
 import 'primeicons/primeicons.css';
 import router from "./router.js";
@@ -55,7 +55,7 @@ import DatePicker from 'primevue/datepicker';
 // noinspection JSCheckFunctionSignatures
 const app = createApp(App)
     .use(i18n)
-    .use(PrimeVue, { theme: { preset: Aura, options: { darkModeSelector: false } }, ripple: true })
+    .use(PrimeVue, { theme: { preset: SmartStayPreset, options: { darkModeSelector: false } }, ripple: true })
     .use(ConfirmationService)
     .use(DialogService)
     .use(ToastService)

@@ -58,7 +58,7 @@
         <pv-column :header="t('users.columns.name')" sortable sort-field="displayName">
           <template #body="{ data }">
             <div class="flex align-items-center gap-2">
-              <pv-avatar :label="data.initials" shape="circle" class="bg-primary text-white" />
+              <pv-avatar :label="data.initials" shape="circle" class="bg-primary font-semibold" />
               <div class="flex flex-column">
                 <span class="font-semibold text-color">
                   {{ data.displayName }}

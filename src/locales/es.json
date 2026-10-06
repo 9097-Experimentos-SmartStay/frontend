@@ -17,7 +17,8 @@
     "guest": {
       "hotels": "Hoteles",
       "rooms": "Habitaciones",
-      "bookings": "Mis reservas"
+      "bookings": "Mis reservas",
+      "climate": "Clima de mi habitación"
     }
   },
   "login": {
@@ -511,7 +512,24 @@
     "jobInfo": "Información laboral",
     "employeeCode": "Código",
     "position": "Cargo",
-    "shift": "Turno"
+    "shift": "Turno",
+    "avatar": {
+      "current": "Foto de perfil",
+      "add": "Añadir foto",
+      "change": "Cambiar foto",
+      "remove": "Quitar foto",
+      "previewTitle": "Nueva foto de perfil",
+      "previewAlt": "Vista previa de la nueva foto de perfil",
+      "previewHint": "Se usará el centro de la imagen, recortado en cuadrado.",
+      "save": "Guardar foto",
+      "saved": "Foto de perfil actualizada",
+      "removed": "Foto de perfil eliminada",
+      "removeTitle": "Quitar foto de perfil",
+      "removeMessage": "Se mostrarán tus iniciales en lugar de la foto.",
+      "typeNotAllowed": "Elige una imagen JPG, PNG o WebP.",
+      "tooLarge": "La imagen no puede pasar de {maxMb} MB.",
+      "unreadable": "No se pudo leer la imagen. Prueba con otra."
+    }
   },
   "validation": {
     "required": "Este campo es obligatorio.",
@@ -720,7 +738,8 @@
       "guests": "Huéspedes",
       "users": "Usuarios",
       "audit": "Auditoría",
-      "roomMap": "Mapa de habitaciones"
+      "roomMap": "Mapa de habitaciones",
+      "operations": "Operaciones"
     },
     "navHint": {
       "hotels": "Propiedades y sus datos",
@@ -730,7 +749,8 @@
       "guests": "Perfiles de huéspedes",
       "users": "Cuentas y roles del personal",
       "audit": "Historial de accesos",
-      "roomMap": "Estado de cada habitación en vivo"
+      "roomMap": "Estado de cada habitación en vivo",
+      "operations": "Clima de las habitaciones y movimientos de hoy"
     },
     "kpi": {
       "revenue": "Ingresos",
@@ -914,7 +934,8 @@
     "Plin": "Plin",
     "BankTransfer": "Transferencia bancaria",
     "Cash": "Efectivo",
-    "CardAtFrontDesk": "Tarjeta en recepción"
+    "CardAtFrontDesk": "Tarjeta en recepción",
+    "OnlineCard": "Tarjeta en línea"
   },
   "registerPayment": {
     "action": "Registrar pago",
@@ -1172,6 +1193,125 @@
       "cciInvalid": "El CCI tiene exactamente 20 dígitos.",
       "methodRequired": "Configura al menos un método de pago: Yape, Plin o una cuenta bancaria con su banco.",
       "serverRejected": "Revisa el valor de este campo."
+    }
+  },
+  "climate": {
+    "unavailable": "La simulación IoT de las habitaciones no está disponible en esta API, así que no se puede leer ni cambiar el clima.",
+    "comfortRange": "Rango de confort: {min} a {max} °C",
+    "powerSaving": "La habitación entró en ahorro de energía porque no se detecta movimiento. Al volver, el clima se reactiva.",
+    "comfort": {
+      "cold": "Frío",
+      "comfortable": "Confortable",
+      "warm": "Cálido"
+    },
+    "motion": {
+      "detected": "Con movimiento",
+      "none": "Sin movimiento"
+    },
+    "hardware": {
+      "healthy": "Equipo operativo",
+      "altered": "Equipo alterado"
+    },
+    "fanSpeed": {
+      "Low": "Baja",
+      "Medium": "Media",
+      "High": "Alta"
+    },
+    "fields": {
+      "temperature": "Temperatura",
+      "motion": "Presencia",
+      "hardware": "Equipo",
+      "device": "Dispositivo",
+      "lastCommand": "Último comando",
+      "updatedAt": "Actualizado"
+    },
+    "thermostat": {
+      "title": "Termostato",
+      "subtitle": "Elige la temperatura y la velocidad del ventilador de tu habitación.",
+      "target": "Temperatura deseada",
+      "range": "Entre {min} y {max} °C, en pasos de medio grado.",
+      "fanSpeed": "Velocidad del ventilador",
+      "apply": "Aplicar",
+      "applied": "Termostato ajustado a {temperature}."
+    },
+    "rules": {
+      "temperatureRequired": "Indica una temperatura.",
+      "temperatureOutOfRange": "La temperatura debe estar entre {min} y {max} °C.",
+      "temperatureStep": "Usa pasos de {step} grados.",
+      "fanSpeedRequired": "Elige una velocidad del ventilador.",
+      "sensorRequired": "Elige un sensor.",
+      "readingRequired": "Indica una lectura.",
+      "temperatureNotANumber": "La lectura de temperatura debe ser un número."
+    },
+    "guest": {
+      "title": "Clima de mi habitación",
+      "subtitle": "Ajusta la temperatura de la habitación de tu estadía y mira qué reporta el equipo.",
+      "roomLabel": "Habitación {room}",
+      "chooseStay": "Estadía",
+      "stayOption": "Habitación {room} · {code}",
+      "noStayTitle": "Todavía no tienes una estadía activa",
+      "noStayMessage": "El clima se ajusta sobre la habitación de una reserva confirmada (pagada) en curso hoy. Si tu estadía empieza más adelante, vuelve el día de llegada."
+    },
+    "board": {
+      "title": "Operaciones",
+      "subtitle": "Clima de cada habitación del hotel y movimientos de hoy.",
+      "noHotel": "Tu cuenta todavía no está asignada a un hotel, así que no hay habitaciones que mostrar.",
+      "todayTitle": "Hoy",
+      "arrivals": "Llegadas: {count}",
+      "departures": "Salidas: {count}",
+      "staying": "Se quedan: {count}",
+      "onlyAttention": "Solo las que necesitan atención",
+      "roomCount": "{count} habitaciones",
+      "nothingToAttend": "Ninguna habitación necesita atención ahora.",
+      "noRooms": "Este hotel todavía no tiene habitaciones registradas.",
+      "wastingEnergy": "Gasto innecesario",
+      "powerSavingShort": "Ahorro",
+      "dialogTitle": "Habitación {room}",
+      "tiles": {
+        "rooms": "Habitaciones",
+        "attention": "Necesitan atención",
+        "empty": "Vacías",
+        "faults": "Equipos alterados"
+      }
+    },
+    "simulation": {
+      "title": "Simulación de sensores",
+      "hint": "El emulador reemplaza al equipo físico: estos botones reproducen una lectura para probar el tablero.",
+      "emptyRoom": "Habitación vacía",
+      "occupiedRoom": "Habitación ocupada",
+      "heatwave": "Calor (29 °C)",
+      "injected": "Lectura enviada al equipo de la habitación."
+    }
+  },
+  "cardPayment": {
+    "title": "Pagar con tarjeta",
+    "intro": "Se cobrará {total}, el total de la reserva {code}. Al aprobarse el pago, tu reserva queda confirmada al instante.",
+    "simulated": "Modo de prueba: el pago es simulado y no se cobra dinero real.",
+    "testApproved": "Aprobada:",
+    "testDeclined": "Rechazada:",
+    "chooseMethod": "Método de pago",
+    "optionCard": "Tarjeta",
+    "optionOther": "Yape, Plin o transferencia",
+    "number": "Número de tarjeta",
+    "holder": "Titular",
+    "holderPlaceholder": "Como aparece en la tarjeta",
+    "expiry": "Vencimiento",
+    "cvv": "CVV",
+    "cvvHint": "3 dígitos al reverso (4 al frente en Amex).",
+    "pay": "Pagar {total}",
+    "notStored": "No guardamos los datos de tu tarjeta.",
+    "declined": "El banco rechazó la tarjeta. Revisa los datos o prueba con otra tarjeta.",
+    "paidTitle": "Pago aprobado",
+    "paidDetail": "Tu reserva {code} está confirmada. Te enviamos la confirmación por correo.",
+    "rules": {
+      "numberRequired": "Ingresa el número de la tarjeta.",
+      "numberInvalid": "El número de tarjeta no es válido.",
+      "holderRequired": "Ingresa el nombre del titular.",
+      "holderTooLong": "El nombre no puede pasar de {max} caracteres.",
+      "expiryRequired": "Ingresa el vencimiento (MM/AA).",
+      "expiryInvalid": "Usa el formato MM/AA, con un mes del 01 al 12.",
+      "expired": "La tarjeta está vencida.",
+      "cvvInvalid": "El CVV tiene {length} dígitos."
     }
   }
 }

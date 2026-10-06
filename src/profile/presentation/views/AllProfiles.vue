@@ -24,7 +24,7 @@
           <pv-column field="fullName" :header="t('allProfiles.name')" sortable>
             <template #body="{ data }">
               <div class="flex align-items-center gap-2">
-                <pv-avatar :label="data.initials" shape="circle" class="bg-primary text-white" />
+                <pv-avatar :label="data.initials" shape="circle" class="bg-primary font-semibold" />
                 <span class="font-semibold">{{ data.fullName }}</span>
               </div>
             </template>

@@ -57,4 +57,19 @@ export class PaymentAssembler {
         if (command.note) resource.note = command.note;
         return resource;
     }
+
+    /**
+     * Body of POST /bookings/{id}/payments/card. No amount: the backend always charges the booking total.
+     * @param {import('../domain/commands/pay-with-card.command.js').PayWithCardCommand} command - Already validated.
+     * @returns {{cardNumber: string, cardHolderName: string, expiryMonth: number, expiryYear: number, cvv: string}}
+     */
+    static toCardResource(command) {
+        return {
+            cardNumber: command.cardNumber,
+            cardHolderName: command.holderName,
+            expiryMonth: command.expiryMonth,
+            expiryYear: command.expiryYear,
+            cvv: command.cvv,
+        };
+    }
 }

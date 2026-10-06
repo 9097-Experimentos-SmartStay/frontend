@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { PaymentApi } from '../infrastructure/api/payment-api.js';
 import { PaymentAssembler } from '../infrastructure/payment.assembler.js';
-import { classifyPaymentProblem, paymentFieldViolations } from '../infrastructure/payment-problem.assembler.js';
+import { cardPaymentFieldViolations, classifyPaymentProblem, paymentFieldViolations } from '../infrastructure/payment-problem.assembler.js';
 import { OperationFailure } from '@/shared/application/operation-failure.js';
 import { reportError } from '@/shared/infrastructure/logging/report-error.js';
 
@@ -19,6 +19,7 @@ export const usePaymentStore = defineStore('payment', () => {
     const payments = ref([]);
     const loading = ref(false);
     const registering = ref(false);
+    const paying = ref(false);
     const error = ref(null);
 
     /**
@@ -38,6 +39,27 @@ export const usePaymentStore = defineStore('payment', () => {
             throw OperationFailure.from(err, { classify: classifyPaymentProblem, fields: paymentFieldViolations });
         } finally {
             registering.value = false;
+        }
+    }
+
+    /**
+     * The guest pays their own Pending booking with a card (simulated gateway); approved, the booking is Confirmed.
+     * @param {import('../domain/commands/pay-with-card.command.js').PayWithCardCommand} command - Already validated.
+     * @returns {Promise<import('../domain/model/payment.entity.js').Payment|null>}
+     * @throws {OperationFailure} cardDeclined | alreadyPaid | bookingNotPending | invalidData (per field) | notFound
+     */
+    async function payWithCard(command) {
+        paying.value = true;
+        try {
+            const response = await paymentApi.payWithCard(command.bookingId, PaymentAssembler.toCardResource(command));
+            currentPayment.value = PaymentAssembler.toEntityFromResponse(response);
+            return currentPayment.value;
+        } catch (err) {
+            // Only the masked error goes to the log: the request body (the card) is never reported.
+            reportError('Error paying a booking with a card', err?.response?.status ?? err?.message);
+            throw OperationFailure.from(err, { classify: classifyPaymentProblem, fields: cardPaymentFieldViolations });
+        } finally {
+            paying.value = false;
         }
     }
 
@@ -92,8 +114,10 @@ export const usePaymentStore = defineStore('payment', () => {
         payments,
         loading,
         registering,
+        paying,
         error,
         registerPayment,
+        payWithCard,
         fetchPaymentByBooking,
         fetchPaymentsForBookings,
     };

@@ -3,6 +3,25 @@
     <pv-toast position="bottom-right" />
     <pv-confirm-dialog />
 
+    <!-- What will be uploaded: the centre square of the chosen picture -->
+    <pv-dialog
+        v-model:visible="preview.visible"
+        modal
+        :header="t('profileDetail.avatar.previewTitle')"
+        :style="{ width: '24rem' }"
+        :breakpoints="{ '480px': '92vw' }"
+        @after-hide="discardPreview"
+    >
+      <div class="flex flex-column align-items-center gap-3">
+        <img v-if="preview.url" :src="preview.url" :alt="t('profileDetail.avatar.previewAlt')" class="avatar-preview" />
+        <p class="m-0 text-center text-color-secondary text-sm">{{ t('profileDetail.avatar.previewHint') }}</p>
+      </div>
+      <template #footer>
+        <pv-button :label="t('common.cancel')" text severity="secondary" @click="preview.visible = false" />
+        <pv-button :label="t('profileDetail.avatar.save')" icon="pi pi-check" :loading="avatarStore.saving" @click="saveAvatar" />
+      </template>
+    </pv-dialog>
+
     <div class="max-w-5xl mx-auto">
       <div class="flex justify-content-between align-items-center mb-3">
         <pv-button :label="t('common.back')" icon="pi pi-arrow-left" class="p-button-outlined p-button-secondary p-button-sm" @click="handleBack" />
@@ -22,7 +41,43 @@
       <pv-card v-else-if="user" class="surface-card shadow-2 border-round-xl overflow-hidden">
         <template #header>
           <div class="profile-header">
-            <pv-avatar :label="user.initials" class="profile-avatar" size="xlarge" shape="circle" />
+            <div class="profile-avatar-block">
+              <pv-avatar
+                  :image="avatarStore.url || undefined"
+                  :label="avatarStore.url ? undefined : user.initials"
+                  class="profile-avatar"
+                  size="xlarge"
+                  shape="circle"
+                  :aria-label="t('profileDetail.avatar.current')"
+              />
+              <div class="flex flex-column gap-1">
+                <pv-button
+                    :label="avatarStore.url ? t('profileDetail.avatar.change') : t('profileDetail.avatar.add')"
+                    icon="pi pi-camera"
+                    size="small"
+                    :loading="preparing"
+                    @click="fileInput.click()"
+                />
+                <pv-button
+                    v-if="avatarStore.url"
+                    :label="t('profileDetail.avatar.remove')"
+                    icon="pi pi-trash"
+                    size="small"
+                    text
+                    class="profile-avatar-remove"
+                    :loading="avatarStore.saving && !preview.visible"
+                    @click="confirmRemoveAvatar"
+                />
+              </div>
+              <input
+                  ref="fileInput"
+                  type="file"
+                  class="hidden"
+                  :accept="AVATAR_SOURCE_TYPES.join(',')"
+                  :aria-label="t('profileDetail.avatar.change')"
+                  @change="onFileChosen"
+              />
+            </div>
             <div class="profile-header-info">
               <h1 class="profile-name">{{ guestProfile?.fullName || user.displayName }}</h1>
               <p class="profile-email">{{ user.email }}</p>
@@ -113,9 +168,14 @@
 </template>
 
 <script setup>
-import { computed, onMounted } from 'vue';
+import { computed, onMounted, reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
+import { useToast } from 'primevue/usetoast';
+import { useConfirm } from 'primevue/useconfirm';
+import useAvatarStore from '@/iam/application/avatar.store.js';
+import { AVATAR_SOURCE_TYPES } from '@/iam/domain/model/avatar-image.js';
+import { failureMessageKey } from '@/shared/presentation/utils/failure-message.js';
 import { useProfileStore } from '../../application/profile.store.js';
 import useIamStore from '@/iam/application/iam.store.js';
 import { UserRole } from '@/iam/domain/user-role.js';
@@ -131,6 +191,9 @@ const router = useRouter();
 const { t } = useI18n();
 const profileStore = useProfileStore();
 const iamStore = useIamStore();
+const avatarStore = useAvatarStore();
+const toast = useToast();
+const confirm = useConfirm();
 
 const user = computed(() => iamStore.currentUser);
 const isGuest = computed(() => user.value?.role === UserRole.GUEST);
@@ -145,7 +208,79 @@ function loadProfile() {
 
 const handleBack = () => router.push({ name: 'dashboard' });
 
-onMounted(loadProfile);
+// --- Profile picture ---
+const fileInput = ref();
+const preparing = ref(false);
+/** The picture about to be uploaded: shown first so the user sees the crop before saving. */
+const preview = reactive({ visible: false, url: null, image: null });
+
+const AVATAR_ERROR_KEYS = Object.freeze({
+  typeNotAllowed: 'profileDetail.avatar.typeNotAllowed',
+  tooLarge: 'profileDetail.avatar.tooLarge',
+  unreadable: 'profileDetail.avatar.unreadable',
+});
+
+function showAvatarError(failure) {
+  toast.add({
+    severity: 'error',
+    summary: t('common.error'),
+    detail: t(failureMessageKey(failure, AVATAR_ERROR_KEYS), failure?.problem?.params ?? {}),
+    life: 5000,
+  });
+}
+
+async function onFileChosen(event) {
+  const [file] = event.target.files ?? [];
+  event.target.value = ''; // choosing the same file again must fire `change` again
+  if (!file) return;
+  preparing.value = true;
+  try {
+    const image = await avatarStore.prepare(file);
+    Object.assign(preview, { visible: true, url: URL.createObjectURL(image), image });
+  } catch (failure) {
+    showAvatarError(failure);
+  } finally {
+    preparing.value = false;
+  }
+}
+
+function discardPreview() {
+  if (preview.url) URL.revokeObjectURL(preview.url);
+  Object.assign(preview, { url: null, image: null });
+}
+
+async function saveAvatar() {
+  try {
+    await avatarStore.change(preview.image);
+    preview.visible = false;
+    toast.add({ severity: 'success', summary: t('profileDetail.avatar.saved'), life: 3000 });
+  } catch (failure) {
+    showAvatarError(failure);
+  }
+}
+
+function confirmRemoveAvatar() {
+  confirm.require({
+    header: t('profileDetail.avatar.removeTitle'),
+    message: t('profileDetail.avatar.removeMessage'),
+    icon: 'pi pi-exclamation-triangle',
+    rejectProps: { label: t('common.cancel'), text: true, severity: 'secondary' },
+    acceptProps: { label: t('profileDetail.avatar.remove'), severity: 'danger' },
+    accept: async () => {
+      try {
+        await avatarStore.remove();
+        toast.add({ severity: 'success', summary: t('profileDetail.avatar.removed'), life: 3000 });
+      } catch (failure) {
+        showAvatarError(failure);
+      }
+    },
+  });
+}
+
+onMounted(() => {
+  loadProfile();
+  avatarStore.load();
+});
 </script>
 
 <style scoped>
@@ -154,7 +289,9 @@ onMounted(loadProfile);
 }
 
 .profile-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background-color: var(--ss-navy);
+  border-bottom: 4px solid var(--p-primary-color);
+  flex-wrap: wrap;
   padding: 2rem;
   display: flex;
   align-items: center;
@@ -162,11 +299,44 @@ onMounted(loadProfile);
   color: white;
 }
 
+.profile-avatar-block {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
 .profile-avatar {
-  background: rgba(255, 255, 255, 0.2);
+  width: 6rem;
+  height: 6rem;
+  background: rgba(255, 255, 255, 0.15);
   border: 3px solid white;
   font-size: 2rem;
   font-weight: bold;
+  overflow: hidden;
+}
+
+.profile-avatar :deep(img) {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* The text button sits on the navy header. */
+.profile-avatar-remove.p-button {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.profile-avatar-remove.p-button:not(:disabled):hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+}
+
+.avatar-preview {
+  width: 12rem;
+  height: 12rem;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid var(--p-primary-color);
 }
 
 .profile-header-info {

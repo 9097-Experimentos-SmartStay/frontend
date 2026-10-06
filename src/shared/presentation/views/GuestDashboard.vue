@@ -10,12 +10,11 @@
     </div>
 
     <div v-else>
-      <div class="surface-card p-5 shadow-2 border-round-2xl mb-5 relative overflow-hidden">
+      <div class="dashboard-hero p-5 md:p-6 border-round-2xl mb-5 relative overflow-hidden">
         <div class="relative z-2">
-          <h1 class="text-4xl font-bold text-900 mb-2">{{ $t('guestDashboard.title', { name: currentUser?.firstName || currentUser?.displayName }) }} 👋</h1>
-          <p class="text-lg text-600 m-0 max-w-30rem">{{ $t('guestDashboard.subtitle') }}</p>
+          <h1 class="text-3xl md:text-4xl font-bold mt-0 mb-2">{{ $t('guestDashboard.title', { name: currentUser?.firstName || currentUser?.displayName }) }} 👋</h1>
+          <p class="text-lg m-0 max-w-30rem dashboard-hero__subtitle">{{ $t('guestDashboard.subtitle') }}</p>
         </div>
-        <i class="pi pi-star-fill absolute text-yellow-100" style="font-size: 15rem; right: -3rem; bottom: -5rem; z-index: 1; opacity: 0.5;"></i>
       </div>
 
       <div class="grid">
@@ -261,5 +260,12 @@ onMounted(loadDashboard);
 }
 
 .transition-duration-300 { transition-duration: 300ms; }
-.hover\:shadow-4:hover { box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+
+.dashboard-hero {
+  background-color: var(--ss-navy);
+  color: #ffffff;
+  border-left: 6px solid var(--p-primary-color);
+}
+
+.dashboard-hero__subtitle { color: rgba(255, 255, 255, 0.8); }
 </style>

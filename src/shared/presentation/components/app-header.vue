@@ -15,7 +15,7 @@
       </button>
 
       <RouterLink :to="{ name: homeRoute }" class="app-header__brand" :aria-label="t('nav.goHome')">
-        <span class="app-header__logo" aria-hidden="true"><i class="pi pi-building"></i></span>
+        <img :src="logoImage" alt="" class="app-header__logo" width="40" height="40" />
         <span class="app-header__brand-text">
           <span class="app-header__brand-name">SmartStay</span>
           <span v-if="roleLabel" class="app-header__brand-role">{{ roleLabel }}</span>
@@ -47,7 +47,13 @@
             :aria-expanded="userMenuOpen ? 'true' : 'false'"
             @click="userMenu.toggle($event)"
         >
-          <pv-avatar :label="user?.initials" shape="circle" class="app-header__avatar" aria-hidden="true" />
+          <pv-avatar
+              :image="avatarStore.url || undefined"
+              :label="avatarStore.url ? undefined : user?.initials"
+              shape="circle"
+              class="app-header__avatar"
+              aria-hidden="true"
+          />
           <span class="app-header__user-name">{{ user?.displayName }}</span>
           <i class="pi pi-angle-down app-header__user-caret" aria-hidden="true"></i>
         </button>
@@ -107,8 +113,10 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import useIamStore from '@/iam/application/iam.store.js';
+import useAvatarStore from '@/iam/application/avatar.store.js';
 import { dashboardRouteNameFor } from '@/iam/domain/user-role.js';
 import LanguageSwitcher from '@/shared/presentation/components/language-switcher.vue';
+import logoImage from '@/assets/logo-modo-oscuro.png';
 import { sectionsFor } from '@/shared/presentation/navigation/area-navigation.js';
 
 /**
@@ -123,6 +131,7 @@ const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
 const iamStore = useIamStore();
+const avatarStore = useAvatarStore();
 
 const drawerOpen = ref(false);
 const drawerToggle = ref();
@@ -178,6 +187,7 @@ watch(() => route.fullPath, () => { drawerOpen.value = false; });
 let inlineNavigation = null;
 const closeDrawerOnInline = (event) => { if (event.matches) drawerOpen.value = false; };
 onMounted(() => {
+  avatarStore.load();
   inlineNavigation = window.matchMedia(INLINE_NAVIGATION_QUERY);
   inlineNavigation.addEventListener('change', closeDrawerOnInline);
 });
@@ -189,9 +199,8 @@ onBeforeUnmount(() => inlineNavigation?.removeEventListener('change', closeDrawe
   position: sticky;
   top: 0;
   z-index: 100;
-  background-color: #ffffff;
-  border-bottom: 1px solid #e2e8f0;
-  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  background-color: var(--ss-navy);
+  color: #ffffff;
 }
 
 .app-header__bar {
@@ -213,12 +222,12 @@ onBeforeUnmount(() => inlineNavigation?.removeEventListener('change', closeDrawe
   border: none;
   border-radius: 0.5rem;
   background: transparent;
-  color: #334155;
+  color: #ffffff;
   cursor: pointer;
   font-size: 1.25rem;
 }
 
-.app-header__icon-button:hover { background-color: #f1f5f9; }
+.app-header__icon-button:hover { background-color: var(--ss-navy-soft); }
 
 .app-header__brand {
   display: flex;
@@ -230,17 +239,15 @@ onBeforeUnmount(() => inlineNavigation?.removeEventListener('change', closeDrawe
   border-radius: 0.5rem;
 }
 
+/* Same logo as the account pages; it carries its own blue background, so it is shown as a rounded tile. */
 .app-header__logo {
   flex: none;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.25rem;
-  height: 2.25rem;
-  border-radius: 0.5rem;
-  background-color: var(--p-primary-color);
-  color: var(--p-primary-contrast-color);
-  font-size: 1.125rem;
+  display: block;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: var(--p-border-radius-md);
+  object-fit: cover;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.18);
 }
 
 .app-header__brand-text {
@@ -251,14 +258,16 @@ onBeforeUnmount(() => inlineNavigation?.removeEventListener('change', closeDrawe
 }
 
 .app-header__brand-name {
-  font-weight: 700;
-  font-size: 1.125rem;
-  color: #0f172a;
+  font-family: var(--ss-font-display);
+  font-weight: 800;
+  font-size: 1.25rem;
+  letter-spacing: -0.02em;
+  color: #ffffff;
 }
 
 .app-header__brand-role {
   font-size: 0.75rem;
-  color: #475569;
+  color: rgba(255, 255, 255, 0.72);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -276,6 +285,22 @@ onBeforeUnmount(() => inlineNavigation?.removeEventListener('change', closeDrawe
 
 .app-header__language { display: none; }
 
+/* The language switch sits on the dark bar: translucent track, white pill for the current language. */
+.app-header__language :deep(.p-togglebutton) {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: transparent;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.app-header__language :deep(.p-togglebutton:not(.p-togglebutton-checked):hover) {
+  color: #ffffff;
+}
+
+.app-header__language :deep(.p-togglebutton-checked .p-togglebutton-content) {
+  background: #ffffff;
+  color: var(--ss-navy);
+}
+
 .app-header__user {
   display: inline-flex;
   align-items: center;
@@ -284,16 +309,17 @@ onBeforeUnmount(() => inlineNavigation?.removeEventListener('change', closeDrawe
   border: none;
   border-radius: 999px;
   background: transparent;
-  color: #1e293b;
+  color: #ffffff;
   font: inherit;
   cursor: pointer;
 }
 
-.app-header__user:hover { background-color: #f1f5f9; }
+.app-header__user:hover { background-color: var(--ss-navy-soft); }
 
 .app-header__avatar {
   background-color: var(--p-primary-color);
   color: var(--p-primary-contrast-color);
+  font-weight: 700;
 }
 
 .app-header__user-name,
@@ -330,7 +356,7 @@ onBeforeUnmount(() => inlineNavigation?.removeEventListener('change', closeDrawe
 .app-header__brand:focus-visible,
 .app-header__link:focus-visible,
 .app-header__user:focus-visible {
-  outline: 2px solid var(--p-primary-color);
+  outline: 2px solid #ffffff;
   outline-offset: 2px;
 }
 
@@ -371,18 +397,31 @@ onBeforeUnmount(() => inlineNavigation?.removeEventListener('change', closeDrawe
     align-items: center;
     padding: 0.5rem 0.625rem;
     border-radius: 0.5rem;
-    color: #334155;
+    position: relative;
+    color: rgba(255, 255, 255, 0.78);
     font-size: 0.9375rem;
     font-weight: 500;
     text-decoration: none;
     white-space: nowrap;
   }
 
-  .app-header__link:hover { background-color: #f1f5f9; color: #0f172a; }
+  .app-header__link:hover { background-color: var(--ss-navy-soft); color: #ffffff; }
 
+  /* Current section: white text over an orange bar that touches the bottom edge of the header. */
   .app-header__link.is-active {
-    background-color: var(--p-primary-50);
-    color: var(--p-primary-700);
+    color: #ffffff;
+    font-weight: 600;
+  }
+
+  .app-header__link.is-active::after {
+    content: '';
+    position: absolute;
+    left: 0.625rem;
+    right: 0.625rem;
+    bottom: -0.75rem;
+    height: 3px;
+    border-radius: 3px 3px 0 0;
+    background-color: var(--p-primary-color);
   }
 }
 
@@ -422,11 +461,12 @@ onBeforeUnmount(() => inlineNavigation?.removeEventListener('change', closeDrawe
 .app-nav-drawer__link:hover { background-color: #f1f5f9; }
 
 .app-nav-drawer__link.is-active {
-  background-color: var(--p-primary-50);
-  color: var(--p-primary-700);
+  background-color: var(--p-highlight-background);
+  color: var(--p-highlight-color);
+  box-shadow: inset 3px 0 0 var(--p-primary-color);
 }
 
-.app-nav-drawer__link.is-active i { color: var(--p-primary-700); }
+.app-nav-drawer__link.is-active i { color: var(--p-primary-600); }
 
 .app-nav-drawer__link:focus-visible {
   outline: 2px solid var(--p-primary-color);

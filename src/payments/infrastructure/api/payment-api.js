@@ -5,7 +5,8 @@ const bookingsPath = endpoints.bookings;
 const paymentsPath = endpoints.payments;
 
 /**
- * Payments (§9). The hotel registers the payments it receives; the API never receives card data.
+ * Payments (§9). The hotel registers the payments it receives; a guest can also pay online with a card, which the
+ * API charges through its simulated gateway without storing it.
  */
 export class PaymentApi extends BaseApi {
     /**
@@ -16,6 +17,18 @@ export class PaymentApi extends BaseApi {
      */
     registerPayment(bookingId, resource) {
         return this.http.post(`${bookingsPath}/${bookingId}/payments`, resource);
+    }
+
+    /**
+     * POST /bookings/{bookingId}/payments/card {cardNumber, cardHolderName, expiryMonth, expiryYear, cvv} → 201
+     * PaymentResource; the booking becomes Confirmed. Guests only, own Pending booking (404 otherwise).
+     * 409 payment.card_declined (the guest can retry), 409 already paid / not pending, 400 per card field.
+     * The gateway is simulated: no money moves and the card is never stored.
+     * @param {number} bookingId
+     * @param {Object} resource - Built by PaymentAssembler.toCardResource.
+     */
+    payWithCard(bookingId, resource) {
+        return this.http.post(`${bookingsPath}/${bookingId}/payments/card`, resource);
     }
 
     /**
