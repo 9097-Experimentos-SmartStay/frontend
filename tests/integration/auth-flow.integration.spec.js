@@ -7,8 +7,7 @@
  *   VITE_SMARTSTAY_API_URL=http://127.0.0.1:10000/api/v1 \
  *   SMARTSTAY_API_CONTAINER=smartstay-int-api-1 npm run test:integration
  *
- * In Development the backend writes the e-mail verification link to its log, so the test reads the
- * token from `docker logs` instead of needing a real mailbox.
+ * The token comes from `docker logs`: in Development the backend logs the verification link.
  */
 import { execSync } from 'node:child_process';
 import { describe, expect, it } from 'vitest';
@@ -22,7 +21,6 @@ const apiUrl = import.meta.env.VITE_SMARTSTAY_API_URL ?? '';
 const container = process.env.SMARTSTAY_API_CONTAINER ?? 'smartstay-api-1';
 const isLocalBackend = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?\//.test(apiUrl);
 
-/** Token of the last verification link the backend logged. */
 function lastVerificationToken() {
     const logs = execSync(`docker logs ${container} 2>&1`, { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
     const tokens = [...logs.matchAll(/verify-email\?token=([A-Za-z0-9_-]+)/g)];
